@@ -1,0 +1,76 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eink-template-gen"
+version = "0.1.0"
+description = "Pixel-perfect template generator for e-ink devices"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "GPL-3.0-or-later"}
+authors = [
+    {name = "Caleb Christensen", email = "git@calebc42.com"}
+]
+keywords = ["supernote", "e-ink", "templates", "pdf"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "pycairo>=1.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=3.0.0",
+    "black>=22.0.0",
+    "ruff>=0.1.0",
+]
+test = [
+    "pytest>=7.0.0",
+    "psutil>=5.9.0",
+    "pillow>=9.0.0",
+    "numpy>=1.21.0",
+]
+
+[project.scripts]
+eink-template-gen = "eink_template_gen.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/calebc42/eink-template-gen"
+Repository = "https://github.com/calebc42/eink-template-gen"
+Issues = "https://github.com/caleb/eink-template-gen/issues"
+
+[tool.setuptools.packages.find]
+include = ["eink_template_gen*"]
+exclude = ["tests*", "docs*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "visual: marks tests that generate visual output",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"

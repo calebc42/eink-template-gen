@@ -1,0 +1,177 @@
+#+TITLE: E-ink Template Generator
+#+AUTHOR: Caleb Christensen
+#+EMAIL: git@calebc42.com
+
+[[https://img.shields.io/pypi/v/supernote-template-gen.svg][https://pypi.org/project/eink-template-gen/]]
+[[https://img.shields.io/github/actions/workflow/status/yourusername/supernote-template-gen/python-package.yml?branch=main][https://github.com/calebc42/eink-template-gen/actions]]
+[[https://img.shields.io/badge/License-GPLv3-blue.svg][https://www.gnu.org/licenses/gpl-3.0]]
+
+A command-line tool for generating pixel-perfect, mathematically precise page templates for e-ink devices like the Supernote, with support for complex, ratio-based JSON layouts.
+
+This tool was born from the frustration of online generators that fail to handle "half-lines" or pixel alignment, resulting in uneven, blurry, or aliased lines on high-DPI e-ink screens. This generator calculates exact pixel-perfect margins and spacing based on your device's specific resolution and DPI, ensuring every line is crisp and uniform.
+
+* Features
+- *Pixel-Perfect Alignment:* Automatically adjusts margins and spacing to ensure no half-pixels or blurry lines.
+- *Device-Specific:* Comes pre-configured with the exact DPI and resolution for Supernote devices (=manta=, =a5x=, =a6x=).
+- *Multiple Template Types:* Generate =lined=, =dotgrid=, =grid=, =manuscript=, =french_ruled=, =music_staff=, =isometric=, and =hexgrid= templates.
+- *Flexible Layouts:*
+  - *Single Page:* Create simple, full-page templates.
+  - *Uniform Grids:* Create =N x M= grids of the *same* template (e.g., a 2x2 grid of lined paper).
+  - *Multi-Type Grids:* Create =N x M= grids where *each cell* is a different type.
+  - *JSON Layout Engine:* Design complex, ratio-based layouts (like Cornell notes) using a simple JSON file.
+
+[[./path/to/cornell_image.png]]
+
+* Installation
+
+Once available on PyPI, you will be able to install it via:
+#+BEGIN_SRC bash
+pip install eink-template-gen
+#+END_SRC
+
+To install from source for development:
+#+BEGIN_SRC bash
+# 1. Clone the repository
+git clone https://github.com/calebc42/eink-template-gen.git
+cd eink-template-gen
+
+# 2. Install in "editable" mode with dev dependencies
+pip install -e .[dev]
+#+END_SRC
+
+* Usage
+
+The generator provides a single command-line tool, =eink-template-gen=.
+
+** 1. Basic Example (Single Page)
+
+Generate a simple 6mm lined template for the Supernote Manta. The tool will auto-adjust the spacing for the Manta's 300 DPI screen.
+
+#+BEGIN_SRC bash
+eink-template-gen --device manta --template lined --spacing 6
+#+END_SRC
+: Note: Adjusted spacing from 6.0mm to 6.011mm (71px) for pixel-perfect alignment
+: ✓ Template written to out/manta/lined_6mm_0_5px.png
+
+** 2. Grid Example (Uniform)
+
+Generate a 2-column, 2-row grid of dot-grid paper.
+
+#+BEGIN_SRC bash
+eink-template-gen --device manta --template dotgrid --spacing 5 --rows 2 --columns 2
+#+END_SRC
+: Generating 2x2 uniform dotgrid grid for Supernote Manta...
+: ✓ Template written to out/manta/dotgrid_5_16mm_1_5rad_2col_2rows.png
+
+** 3. Multi-Type Grid Example
+
+Generate a 1x2 layout with lined paper on the left and a dot grid on the right.
+
+#+BEGIN_SRC bash
+eink-template-gen --device manta --rows 1 --columns 2 --spacing 6 \
+  --cell_types lined,dotgrid
+#+END_SRC
+: Generating 1x2 multi-type grid for Supernote Manta...
+: ✓ Template written to out/manta/1x2_multi_grid_6mm.png
+
+** 4. JSON Layout Example (Power-User)
+
+This is the most powerful feature. You can define complex, ratio-based layouts in a JSON file.
+
+Create a file named =cornell.json=:
+#+BEGIN_SRC json
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 8,
+  "output_filename": "cornell_layout.png",
+  "header_separator": "bold",
+  "footer_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Title",
+      "region_rect": [0, 0, 1.0, 0.10],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": { "line_width_px": 1.0 }
+    },
+    {
+      "name": "Cue Column",
+      "region_rect": [0, 0.10, 0.20, 0.70],
+      "template": "dotgrid",
+      "spacing_mm": 6,
+      "kwargs": { "dot_radius_px": 1.5 }
+    },
+    {
+      "name": "Notes Section",
+      "region_rect": [0.20, 0.10, 0.80, 0.70],
+      "template": "manuscript",
+      "spacing_mm": 8,
+      "kwargs": { "midline_style": "dotted" }
+    },
+    {
+      "name": "Summary",
+      "region_rect": [0, 0.80, 1.0, 0.20],
+      "template": "french_ruled",
+      "spacing_mm": 2,
+      "kwargs": {}
+    }
+  ]
+}
+#+END_SRC
+
+Now, just pass this file to the =--layout= argument:
+
+#+BEGIN_SRC bash
+supernote-gen --layout cornell.json
+#+END_SRC
+: Loading layout from: cornell.json
+: Note: Page content area is 1684px × 2256px
+:   Drawing region: 'Title'
+:   Drawing region: 'Cue Column'
+:   Drawing region: 'Notes Section'
+:   Drawing region: 'Summary'
+: ✓ Template written to out/manta/cornell_layout.png
+
+* JSON =page_layout= Reference
+
+| Key           | Type   | Description                                                                                                                              |
+|---------------+--------+------------------------------------------------------------------------------------------------------------------------------------------|
+| =name=        | string | (Optional) A human-readable name for the region (used for logging).                                                                      |
+| =region_rect= | list   | *(Required)* A 4-item list of ratios: =[x_start, y_start, width, height]=. All values are floats between =0.0= and =1.0=, relative to the page's content area. |
+| =template=    | string | *(Required)* The template type to draw in this region.                                                                                    |
+| =spacing_mm=  | float  | (Optional) A specific spacing for this region. Defaults to =master_spacing_mm=.                                                              |
+| =kwargs=      | dict   | (Optional) A dictionary of arguments for the specific template type (e.g., ={"line_width_px": 1.0}= or ={"midline_style": "dotted"}=).       |
+
+* Available Templates
+- =lined=
+- =dotgrid=
+- =grid=
+- =manuscript= (4-line handwriting practice)
+- =french_ruled= (Seyès)
+- =music_staff=
+- =isometric= (triangular grid)
+- =hexgrid= (hexagonal grid)
+- =hybrid_lined_dotgrid= (Special legacy template)
+
+* Development
+
+To contribute, install the package with its =dev= dependencies:
+#+BEGIN_SRC bash
+pip install -e .[dev]
+#+END_SRC
+
+Run tests:
+#+BEGIN_SRC bash
+pytest
+#+END_SRC
+
+Format and lint code:
+#+BEGIN_SRC bash
+black .
+ruff check --fix .
+#+END_SRC
+
+* License
+
+This project is licensed under the *GNU General Public License v3.0*. See the =LICENSE= file for details.

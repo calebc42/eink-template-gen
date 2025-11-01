@@ -1,0 +1,18 @@
+# Python cache 
+__pycache__/ 
+*.pyc 
+
+# Virtual environment 
+.venv/ 
+venv/ 
+
+# Generated output 
+out/ 
+temp_test_out/ 
+
+# User-specific config 
+config.json 
+
+# Emacs backup and temp files
+*~
+#*#

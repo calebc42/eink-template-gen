@@ -15,6 +15,9 @@ from .drawing import (
     draw_hex_grid
 )
 from .separators import draw_separator_line, draw_separator
+from .separator_config import parse_separator_config
+from .devices import snap_to_eink_greyscale
+from .title_elements import draw_title_element
 from .utils import (
     calculate_adjusted_margins, 
     calculate_adjusted_margins_x,
@@ -27,7 +30,8 @@ def create_hybrid_template(width, height, dpi, spacing_mm, margin_mm,
                           section_gap_mm, line_width_px, dot_radius_px,
                           header_separator=None, footer_separator=None,
                           split_ratio=0.6,
-                          auto_adjust_spacing=True):
+                          auto_adjust_spacing=True,
+                          force_major_alignment=None): # <-- FIX
     """
     Create a hybrid template with lined section (left) and dot grid (right)
     """
@@ -65,30 +69,36 @@ def create_hybrid_template(width, height, dpi, spacing_mm, margin_mm,
     gap_px = round(section_gap_mm * mm2px)
     half_gap = gap_px // 2
     
-    # Draw header separator (using adjusted margins)
-    if header_separator:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
     
-    # Draw footer separator (using adjusted margins)
-    if footer_separator:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
     
+    # --- MODIFIED: Update skip logic ---
+    skip_first = header_style is not None
+    skip_last = footer_style is not None
+
     # draw lined section (left) with boundary skipping
     draw_lined_section(ctx, m_left, split_x - half_gap,
                       m_top, height - m_bottom,
                       spacing_px, line_width_px,
-                      skip_first=header_separator is not None,
-                      skip_last=footer_separator is not None)
+                      skip_first=skip_first,
+                      skip_last=skip_last)
     
     # draw dot grid section (right) with boundary skipping
     draw_dot_grid(ctx, split_x + half_gap, width - m_right,
                  m_top, height - m_bottom,
                  spacing_px, dot_radius_px,
-                 skip_first_row=header_separator is not None,
-                 skip_last_row=footer_separator is not None)
+                 skip_first_row=skip_first,
+                 skip_last_row=skip_last)
     
-    # draw vertical separator between sections
-    draw_separator(ctx, split_x, m_top, height - m_bottom)
+    # --- MODIFIED: draw vertical separator with grey ---
+    draw_separator(ctx, split_x, m_top, height - m_bottom, grey=5)
     
     return surface
 
@@ -96,15 +106,16 @@ def create_lined_template(width, height, dpi, spacing_mm, margin_mm,
                          line_width_px,
                          header_separator=None, footer_separator=None,
                          major_every=None, major_width_add_px=1.5,
-                         auto_adjust_spacing=True):
+                         auto_adjust_spacing=True,
+                         line_number_config=None,
+                         force_major_alignment=None): # <-- FIX
     """
     Create a simple lined template
     """
     mm2px = dpi / 25.4
     
-    # Auto-adjust spacing if requested
-    if auto_adjust_spacing:
-        # This function needs to be imported from utils
+    # Auto-adjust spacing if requested (skip if margin is 0 - line count mode)
+    if auto_adjust_spacing and margin_mm > 0:
         from .utils import snap_spacing_to_clean_pixels
         adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
         if was_adjusted:
@@ -131,22 +142,36 @@ def create_lined_template(width, height, dpi, spacing_mm, margin_mm,
     content_height = height - (2 * base_margin)
     m_top, m_bottom = calculate_adjusted_margins(content_height, spacing_px, base_margin)
     
-    # Draw header separator
-    if header_separator:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
     
-    # Draw footer separator
-    if footer_separator:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
     
-    # draw lines with weight variation
+    # --- MODIFIED: Update skip logic ---
+    skip_first_line = header_style is not None
+    skip_last_line = footer_style is not None
+    
     draw_lined_section(ctx, m_left, width - m_right,
                       m_top, height - m_bottom,
                       spacing_px, line_width_px,
-                      skip_first=header_separator is not None,
-                      skip_last=footer_separator is not None,
+                      skip_first=skip_first_line,
+                      skip_last=skip_last_line,
                       major_every=major_every,
                       major_width_add_px=major_width_add_px)
+    
+    # --- Draw Line Numbering (from previous step) ---
+    if line_number_config:
+        from .drawing import draw_line_numbering # Local import
+        print("Note: Drawing line numbers...")
+        draw_line_numbering(
+            ctx, m_top, height - m_bottom, spacing_px,
+            config=line_number_config
+        )
     
     return surface
 
@@ -156,7 +181,7 @@ def create_dotgrid_template(width, height, dpi, spacing_mm, margin_mm,
                            major_every=None, major_width_add_px=1.5,
                            crosshair_size=4,
                            auto_adjust_spacing=True,
-                           force_major_alignment=False):
+                           force_major_alignment=False): # <-- This one was already correct
     """
     Create a dot grid template
     """
@@ -198,29 +223,35 @@ def create_dotgrid_template(width, height, dpi, spacing_mm, margin_mm,
         m_top, m_bottom = calculate_adjusted_margins(content_height, spacing_px, base_margin)
         m_left, m_right = calculate_adjusted_margins_x(content_width, spacing_px, base_margin)
     
-    # Draw header separator
-    if header_separator:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
     
-    # Draw footer separator
-    if footer_separator:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
+    
+    # --- MODIFIED: Update skip logic ---
+    skip_first = header_style is not None
+    skip_last = footer_style is not None
     
     # draw dot grid with crosshairs if major_every is specified
     if major_every:
         draw_dot_grid_with_crosshairs(ctx, m_left, width - m_right,
                      m_top, height - m_bottom,
                      spacing_px, dot_radius_px,
-                     skip_first_row=header_separator is not None,
-                     skip_last_row=footer_separator is not None,
+                     skip_first_row=skip_first,
+                     skip_last_row=skip_last,
                      major_every=major_every,
                      crosshair_size=crosshair_size)
     else:
         draw_dot_grid(ctx, m_left, width - m_right,
                      m_top, height - m_bottom,
                      spacing_px, dot_radius_px,
-                     skip_first_row=header_separator is not None,
-                     skip_last_row=footer_separator is not None)
+                     skip_first_row=skip_first,
+                     skip_last_row=skip_last)
     
     return surface
 
@@ -230,7 +261,9 @@ def create_grid_template(width, height, dpi, spacing_mm, margin_mm,
                         major_every=None, major_width_add_px=1.5,
                         crosshair_size=3, no_crosshairs=False,
                         auto_adjust_spacing=True,
-                        force_major_alignment=False):
+                        force_major_alignment=False, # <-- This one was already correct
+                        cell_label_config=None,
+                        axis_label_config=None):
     """
     Create a full grid template (horizontal and vertical lines)
     """
@@ -275,22 +308,46 @@ def create_grid_template(width, height, dpi, spacing_mm, margin_mm,
     # Calculate crosshair size
     actual_crosshair_size = 0 if no_crosshairs else crosshair_size
     
-    # Draw header separator
-    if header_separator:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
     
-    # Draw footer separator
-    if footer_separator:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
+    
+    # --- MODIFIED: Update skip logic ---
+    skip_first = header_style is not None
+    skip_last = footer_style is not None
     
     draw_grid(ctx, m_left, width - m_right,
              m_top, height - m_bottom,
              spacing_px, line_width_px,
-             skip_first_row=header_separator is not None,
-             skip_last_row=footer_separator is not None,
+             skip_first_row=skip_first,
+             skip_last_row=skip_last,
              major_every=major_every,
              major_width_add_px=major_width_add_px,
              crosshair_size=actual_crosshair_size)
+    
+    # --- NEW: Draw Cell Labeling ---
+    if cell_label_config:
+        from .drawing import draw_cell_labeling # Local import
+        print("Note: Drawing cell labels...")
+        draw_cell_labeling(
+            ctx, m_left, width - m_right, m_top, height - m_bottom,
+            spacing_px, config=cell_label_config
+        )
+
+    # --- NEW: Draw Axis Labeling ---
+    if axis_label_config:
+        from .drawing import draw_axis_labeling # Local import
+        print("Note: Drawing axis labels...")
+        draw_axis_labeling(
+            ctx, m_left, width - m_right, m_top, height - m_bottom,
+            spacing_px, config=axis_label_config
+        )
     
     return surface
 
@@ -298,7 +355,8 @@ def create_manuscript_template(width, height, dpi, spacing_mm, margin_mm,
                               line_width_px,
                               header_separator=None, footer_separator=None,
                               midline_style='dashed', ascender_opacity=0.3,
-                              auto_adjust_spacing=True):
+                              auto_adjust_spacing=True,
+                              force_major_alignment=None): # <-- FIX
     """
     Create a manuscript template for handwriting practice (4-line system)
     """
@@ -331,15 +389,19 @@ def create_manuscript_template(width, height, dpi, spacing_mm, margin_mm,
     content_height = height - (2 * base_margin)
     m_top, m_bottom = calculate_adjusted_margins(content_height, spacing_px, base_margin)
     
-    # Draw header separator
-    if header_separator:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
     
-    # Draw footer separator
-    if footer_separator:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
     
     # draw manuscript lines
+    # Your change to draw_manuscript_lines to use greyscale is handled
+    # automatically by passing the opacity value, which it snaps.
     draw_manuscript_lines(ctx, m_left, width - m_right,
                          m_top, height - m_bottom,
                          spacing_px, line_width_px,
@@ -352,7 +414,8 @@ def create_french_ruled_template(width, height, dpi, spacing_mm, margin_mm,
                                 header_separator=None, footer_separator=None,
                                 margin_line_offset_mm=20, show_margin_line=True,
                                 show_vertical_lines=True,
-                                auto_adjust_spacing=True):
+                                auto_adjust_spacing=True,
+                                force_major_alignment=None): # <-- FIX
     """
     Create a French ruled (Seyès) template for handwriting
     """
@@ -387,13 +450,15 @@ def create_french_ruled_template(width, height, dpi, spacing_mm, margin_mm,
     content_width = width - (2 * base_margin)
     m_left, m_right = calculate_adjusted_margins_x(content_width, vertical_spacing_px, base_margin)
     
-    # Draw header separator
-    if header_separator:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
     
-    # Draw footer separator
-    if footer_separator:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
     
     # Calculate margin line offset
     margin_line_offset_px = round(margin_line_offset_mm * mm2px) if show_margin_line else None
@@ -411,7 +476,8 @@ def create_music_staff_template(width, height, dpi, spacing_mm, margin_mm,
                                line_width_px,
                                header_separator=None, footer_separator=None,
                                staff_gap_mm=10,
-                               auto_adjust_spacing=True):
+                               auto_adjust_spacing=True,
+                               force_major_alignment=None): # <-- FIX
     """
     Create a music staff template for musical notation
     """
@@ -452,13 +518,15 @@ def create_music_staff_template(width, height, dpi, spacing_mm, margin_mm,
     content_height = height - (2 * base_margin)
     m_top, m_bottom = calculate_adjusted_margins(content_height, staff_unit_px, base_margin)
     
-    # Draw header separator
-    if header_separator:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
     
-    # Draw footer separator
-    if footer_separator:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
     
     # Draw music staves
     # We pass staff_spacing_mm (the original or adjusted mm) for consistency
@@ -471,7 +539,8 @@ def create_music_staff_template(width, height, dpi, spacing_mm, margin_mm,
 def create_isometric_template(width, height, dpi, spacing_mm, margin_mm,
                              line_width_px,
                              header_separator=None, footer_separator=None,
-                             auto_adjust_spacing=True):
+                             auto_adjust_spacing=True,
+                             force_major_alignment=None): # <-- FIX
     """
     Create an isometric grid template for technical drawing
     """
@@ -521,13 +590,15 @@ def create_isometric_template(width, height, dpi, spacing_mm, margin_mm,
     content_width = width - (2 * base_margin)
     m_left, m_right = calculate_adjusted_margins_x(content_width, horizontal_unit_s, base_margin)
     
-    # Draw header separator
-    if header_separator:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
     
-    # Draw footer separator
-    if footer_separator:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
     
     # Draw isometric grid
     draw_isometric_grid(ctx, m_left, width - m_right,
@@ -539,7 +610,8 @@ def create_isometric_template(width, height, dpi, spacing_mm, margin_mm,
 def create_hex_template(width, height, dpi, spacing_mm, margin_mm,
                          line_width_px,
                          header_separator=None, footer_separator=None,
-                         auto_adjust_spacing=True):
+                         auto_adjust_spacing=True,
+                         force_major_alignment=None): # <-- FIX
     """
     Create a hexagonal grid template
     'spacing_mm' defines the side length of the hexagon
@@ -579,13 +651,15 @@ def create_hex_template(width, height, dpi, spacing_mm, margin_mm,
     content_width = width - (2 * base_margin)
     m_left, m_right = calculate_adjusted_margins_x(content_width, h_dist, base_margin)
     
-    # Draw header separator
-    if header_separator:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
     
-    # Draw footer separator
-    if footer_separator:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
     
     # Draw hex grid
     draw_hex_grid(ctx, m_left, width - m_right,
@@ -598,7 +672,8 @@ def create_column_template(width, height, dpi, spacing_mm, margin_mm,
                           num_columns, num_rows, column_gap_mm, row_gap_mm,
                           base_template, template_kwargs,
                           header_separator=None, footer_separator=None,
-                          auto_adjust_spacing=True):
+                          auto_adjust_spacing=True,
+                          force_major_alignment=None): # <-- FIX (though not used)
     """
     Create a multi-column, multi-row template with any base template type
     """
@@ -652,13 +727,15 @@ def create_column_template(width, height, dpi, spacing_mm, margin_mm,
     content_width_page = width - (2 * base_margin)
     m_left_page, m_right_page = calculate_adjusted_margins_x(content_width_page, page_adj_x_spacing, base_margin)
     
-    # Draw header separator (using page margins)
-    if header_separator:
-        draw_separator_line(ctx, m_left_page, width - m_right_page, m_top_page, style=header_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left_page, width - m_right_page, m_top_page, style=header_style, **header_kwargs)
     
-    # Draw footer separator (using page margins)
-    if footer_separator:
-        draw_separator_line(ctx, m_left_page, width - m_right_page, height - m_bottom_page, style=footer_separator)
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left_page, width - m_right_page, height - m_bottom_page, style=footer_style, **footer_kwargs)
     
     # --- Cell Calculation & Drawing ---
     
@@ -697,9 +774,9 @@ def create_column_template(width, height, dpi, spacing_mm, margin_mm,
             draw_y_start = y_start_cell + internal_m_top
             draw_y_end = y_end_cell - internal_m_bottom
             
-            # Determine if we need to skip drawing on separator lines
-            skip_first = (r == 0) and (header_separator is not None)
-            skip_last = (r == num_rows - 1) and (footer_separator is not None)
+            # --- MODIFIED: Update skip logic ---
+            skip_first = (r == 0) and (header_style is not None)
+            skip_last = (r == num_rows - 1) and (footer_style is not None)
             
             # --- Draw content in the cell ---
             if base_template == 'lined':
@@ -748,17 +825,21 @@ def create_column_template(width, height, dpi, spacing_mm, margin_mm,
                 draw_hex_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                               spacing_px, template_kwargs.get('line_width_px', 0.5))
             
-            # --- Draw Column Separator ---
+            # --- MODIFIED: Draw Column Separator with grey ---
             if c < num_columns - 1:
                 sep_x = x_end_cell + (col_gap_px // 2)
                 # Draw separator line only in the vertical bounds of the page content
-                draw_separator(ctx, sep_x, m_top_page, height - m_bottom_page)
+                draw_separator(ctx, sep_x, m_top_page, height - m_bottom_page, grey=5)
         
-        # --- Draw Row Separator ---
+        # --- MODIFIED: Draw Row Separator with grey ---
         if r < num_rows - 1:
             sep_y = y_end_cell + (row_gap_px // 2)
             ctx.set_line_width(1.0)
-            ctx.set_source_rgba(0, 0, 0, 0.3)
+            
+            # Use snapped greyscale value instead of opacity
+            grey_val = snap_to_eink_greyscale(5)
+            ctx.set_source_rgb(grey_val, grey_val, grey_val)
+            
             # Draw separator line only in the horizontal bounds of the page content
             ctx.move_to(m_left_page, sep_y + 0.5)
             ctx.line_to(width - m_right_page, sep_y + 0.5)
@@ -770,7 +851,8 @@ def create_cell_grid_template(width, height, dpi, spacing_mm, margin_mm,
                               cell_definitions,  # <-- NEW
                               column_gap_mm, row_gap_mm,
                               header_separator=None, footer_separator=None,
-                              auto_adjust_spacing=True):
+                              auto_adjust_spacing=True,
+                              force_major_alignment=None): # <-- FIX (though not used)
     """
     Create a multi-column, multi-row template where each cell can be
     a different template type.
@@ -820,10 +902,15 @@ def create_cell_grid_template(width, height, dpi, spacing_mm, margin_mm,
     content_width_page = width - (2 * base_margin)
     m_left_page, m_right_page = calculate_adjusted_margins_x(content_width_page, page_adj_x_spacing, base_margin)
     
-    if header_separator:
-        draw_separator_line(ctx, m_left_page, width - m_right_page, m_top_page, style=header_separator)
-    if footer_separator:
-        draw_separator_line(ctx, m_left_page, width - m_right_page, height - m_bottom_page, style=footer_separator)
+    # --- MODIFIED: Parse header separator ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left_page, width - m_right_page, m_top_page, style=header_style, **header_kwargs)
+    
+    # --- MODIFIED: Parse footer separator ---
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left_page, width - m_right_page, height - m_bottom_page, style=footer_style, **footer_kwargs)
     
     # --- Cell Calculation & Drawing ---
     num_rows = len(cell_definitions)
@@ -862,8 +949,9 @@ def create_cell_grid_template(width, height, dpi, spacing_mm, margin_mm,
             draw_y_start = y_start_cell + internal_m_top
             draw_y_end = y_end_cell - internal_m_bottom
             
-            skip_first = (r == 0) and (header_separator is not None)
-            skip_last = (r == num_rows - 1) and (footer_separator is not None)
+            # --- MODIFIED: Update skip logic ---
+            skip_first = (r == 0) and (header_style is not None)
+            skip_last = (r == num_rows - 1) and (footer_style is not None)
             
             # --- BIG DISPATCH BLOCK ---
             # This calls the correct draw function based on the cell's type
@@ -874,6 +962,12 @@ def create_cell_grid_template(width, height, dpi, spacing_mm, margin_mm,
                                  skip_first=skip_first, skip_last=skip_last,
                                  major_every=template_kwargs.get('major_every'),
                                  major_width_add_px=template_kwargs.get('major_width_add_px', 1.5))
+                
+                # Check for line numbering (from previous step)
+                if 'line_number_config' in template_kwargs:
+                    from .drawing import draw_line_numbering
+                    draw_line_numbering(ctx, draw_y_start, draw_y_end, spacing_px,
+                                        template_kwargs['line_number_config'])
             
             elif template_type == 'dotgrid':
                 draw_dot_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
@@ -887,6 +981,18 @@ def create_cell_grid_template(width, height, dpi, spacing_mm, margin_mm,
                          major_every=template_kwargs.get('major_every'),
                          major_width_add_px=template_kwargs.get('major_width_add_px', 1.5),
                          crosshair_size=template_kwargs.get('crosshair_size', 4))
+                
+                # --- NEW: Check for cell labeling ---
+                if 'cell_label_config' in template_kwargs:
+                    from .drawing import draw_cell_labeling
+                    draw_cell_labeling(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                                       spacing_px, template_kwargs['cell_label_config'])
+                
+                # --- NEW: Check for axis labeling ---
+                if 'axis_label_config' in template_kwargs:
+                    from .drawing import draw_axis_labeling
+                    draw_axis_labeling(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                                       spacing_px, template_kwargs['axis_label_config'])
             
             elif template_type == 'manuscript':
                  draw_manuscript_lines(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
@@ -913,15 +1019,19 @@ def create_cell_grid_template(width, height, dpi, spacing_mm, margin_mm,
                 draw_hex_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                               spacing_px, template_kwargs.get('line_width_px', 0.5))
             
-            # --- Draw Separators ---
+            # --- MODIFIED: Draw Separators with grey ---
             if c < num_columns - 1:
                 sep_x = x_end_cell + (col_gap_px // 2)
-                draw_separator(ctx, sep_x, m_top_page, height - m_bottom_page)
+                draw_separator(ctx, sep_x, m_top_page, height - m_bottom_page, grey=5)
         
+        # --- MODIFIED: Draw Row Separator with grey ---
         if r < num_rows - 1:
             sep_y = y_end_cell + (row_gap_px // 2)
             ctx.set_line_width(1.0)
-            ctx.set_source_rgba(0, 0, 0, 0.3)
+            
+            grey_val = snap_to_eink_greyscale(5)
+            ctx.set_source_rgb(grey_val, grey_val, grey_val)
+            
             ctx.move_to(m_left_page, sep_y + 0.5)
             ctx.line_to(width - m_right_page, sep_y + 0.5)
             ctx.stroke()
@@ -970,14 +1080,16 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
     
     print(f"Note: Page content area is {content_width}px × {content_height}px")
     
-    # 3. Draw Page-Level Separators
-    if config.get('header_separator'):
+    # 3. Draw Page-Level Separators (MODIFIED)
+    header_style, header_kwargs = parse_separator_config(config.get('header_separator'))
+    if header_style:
         draw_separator_line(ctx, m_left_page, width - m_right_page, m_top_page, 
-                            style=config['header_separator'])
+                            style=header_style, **header_kwargs)
     
-    if config.get('footer_separator'):
+    footer_style, footer_kwargs = parse_separator_config(config.get('footer_separator'))
+    if footer_style:
         draw_separator_line(ctx, m_left_page, width - m_right_page, height - m_bottom_page, 
-                            style=config['footer_separator'])
+                            style=footer_style, **footer_kwargs)
     
     # 4. Draw Layout Regions
     if 'page_layout' not in config or not config['page_layout']:
@@ -1057,6 +1169,14 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
             }
             draw_lined_section(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                              region_spacing_px, **draw_kwargs)
+            
+            # Check for line numbering config in the region
+            if 'line_number_config' in region:
+                from .drawing import draw_line_numbering # Local import
+                cfg = region['line_number_config']
+                print(f"  Note: Drawing line numbers for region '{name}'")
+                draw_line_numbering(ctx, draw_y_start, draw_y_end, region_spacing_px,
+                                    cfg)
         
         elif template_type == 'dotgrid':
             # Build clean kwargs
@@ -1080,6 +1200,22 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
             }
             draw_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                      region_spacing_px, **draw_kwargs)
+            
+            if 'cell_label_config' in region:
+                from .drawing import draw_cell_labeling # Local import
+                cfg = region['cell_label_config']
+                print(f"  Note: Drawing cell labels for region '{name}'")
+                # We pass the full page height/width to the drawing function
+                # so it can correctly place labels at the 'bottom' or 'right'
+                draw_cell_labeling(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                                   region_spacing_px, cfg)
+
+            if 'axis_label_config' in region:
+                from .drawing import draw_axis_labeling # Local import
+                cfg = region['axis_label_config']
+                print(f"  Note: Drawing axis labels for region '{name}'")
+                draw_axis_labeling(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                                   region_spacing_px, cfg)
         
         elif template_type == 'manuscript':
              # Build clean kwargs
@@ -1133,8 +1269,18 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
         
         elif template_type:
             print(f"Warning: Unknown template type '{template_type}' in region '{name}'. Skipping.")
-            
-        # --- END OF FIX ---
+
+    # 5. Draw Title Element (if specified)
+    # This draws *after* all other regions, so it appears on top.
+    if 'title_element' in config:
+        print(f"  Drawing title element...")
+        title_config = config['title_element']
+        
+        # Pass the page dimensions AND the content area boundaries
+        # so region_rect works correctly.
+        draw_title_element(ctx, width, height, title_config,
+                            content_x_start, content_y_start,
+                            content_width, content_height)
 
     return surface
 

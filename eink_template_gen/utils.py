@@ -396,3 +396,143 @@ def calculate_major_aligned_margins_x(content_width, spacing_px, base_margin, ma
     (Same logic as calculate_major_aligned_margins but for horizontal axis)
     """
     return calculate_major_aligned_margins(content_width, spacing_px, base_margin, major_every)
+
+def calculate_spacing_from_line_count(content_dimension, num_lines, enforce_exact=True):
+    """
+    Calculate spacing needed to fit exactly N lines in a given space
+    
+    Args:
+        content_dimension: Available space (width or height) in pixels
+        num_lines: Desired number of lines
+        enforce_exact: If True, calculate exact spacing. If False, round to nearest pixel.
+    
+    Returns:
+        Tuple of (spacing_px, is_fractional)
+        - spacing_px: Calculated spacing in pixels
+        - is_fractional: True if spacing is not a whole number
+        
+    Examples:
+        calculate_spacing_from_line_count(2000, 40, enforce_exact=True)
+        → (50.0, False)  # 40 lines at 50px spacing = 2000px
+        
+        calculate_spacing_from_line_count(2000, 41, enforce_exact=True)
+        → (48.78..., True)  # Fractional spacing required
+    """
+    if num_lines <= 0:
+        raise ValueError("Number of lines must be greater than 0")
+    
+    # Calculate the required spacing
+    spacing_px = content_dimension / num_lines
+    
+    # Check if it's fractional
+    is_fractional = abs(spacing_px - round(spacing_px)) > 0.001
+    
+    if not enforce_exact and is_fractional:
+        # Round to nearest pixel if not enforcing exact
+        spacing_px = round(spacing_px)
+        is_fractional = False
+    
+    return spacing_px, is_fractional
+
+def calculate_spacing_from_line_count_with_margins(page_dimension, num_lines, margin_px, enforce_exact=True):
+    """
+    Calculate spacing needed to fit exactly N lines with specified margins
+    
+    Args:
+        page_dimension: Total page space (width or height) in pixels
+        num_lines: Desired number of lines
+        margin_px: Margin size in pixels (applied to both sides)
+        enforce_exact: If True, calculate exact spacing. If False, round to nearest pixel.
+    
+    Returns:
+        Tuple of (spacing_px, is_fractional, content_dimension)
+        - spacing_px: Calculated spacing in pixels
+        - is_fractional: True if spacing is not a whole number
+        - content_dimension: Available content space after margins
+        
+    Examples:
+        calculate_spacing_from_line_count_with_margins(2560, 40, 118, enforce_exact=True)
+        → (61.1, True, 2324)  # 40 lines in 2324px (2560 - 2*118) = 58.1px spacing
+    """
+    # Calculate content dimension after removing margins
+    content_dimension = page_dimension - (2 * margin_px)
+    
+    if content_dimension <= 0:
+        raise ValueError(f"Margins ({margin_px}px each) are too large for page dimension ({page_dimension}px)")
+    
+    # Calculate spacing for the content area
+    spacing_px, is_fractional = calculate_spacing_from_line_count(
+        content_dimension, num_lines, enforce_exact
+    )
+    
+    return spacing_px, is_fractional, content_dimension
+
+def parse_line_count_spec(spec_str):
+    """
+    Parse line count specification string
+    
+    Supports formats:
+    - "40" or "40 lines" → 40 lines
+    - "40x30" → 40 horizontal lines, 30 vertical lines (for grids)
+    
+    Args:
+        spec_str: Line count specification string
+    
+    Returns:
+        Tuple of (h_lines, v_lines) where v_lines may be None for 1D templates
+        
+    Examples:
+        parse_line_count_spec("40") → (40, None)
+        parse_line_count_spec("40 lines") → (40, None)
+        parse_line_count_spec("40x30") → (40, 30)
+    """
+    spec_str = spec_str.strip().lower().replace(' lines', '').replace('lines', '')
+    
+    if 'x' in spec_str:
+        # Grid specification: "40x30"
+        parts = spec_str.split('x')
+        if len(parts) != 2:
+            raise ValueError(f"Invalid grid line count format: '{spec_str}'. Use 'HxV' (e.g., '40x30')")
+        try:
+            h_lines = int(parts[0].strip())
+            v_lines = int(parts[1].strip())
+            return h_lines, v_lines
+        except ValueError:
+            raise ValueError(f"Invalid grid line count format: '{spec_str}'. Both values must be integers.")
+    else:
+        # Single dimension: "40"
+        try:
+            lines = int(spec_str)
+            return lines, None
+        except ValueError:
+            raise ValueError(f"Invalid line count format: '{spec_str}'. Use an integer (e.g., '40') or 'HxV' (e.g., '40x30')")
+
+def format_line_count_summary(h_lines, v_lines, h_spacing_px, v_spacing_px=None, is_fractional=False):
+    """
+    Format line count information for CLI summary display
+    
+    Args:
+        h_lines: Number of horizontal lines
+        v_lines: Number of vertical lines (None for 1D templates)
+        h_spacing_px: Calculated horizontal spacing
+        v_spacing_px: Calculated vertical spacing (for grids)
+        is_fractional: Whether spacing is fractional
+    
+    Returns:
+        Human-readable string describing the line count and spacing
+    """
+    if v_lines is None:
+        # 1D template (lined, dotgrid rows, etc.)
+        if is_fractional:
+            return f"{h_lines} lines at {h_spacing_px:.3f}px spacing (fractional - may accumulate error)"
+        else:
+            return f"{h_lines} lines at {int(h_spacing_px)}px spacing"
+    else:
+        # 2D template (grid, dotgrid)
+        h_frac = abs(h_spacing_px - round(h_spacing_px)) > 0.001
+        v_frac = abs(v_spacing_px - round(v_spacing_px)) > 0.001
+        
+        if h_frac or v_frac:
+            return f"{h_lines}×{v_lines} grid at {h_spacing_px:.3f}px × {v_spacing_px:.3f}px spacing (fractional)"
+        else:
+            return f"{h_lines}×{v_lines} grid at {int(h_spacing_px)}px × {int(v_spacing_px)}px spacing"

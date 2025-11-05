@@ -16,14 +16,14 @@ The image on the left (=--no-auto-adjust=) shows blurry, anti-aliased lines. The
 
 | "Before" (Blurry) | "After" (Pixel-Perfect) |
 |---|---|
-| [[file:src/assets/screenshots/before/problem_before_blurry_lines.png]] | [[file:src/assets/screenshots/problem_after_pixel_perfect_lined.png]] |
+| [[src/assets/screenshots/before/problem_before_blurry_lines.png]]      | [[src/assets/screenshots/problem_after_pixel_perfect_lined.png]]      |
 
 **Problem: Grid Misalignment**
 The image on the left (default) shows a grid being awkwardly cut off. The image on the right (=--force-major-alignment=) shows the margins being automatically adjusted to end perfectly on a major grid line.
 
 | "Before" (Misaligned) | "After" (Force-Aligned) |
 |---|---|
-| [[file:src/assets/screenshots/before/problem_before_grid_alignment.png]] | [[file:src/assets/screenshots/problem_after_grid_alignment.png]] |
+| [[src/assets/screenshots/before/problem_before_grid_alignment.png]]      | [[src/assets/screenshots/problem_after_grid_alignment.png]]      |
 
 #+END_DETAILS
 
@@ -61,11 +61,11 @@ Click to see Screenshot Gallery: Template Types
 
 | Lined (w/ Numbers) | Dotgrid (w/ Crosshairs) | Grid (w/ Axis Labels) |
 |---|---|---|
-| [[file:src/assets/screenshots/gallery_lined_with_numbers.png]] | [[file:src/assets/screenshots/gallery_dotgrid_with_crosshairs.png]] | [[file:src/assets/screenshots/gallery_grid_with_axis_labels.png]] |
+| [[src/assets/screenshots/gallery_lined_with_numbers.png]]      | [[src/assets/screenshots/gallery_dotgrid_with_crosshairs.png]]      | [[src/assets/screenshots/gallery_grid_with_axis_labels.png]]      |
 | *Manuscript* | *French Ruled* | *Music Staff* |
-| [[file:src/assets/screenshots/gallery_manuscript.png]] | [[file:src/assets/screenshots/gallery_french_ruled.png]] | [[file:src/assets/screenshots/gallery_music_staff.png]] |
+| [[src/assets/screenshots/gallery_manuscript.png]]      | [[src/assets/screenshots/gallery_french_ruled.png]]      | [[src/assets/screenshots/gallery_music_staff.png]]      |
 | *Isometric* | *Hex Grid* | *Hybrid* |
-| [[file:src/assets/screenshots/gallery_isometric.png]] | [[file:src/assets/screenshots/gallery_hexgrid.png]] | [[file:src/assets/screenshots/gallery_hybrid.png]] |
+| [[src/assets/screenshots/gallery_isometric.png]]      | [[src/assets/screenshots/gallery_hexgrid.png]]      | [[src/assets/screenshots/gallery_hybrid.png]]      |
 
 #+END_DETAILS
 
@@ -157,7 +157,7 @@ Click to see Screenshot Gallery: Flexible Layouts
 
 | Uniform 2x2 Grid | Vertical Stacked | Mixed-Type Grid | JSON (Cornell) |
 |---|---|---|---|
-| [[file:src/assets/screenshots/layout_multi_uniform.png]] | [[file:src/assets/screenshots/layout_multi_vertical.png]] | [[file:src/assets/screenshots/layout_multi_mixed.png]] | [[file:src/assets/screenshots/layout_json_cornell.png]] |
+| [[src/assets/screenshots/layout_multi_uniform.png]]      | [[src/assets/screenshots/layout_multi_vertical.png]]      | [[src/assets/screenshots/layout_multi_mixed.png]]      | [[src/assets/screenshots/layout_json_cornell.png]]      |
 
 #+END_DETAILS
 
@@ -192,11 +192,11 @@ Click to see Screenshot Gallery: Title Pages
 
 | Truchet (Filled) | Diagonal Truchet | Hexagonal Truchet |
 |---|---|---|
-| [[file:src/assets/screenshots/title_truchet_filled.png]] | [[file:src/assets/screenshots/title_diagonal_truchet.png]] | [[file:src/assets/screenshots/title_hexagonal_truchet.png]] |
+| [[src/assets/screenshots/title_truchet_filled.png]]      | [[src/assets/screenshots/title_diagonal_truchet.png]]      | [[src/assets/screenshots/title_hexagonal_truchet.png]]      |
 | *10 Print* | *Koch Snowflake* | *Plant Fractal* |
-| [[file:src/assets/screenshots/title_ten_print.png]] | [[file:src/assets/screenshots/title_lsystem_koch.png]] | [[file:src/assets/screenshots/title_lsystem_plant.png]] |
+| [[src/assets/screenshots/title_ten_print.png]]      | [[src/assets/screenshots/title_lsystem_koch.png]]      | [[src/assets/screenshots/title_lsystem_plant.png]]      |
 | *Contour Lines* | *Noise Field* | *Title w/ Frame* |
-| [[file:src/assets/screenshots/title_contour_lines.png]] | [[file:src/assets/screenshots/title_noise_field.png]] | [[file:src/assets/screenshots/title_with_frame.png]] |
+| [[src/assets/screenshots/title_contour_lines.png]]      | [[src/assets/screenshots/title_noise_field.png]]      | [[src/assets/screenshots/title_with_frame.png]]      |
 
 #+END_DETAILS
 
@@ -241,7 +241,7 @@ Click to see Screenshot: Custom Separators
 #+END_SUMMARY
 
 Example of 'wavy' and 'double' separators.
-[[file:src/assets/screenshots/custom_separators.png]]
+[[src/assets/screenshots/custom_separators.png]]
 
 #+END_DETAILS
 

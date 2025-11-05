@@ -5,7 +5,7 @@ Supernote Template Generator - CLI Entry Point
 import sys
 import argparse
 from eink_template_gen.templates import TEMPLATE_REGISTRY
-from eink_template_gen.titles import COVER_REGISTRY
+from eink_template_gen.covers import COVER_REGISTRY
 from eink_template_gen.devices import list_devices
 from eink_template_gen.separators import SEPARATOR_STYLES
 from eink_template_gen.config import get_default_margin

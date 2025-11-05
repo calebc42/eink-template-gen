@@ -254,56 +254,75 @@ def _save_and_print_summary(surface, context, args):
         print("Note: Saving to 'true-scale' directory as --no-auto-adjust was specified.")
     else:
         device_dir = base_device_dir
-    os.makedirs(device_dir, exist_ok=True)
     
+    # NOTE: We no longer create the directory here.
+    # The new generate_filename creates subdirectories (e.g., "lined/"),
+    # so we must create the *full path* *after* the filename is generated.
+
     # 2. Determine Filename
     if args.filename:
         filename = args.filename if args.filename.endswith('.png') else f"{args.filename}.png"
+        # Manually specified filename, put it in the base device_dir
+        # We will *not* add the template_type directory here
+        output_dir = device_dir 
     
     elif args.command == 'layout':
         default_filename = Path(args.layout).stem + ".png"
         filename = cli_args.get('output_filename', default_filename) # Check for JSON override
-    
-    elif args.command == 'title':
-        spacing_str = f"{int(context['spacing_px'])}px" if context['spacing_mode'] == 'px' else f"{context['original_mm']}mm"
-        filename = f"title_{args.title}_{spacing_str.replace('.', '_')}"
-        if args.truchet_seed:
-            filename += f"_seed{args.truchet_seed}"
-        if args.header_sep: filename += f"_h-{args.header_sep}"
-        if args.footer_sep: filename += f"_f-{args.footer_sep}"
-        filename += ".png"
-        
-    elif args.command == 'multi':
-        spacing_str = f"{int(context['spacing_px'])}px" if context['spacing_mode'] == 'px' else f"{context['original_mm']}mm"
-        filename = f"{args.rows}x{args.columns}_multi_grid_{spacing_str.replace('.', '_')}.png"
+        # Layouts go in the base device_dir
+        output_dir = device_dir
 
-    else: # Single template command
-        filename_kwargs = {}
-        template_type = cli_args.get('template_type')
-        
-        # Add relevant style info
-        if template_type in ['lined', 'grid','manuscript', 'french_ruled', 'music_staff', 'isometric', 'hexgrid']:
-            filename_kwargs['line_width_px'] = args.line_width_px
-        elif template_type == 'dotgrid':
-            filename_kwargs['dot_radius_px'] = args.dot_radius_px
-        elif template_type == 'hybrid_lined_dotgrid':
-            filename_kwargs['line_width_px'] = args.line_width_px
-            filename_kwargs['dot_radius_px'] = args.dot_radius_px
-            filename_kwargs['split_ratio'] = f"{int(args.split_ratio * 100)}-{int((1 - args.split_ratio) * 100)}"
-        
+    elif args.command == 'title':
+        filename_kwargs = cli_args.copy()
         filename_kwargs['spacing_mode'] = context['spacing_mode']
-        if args.header_sep: filename_kwargs['header_separator'] = args.header_sep
-        if args.footer_sep: filename_kwargs['footer_separator'] = args.footer_sep
         
-        filename_spacing_val = context['original_mm'] if context['spacing_mode'] == 'mm' else int(context['spacing_px'])
-        filename = generate_filename(template_type, filename_spacing_val, **filename_kwargs)
+        if context['using_line_count_mode']:
+            filename_kwargs['spacing'] = context['h_spacing_px']
+            filename_kwargs['spacing_mode'] = 'px' # Force px mode for filename
+            
+        filename = generate_filename('title', **filename_kwargs)
+        # generated filename includes directory (e.g., "title/truchet/...")
+        output_dir = device_dir 
+
+    elif args.command == 'multi':
+        filename_kwargs = cli_args.copy()
+        filename_kwargs['spacing_mode'] = context['spacing_mode']
+        
+        if context['using_line_count_mode']:
+            filename_kwargs['spacing'] = context['h_spacing_px']
+            filename_kwargs['spacing_mode'] = 'px' # Force px mode for filename
+            
+        filename = generate_filename('multi', **filename_kwargs)
+        # generated filename includes directory (e.g., "multi/...")
+        output_dir = device_dir
+        
+    else: # Single template command
+        template_type = cli_args.get('template_type') # 'lined', 'grid', etc.
+        filename_kwargs = cli_args.copy()
+        filename_kwargs['spacing_mode'] = context['spacing_mode']
+        
+        if context['using_line_count_mode']:
+            filename_kwargs['spacing'] = context['h_spacing_px']
+            filename_kwargs['spacing_mode'] = 'px' # Force px mode for filename
+        
+        # Remove the duplicate key before calling the function
+        filename_kwargs.pop('template_type', None)
+            
+        filename = generate_filename(template_type, **filename_kwargs)
+        # generated filename includes directory (e.g., "lined/...")
+        output_dir = device_dir
 
     # 3. Save the file
-    filepath = os.path.join(device_dir, filename)
+    filepath = os.path.join(output_dir, filename)
+    
+    # Create directory structure if it doesn't exist
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    
     surface.write_to_png(filepath)
     
     # 4. Print Summary
     print(f"\n✓ Template written to {filepath}")
+    # ... (rest of the function is unchanged) ...
     print(f"  - Device: {device_config['name']} ({device_config['width']}×{device_config['height']}px @ {device_config['dpi']}dpi)")
     
     if args.command == 'layout':
@@ -377,7 +396,6 @@ def _save_and_print_summary(surface, context, args):
                 print(f"  - Margin: {margin_mm}mm")
         else:
             print(f"  - Margin: {margin_mm}mm")
-
 
 # --- Action 1: Utility Commands ---
 

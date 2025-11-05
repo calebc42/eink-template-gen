@@ -1,12 +1,25 @@
 # template_gen/config.py
 
 import json
+import os
 from pathlib import Path
+import platformdirs
+
+# Define the app name for platformdirs
+APP_NAME = "eink-template-gen"
 
 def get_config_file():
-    """Get the local config file path (in project directory)"""
-    # Use .parent.parent to go from template_gen/config.py -> template_gen/ -> project_root/
-    return Path(__file__).parent.parent / "config.json"
+    """Get the cross-platform, user-specific config file path."""
+    
+    # Get the recommended config directory for this OS
+    # e.g., ~/.config/eink-template-gen
+    config_dir = Path(platformdirs.user_config_dir(APP_NAME))
+    
+    # Ensure the directory exists
+    os.makedirs(config_dir, exist_ok=True)
+    
+    # Return the full path to the config.json file
+    return config_dir / "config.json"
 
 def _load_config():
     """Load the config file and return its contents as a dict."""

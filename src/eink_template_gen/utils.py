@@ -1,6 +1,7 @@
 """
 Utility functions for template generation
 """
+import os
 
 def calculate_adjusted_margins(content_height, spacing_px, base_margin):
     """
@@ -56,83 +57,165 @@ def calculate_adjusted_margins_x(content_width, spacing_px, base_margin):
     
     return base_margin + left_addition, base_margin + right_addition
 
-def generate_filename(template_type, spacing_val, **kwargs):
+def generate_filename(template_type, **kwargs):
     """
-    Generate descriptive filename based on template params
-    Structure: [orientation_]type_spacing_[width/radius_][columns_][rows_][ratio_][h-sep_][f-sep_].png
+    Generate a descriptive, relative filename based on template params.
     
     Args:
-        template_type: Type of template (e.g., 'lined', 'grid')
-        spacing_val: Spacing value (float for mm, int for px)
-        **kwargs: Optional parameters:
-            - spacing_mode: 'mm' or 'px' (default: 'mm')
-            - line_width_px: (float)
-            - dot_radius_px: (float)
-            - header_separator: (str)
-            - footer_separator: (str)
-            - orientation: 'horizontal' or 'vertical'
-            - columns: Number of columns (int)
-            - rows: Number of rows (int)  <-- NEW
-            - split_ratio: Ratio string (e.g., '60-40')
+        template_type: The base command/type (e.g., 'lined', 'grid', 'title')
+        **kwargs: All other parameters from argparse (ideally vars(args)).
+                Should include 'spacing' (or 'lines') and 'spacing_mode'.
     
     Returns:
-        Filename string with .png extension
+        Relative path string (e.g., "lined/7mm_w0_5px_lnums.png")
     """
     parts = []
     
-    # Orientation only if columns > 1
-    columns = kwargs.get('columns', 1)
-    if 'orientation' in kwargs and columns > 1:
-        parts.append(kwargs['orientation'])
-    
-    # Template type
-    parts.append(template_type)
-    
-    # Spacing (handles mm/px)
-    spacing_mode = kwargs.get('spacing_mode', 'mm')
-    if spacing_mode == 'px':
-        spacing_str = f"{int(spacing_val)}px"
-    else:  # 'mm'
-        spacing_str = str(int(spacing_val)) if spacing_val == int(spacing_val) else str(spacing_val).replace('.', '_')
-        spacing_str += "mm"
-    parts.append(spacing_str)
-    
-    # Line Width / Dot Radius
+    # --- 1. Primary Descriptor (Spacing or Line Count) ---
+    if kwargs.get('lines'):
+        # Line count mode (e.g., --lines 40x30)
+        lines_str = str(kwargs['lines']) # This will be "40x30"
+        parts.append(lines_str)
+        if kwargs.get('enforce_exact_spacing'):
+            parts.append('exact')
+    else:
+        # Spacing mode (e.g., --spacing 7)
+        spacing_str_val = kwargs.get('spacing', '6')
+        # 'spacing_mode' should be passed in kwargs by the caller
+        # (after calling parse_spacing)
+        spacing_mode = kwargs.get('spacing_mode', 'mm') 
+        
+        if spacing_mode == 'px':
+            # --- TWEAK 1 FIX (Implicit): Clean up pixel values ---
+            try:
+                # Handle "71.0px" from --lines mode
+                spacing_str_val = str(int(float(spacing_str_val)))
+            except ValueError:
+                # Handle "71px"
+                spacing_str_val = str(spacing_str_val).replace('px', '')
+            spacing_str = f"{spacing_str_val}px"
+        else:  # 'mm'
+            # --- TWEAK 1 FIX (Implicit): Use original mm string ---
+            spacing_str_val = str(spacing_str_val).replace('mm', '').replace('.', '_')
+            spacing_str = f"{spacing_str_val}mm"
+        parts.append(spacing_str)
+
+    # --- 2. Core Style (Widths, Gaps) ---
     if 'line_width_px' in kwargs:
         lw = kwargs['line_width_px']
         lw_str = str(lw).replace('.', '_')
-        parts.append(f"{lw_str}px")
-    elif 'dot_radius_px' in kwargs:
+        parts.append(f"w{lw_str}px") # 'w' for width
+    
+    if 'dot_radius_px' in kwargs:
         dr = kwargs['dot_radius_px']
         dr_str = str(dr).replace('.', '_')
-        parts.append(f"{dr_str}rad") # Use 'rad' to distinguish from 'px'
+        parts.append(f"dr{dr_str}px") # 'dr' for dot radius
 
-    # Columns (if present and > 1)
-    if columns > 1:
-        parts.append(f"{columns}col")
-    
-    # --- START FIX ---
-    # Rows (if present and > 1)
+    if 'staff_gap_mm' in kwargs:
+        sg = kwargs['staff_gap_mm']
+        sg_str = str(sg).replace('.', '_')
+        parts.append(f"gap{sg_str}mm")
+
+    if 'section_gap_mm' in kwargs:
+        sg = kwargs['section_gap_mm']
+        sg_str = str(sg).replace('.', '_')
+        parts.append(f"sgap{sg_str}mm")
+
+    # --- 3. Grid/Multi Layout ---
+    columns = kwargs.get('columns', 1)
     rows = kwargs.get('rows', 1)
-    if rows > 1:
-        parts.append(f"{rows}rows")
-    # --- END FIX ---
     
-    # Split ratio (if present)
+    if rows > 1 or columns > 1:
+        parts.append(f"{rows}r_by_{columns}c") # e.g., "2r_by_3c"
+    
+    if 'section_gap_cols' in kwargs or 'section_gap_rows' in kwargs:
+        # Mirrors the logic in your multi parser
+        spacing_val = kwargs.get('spacing', '6')
+        scg = kwargs.get('section_gap_cols', spacing_val)
+        srg = kwargs.get('section_gap_rows', spacing_val)
+        
+        scg_str = str(scg).replace('.', '_')
+        srg_str = str(srg).replace('.', '_')
+        
+        if scg is not None: parts.append(f"cgap{scg_str}mm")
+        if srg is not None: parts.append(f"rgap{srg_str}mm")
+
+    if kwargs.get('orientation') == 'vertical':
+        parts.append('vertical')
+
     if 'split_ratio' in kwargs:
-        parts.append(kwargs['split_ratio'])
+        try:
+            ratio_float = float(kwargs['split_ratio'])
+            ratio_p1 = int(ratio_float * 100)
+            ratio_p2 = 100 - ratio_p1
+            parts.append(f"{ratio_p1}-{ratio_p2}split")
+        except (ValueError, TypeError):
+            parts.append(f"ratio{kwargs['split_ratio']}")
+
+    # --- 4. Major Lines / Grids ---
+    if kwargs.get('major_every'): # Check for non-zero, non-None
+        parts.append(f"maj{kwargs['major_every']}")
+        if 'major_width_add_px' in kwargs:
+            mw = kwargs['major_width_add_px']
+            mw_str = str(mw).replace('.', '_')
+            parts.append(f"maj_w_add{mw_str}px")
     
-    # Header Separator
-    header_sep = kwargs.get('header_separator')
+    if kwargs.get('crosshair_size') and kwargs.get('major_every'):
+        cs = kwargs['crosshair_size']
+        parts.append(f"cross{cs}px")
+    
+    if kwargs.get('no_crosshairs'):
+        parts.append('no_cross')
+
+    # --- 5. Labels & Numbers ---
+    if kwargs.get('line_numbers'):
+        parts.append('lnums')
+    if kwargs.get('cell_labels'):
+        parts.append('cell_labels')
+    if kwargs.get('axis_labels'):
+        parts.append('axis_labels')
+        
+    # --- 6. Other Style Variants ---
+    if kwargs.get('midline_style') == 'dotted': # Only if not default 'dashed'
+        parts.append('dotted_mid')
+
+    # --- 7. Separators ---
+    header_sep = kwargs.get('header_separator') # from --header-sep
     if header_sep:
         parts.append(f"h-{header_sep}")
             
-    # Footer Separator
-    footer_sep = kwargs.get('footer_separator')
+    footer_sep = kwargs.get('footer_separator') # from --footer-sep
     if footer_sep:
         parts.append(f"f-{footer_sep}")
+
+    # --- 8. Assemble Path ---
     
-    return "_".join(parts) + ".png"
+    # Handle 'title' command, which has a sub-type
+    if template_type == 'title':
+        # The actual cover type is in kwargs['title'] (e.g., 'truchet')
+        cover_type = kwargs.get('title', 'unknown_cover')
+        base_dir = os.path.join(template_type, cover_type) # e.g., "title/truchet"
+        
+        # Add title-specific details
+        if kwargs.get('truchet_seed'):
+            parts.append(f"seed{kwargs['truchet_seed']}")
+        if kwargs.get('noise_seed'):
+            parts.append(f"seed{kwargs['noise_seed']}")
+        if kwargs.get('title_text'):
+            parts.append('titled') # Don't include the text, just that it has it
+            
+    else:
+        base_dir = template_type # e.g., "lined"
+
+    # Filter out empty parts (e.g., if a kwarg was None)
+    clean_parts = [part for part in parts if part is not None]
+    
+    filename = "_".join(clean_parts) + ".png"
+    
+    # Use os.path.join to create the relative path
+    relative_path = os.path.join(base_dir, filename)
+    
+    return relative_path
 
 def mm_to_px(mm, dpi):
     """

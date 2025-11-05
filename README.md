@@ -1,74 +1,39 @@
 
 # Table of Contents
 
-1.  [About](#orgf89af5b)
-2.  [Why This Tool?](#org8e39ce8)
-3.  [What this tool is NOT](#org1e6778f)
-4.  [Features](#org237219b)
-    1.  [Pixel-Perfect Alignment](#org246eec5)
-    2.  [Template Types](#org8a52a18)
-    3.  [Flexible Layouts](#org844d0f2)
-        1.  [Single Page Templates](#orgf22b7af)
-        2.  [Uniform Multi-Cell Grids](#org3167579)
-        3.  [Mixed Multi-Type Grids](#orgebf1e55)
-        4.  [JSON Layout Engine](#org08e13e9)
-    4.  [Decorative Title Pages](#orgf792a36)
-        1.  [Title Text & Framing](#orgf48395a)
-        2.  [Title Positioning](#org15f3b22)
-5.  [Customization Options](#orgf289df2)
-    1.  [Major/Minor Lines](#org970eea4)
-    2.  [Custom Separators](#orge4171cc)
-    3.  [Margin Labels](#org5704d7f)
-6.  [Spacing Modes](#org5dd39bb)
-    1.  [Millimeter Mode (Default)](#org822b701)
-    2.  [Pixel Mode](#org07d35e6)
-    3.  [Line Count Mode](#org13125da)
-7.  [Installation](#org48aa382)
-8.  [Supported Devices](#org9290c23)
-9.  [Configuration](#org11c1697)
-10. [Usage Examples](#orgde5362c)
-    1.  [Basic Templates](#orgb246ed0)
-    2.  [Advanced Layouts](#orgd21b7e4)
-    3.  [Title Pages](#org90f9847)
-    4.  [Utility Commands](#orgcf2d933)
-11. [Output](#orgd2dc58a)
-12. [Technical Details](#orgf3d6433)
-    1.  [Pixel-Perfect Algorithm](#org934da52)
-    2.  [E-ink Greyscale Palette](#org477cd82)
-13. [Command Reference](#orgc6efdd9)
-    1.  [Global Options](#orgcc4f6c3)
-    2.  [Commands](#org5da5bde)
-14. [Contributing](#orgb5d6d6d)
-15. [License](#org565df64)
-16. [Credits](#org026ff20)
+1.  [About](#orgb49ad43)
+2.  [Why This Tool?](#orgf062469)
+3.  [What this tool is NOT](#orgaeb4f60)
+4.  [Features](#org8c2c9a5)
+5.  [Installation](#orgc977ff5)
+6.  [Full Documentation](#org9c9be0a)
+7.  [Supported Devices](#org4d3fd7b)
+8.  [Configuration](#orgf812c59)
+9.  [Usage Examples](#org223eac5)
+    1.  [Basic Templates](#org6a8e515)
+10. [Output](#org3962a62)
+11. [Contributing](#org8cf8926)
+12. [License](#org580845e)
+13. [Credits](#org2b8cb51)
 
 
-
-<a id="orgf89af5b"></a>
+<a id="orgb49ad43"></a>
 
 # About
 
 A device-agnostic command-line tool for generating mathematically balanced, pixel-perfect page templates for e-ink devices. Developed with the Supernote Manta, this tool supports millimeter or pixel specifications for human-readable, technically-precise, or true-scale template configurations.
 
 
-<a id="org8e39ce8"></a>
+<a id="orgf062469"></a>
 
 # Why This Tool?
 
 This tool was born from the frustration of online generators that fail to handle "half-lines" or pixel alignment, resulting in uneven, blurry, or aliased lines on high-DPI e-ink screens. This generator calculates exact pixel-perfect margins and spacing based on your device's specific resolution and DPI, ensuring every line is crisp and uniform.
 
-<div class="DETAILS" id="org39ccc28">
-<div class="SUMMARY" id="orgb44370d">
-<p>
-Click to see Visual Comparison: The "Why"
-</p>
+:SUMMARY: Click to see Visual Comparison: The "Why"
 
-</div>
-
-<p>
-<b><b>Problem: Blurry Lines (Fractional Pixels)</b></b>
-The image on the left (<code>--no-auto-adjust</code>) shows blurry, anti-aliased lines. The image on the right (default) shows the pixel-perfect, crisp lines this tool creates.
-</p>
+**Problem: Blurry Lines (Fractional Pixels)**
+The image on the left (`--no-auto-adjust`) shows blurry, anti-aliased lines. The image on the right (default) shows the pixel-perfect, crisp lines this tool creates.
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -92,10 +57,8 @@ The image on the left (<code>--no-auto-adjust</code>) shows blurry, anti-aliased
 </tbody>
 </table>
 
-<p>
-<b><b>Problem: Grid Misalignment</b></b>
-The image on the left (default) shows a grid being awkwardly cut off. The image on the right (<code>--force-major-alignment</code>) shows the margins being automatically adjusted to end perfectly on a major grid line.
-</p>
+**Problem: Grid Misalignment**
+The image on the left (default) shows a grid being awkwardly cut off. The image on the right (`--force-major-alignment`) shows the margins being automatically adjusted to end perfectly on a major grid line.
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -119,10 +82,10 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 </tbody>
 </table>
 
-</div>
+:END:
 
 
-<a id="org1e6778f"></a>
+<a id="orgaeb4f60"></a>
 
 # What this tool is NOT
 
@@ -133,471 +96,58 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   Monetized or Paywalled Tool
 
 
-<a id="org237219b"></a>
+<a id="org8c2c9a5"></a>
 
 # Features
 
-
-<a id="org246eec5"></a>
-
-## Pixel-Perfect Alignment
-
--   Automatically adjusts margins and spacing to ensure precise sub-pixel placement
--   Eliminates blurry lines and aliasing artifacts
--   Handles fractional pixel calculations with configurable rounding strategies
--   Optional `--lines` mode to fit an exact number of lines with automatic spacing calculation
-
-
-<a id="org8a52a18"></a>
-
-## Template Types
-
-Generate a wide variety of template patterns:
-
--   `lined` - Horizontal ruled lines with optional line numbering
--   `dotgrid` - Dot grid with optional major crosshairs
--   `grid` - Full graph paper with major/minor lines and crosshairs
--   `manuscript` - 4-line handwriting guides (baseline, midline, ascender, descender)
--   `french_ruled` - Seyès ruling with vertical guides
--   `music_staff` - 5-line musical notation staves
--   `isometric` - 60° triangular isometric grid
--   `hexgrid` - Flat-top hexagonal grid
--   `hybrid_lined_dotgrid` - Split layout with lined on one side, dotgrid on the other
-
-<div class="DETAILS" id="org7ac919c">
-<div class="SUMMARY" id="org6ebdae3">
-<p>
-Click to see Screenshot Gallery: Template Types
-</p>
-
-</div>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="org-left">Lined (w/ Numbers)</th>
-<th scope="col" class="org-left">Dotgrid (w/ Crosshairs)</th>
-<th scope="col" class="org-left">Grid (w/ Axis Labels)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="org-left"><img src="src/assets/screenshots/manta/gallery_lined_with_numbers.png" alt="gallery_lined_with_numbers.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/gallery_dotgrid_with_crosshairs.png" alt="gallery_dotgrid_with_crosshairs.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/gallery_grid_with_axis_labels.png" alt="gallery_grid_with_axis_labels.png" /></td>
-</tr>
-
-<tr>
-<td class="org-left"><b>Manuscript</b></td>
-<td class="org-left"><b>French Ruled</b></td>
-<td class="org-left"><b>Music Staff</b></td>
-</tr>
-
-<tr>
-<td class="org-left"><img src="src/assets/screenshots/manta/gallery_manuscript.png" alt="gallery_manuscript.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/gallery_french_ruled.png" alt="gallery_french_ruled.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/gallery_music_staff.png" alt="gallery_music_staff.png" /></td>
-</tr>
-
-<tr>
-<td class="org-left"><b>Isometric</b></td>
-<td class="org-left"><b>Hex Grid</b></td>
-<td class="org-left"><b>Hybrid</b></td>
-</tr>
-
-<tr>
-<td class="org-left"><img src="src/assets/screenshots/manta/gallery_isometric.png" alt="gallery_isometric.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/gallery_hexgrid.png" alt="gallery_hexgrid.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/gallery_hybrid.png" alt="gallery_hybrid.png" /></td>
-</tr>
-</tbody>
-</table>
-
-</div>
-
-
-<a id="org844d0f2"></a>
-
-## Flexible Layouts
-
-
-<a id="orgf22b7af"></a>
-
-### Single Page Templates
-
-    eink-template-gen lined --spacing 7mm --margin 10
-    eink-template-gen grid --spacing 5mm --major_every 5 --axis-labels
-
-
-<a id="org3167579"></a>
-
-### Uniform Multi-Cell Grids
-
-Create N × M grids where all cells use the same template:
-
-    # 2x2 grid of dotgrid
-    eink-template-gen multi --rows 2 --columns 2 --type dotgrid --spacing 5mm
-    # 2 stacked (vertical) sections of lined paper
-    eink-template-gen multi --rows 2 --columns 1 --type lined --spacing 7mm --orientation vertical
-
-The `multi` command also supports an `--orientation` flag (`horizontal` or `vertical`) which determines the layout flow.
-
-
-<a id="orgebf1e55"></a>
-
-### Mixed Multi-Type Grids
-
-Create N × M grids where each cell can be a different template type:
-
-    eink-template-gen multi --rows 2 --columns 2 \
-      --cell_types lined,grid,dotgrid,manuscript --spacing 6mm
-
-
-<a id="org08e13e9"></a>
-
-### JSON Layout Engine
-
-Design complex, ratio-based layouts (like Cornell notes) using JSON:
-
-    eink-template-gen layout --file cornell_layout.json
-
-Example JSON structure for Cornell Notes with a Title:
-
-    {
-      "device": "manta",
-      "master_spacing_mm": 7,
-      "margin_mm": 12,
-      "header_separator": {
-        "style": "wavy",
-        "amplitude": 10.0,
-        "wavelength": 100.0
-      },
-      "page_layout": [
-        {
-          "name": "Cue Column",
-          "region_rect": [0, 0.1, 0.3, 0.75],
-          "template": "dotgrid",
-          "spacing_mm": 5,
-          "kwargs": {"dot_size_px": 1}
-        },
-        {
-          "name": "Notes Section",
-          "region_rect": [0.3, 0.1, 0.7, 0.75],
-          "template": "lined",
-          "kwargs": {"line_width_px": 0.75}
-        },
-        {
-          "name": "Summary Section",
-          "region_rect": [0, 0.85, 1.0, 0.15],
-          "template": "grid",
-          "kwargs": {"line_width_px": 0.5}
-        }
-      ],
-      "title_element": {
-        "text": "Lecture Notes",
-        "region_rect": [0, 0, 1.0, 0.1],
-        "font_size": 32,
-        "font_weight": "bold",
-        "v_align": "center",
-        "show_frame": false
-      }
-    }
-
-**Note: When using JSON, separators can be defined as simple strings (e.g., "bold") or as objects with specific parameters to customize their appearance.**
-
-<div class="DETAILS" id="org041eab3">
-<div class="SUMMARY" id="org2517a07">
-<p>
-Click to see Screenshot Gallery: Flexible Layouts
-</p>
-
-</div>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="org-left">Uniform 2x2 Grid</th>
-<th scope="col" class="org-left">Vertical Stacked</th>
-<th scope="col" class="org-left">Mixed-Type Grid</th>
-<th scope="col" class="org-left">JSON (Cornell)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="org-left"><img src="src/assets/screenshots/manta/layout_multi_uniform.png" alt="layout_multi_uniform.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/layout_multi_vertical.png" alt="layout_multi_vertical.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/layout_multi_mixed.png" alt="layout_multi_mixed.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/layout_json_cornell.png" alt="layout_json_cornell.png" /></td>
-</tr>
-</tbody>
-</table>
-
-</div>
-
-
-<a id="orgf792a36"></a>
-
-## Decorative Title Pages
-
-Generate artistic cover pages with multiple pattern types:
-
--   `truchet` - Classic Truchet tiles with variants (classic, cross, triangle, wave, mixed)
--   `diagonal_truchet` - Diagonal split tiles
--   `hexagonal_truchet` - Truchet patterns on hexagonal grid
--   `ten_print` - Random diagonal maze pattern
--   L-System Fractals:
-    -   `hilbert_curve` - Space-filling Hilbert curve
-    -   `dragon_curve` - Classic dragon fractal
-    -   `koch_snowflake` - 6-fold symmetric snowflake
-    -   `sierpinski_triangle` - Recursive triangle pattern
-    -   `plant_fractal` - Organic branching pattern
-    -   `gosper_curve` - Hexagonal space-filling curve
-    -   `levy_c_curve` - Elegant symmetric fractal
--   `contour_lines` - Topographic-style contour maps using Perlin-like noise
--   `noise_field` - Greyscale texture patterns
-
-All title pages support:
-
--   Optional decorative borders (simple, double, ornate, geometric)
--   Custom title text with configurable frames
--   Reproducible patterns via seed values
-
-<div class="DETAILS" id="org7effce1">
-<div class="SUMMARY" id="org5fece10">
-<p>
-Click to see Screenshot Gallery: Title Pages
-</p>
-
-</div>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="org-left">Truchet (Filled)</th>
-<th scope="col" class="org-left">Diagonal Truchet</th>
-<th scope="col" class="org-left">Hexagonal Truchet</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="org-left"><img src="src/assets/screenshots/manta/title_truchet_filled.png" alt="title_truchet_filled.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/title_diagonal_truchet.png" alt="title_diagonal_truchet.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/title_hexagonal_truchet.png" alt="title_hexagonal_truchet.png" /></td>
-</tr>
-
-<tr>
-<td class="org-left"><b>10 Print</b></td>
-<td class="org-left"><b>Koch Snowflake</b></td>
-<td class="org-left"><b>Plant Fractal</b></td>
-</tr>
-
-<tr>
-<td class="org-left"><img src="src/assets/screenshots/manta/title_ten_print.png" alt="title_ten_print.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/title_lsystem_koch.png" alt="title_lsystem_koch.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/title_lsystem_plant.png" alt="title_lsystem_plant.png" /></td>
-</tr>
-
-<tr>
-<td class="org-left"><b>Contour Lines</b></td>
-<td class="org-left"><b>Noise Field</b></td>
-<td class="org-left"><b>Title w/ Frame</b></td>
-</tr>
-
-<tr>
-<td class="org-left"><img src="src/assets/screenshots/manta/title_contour_lines.png" alt="title_contour_lines.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/title_noise_field.png" alt="title_noise_field.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/title_with_frame.png" alt="title_with_frame.png" /></td>
-</tr>
-</tbody>
-</table>
-
-</div>
-
-
-<a id="orgf48395a"></a>
-
-### Title Text & Framing
-
-All title pages support a powerful set of arguments for adding and styling a title block:
-
--   ****`--title-text "My Notes"`**:** The text to display.
--   ****`--title-frame-shape rounded-rectangle`**:** Shape of the frame (rectangle, ellipse, etc.).
--   ****`--title-border-style dashed`**:** Border style (solid, dashed, dotted, double, ornate).
--   ****`--title-font-size 32`**:** Font size in points.
--   ****`--title-font-family Sans`**:** Font family (Serif, Sans, Monospace).
--   ****`--title-fill-grey 15`**:** Frame fill color (0-15, 15=white).
--   ****`--title-no-frame`**:** Disables the frame entirely.
-
-
-<a id="org15f3b22"></a>
-
-### Title Positioning
-
-By default, the title is placed in the top-third of the page. You can override this:
-
--   ****`--title-v-align center`**:** Vertical alignment (top, center, bottom).
--   ****`--title-y-center 1000`**:** Set an exact vertical position in pixels.
--   ****`--title-h-align left`**:** Horizontal alignment (left, center, right).
--   ****`--title-x-center 500`**:** Set an exact horizontal position in pixels.
-
-
-<a id="orgf289df2"></a>
-
-# Customization Options
-
-
-<a id="org970eea4"></a>
-
-## Major/Minor Lines
-
--   Major Lines: Every Nth line can be thicker (e.g., `--major_every 5`)
--   Crosshairs: Automatic crosshair markers at major intersections
--   Force Alignment: `--force-major-alignment` adjusts margins to ensure grids end on major lines
-
-
-<a id="orge4171cc"></a>
-
-## Custom Separators
-
-Add decorative header/footer separators:
-
-    eink-template-gen lined --spacing 7mm \
-      --header-sep wavy --footer-sep double
-
-Available styles: bold, double, wavy, dashed, thick<sub>thin</sub>, zig-zag, scalloped, castellated, dotted, dash-dot, barber-stripe, stitch
-
-<div class="DETAILS" id="org40c4ac6">
-<div class="SUMMARY" id="org9a877dc">
-<p>
-Click to see Screenshot: Custom Separators
-</p>
-
-</div>
-
-<p>
-Example of 'wavy' and 'double' separators.
-<img src="src/assets/screenshots/manta/custom_separators.png" alt="custom_separators.png" />
-</p>
-
-</div>
-
-
-<a id="org5704d7f"></a>
-
-## Margin Labels
-
--   Line Numbers: `--line-numbers` with configurable side, interval, and styling
--   Cell Labels: `--cell-labels` for grid cells (A, B, C&#x2026; / 1, 2, 3&#x2026;)
--   Axis Labels: `--axis-labels` for plot-style numbering (0, 5, 10&#x2026;)
-
-**Note: For the `grid` command, you may use either `--cell-labels` or `--axis-labels`, but not both at the same time.**
-
-    # Lined paper with line numbers
-    eink-template-gen lined --spacing 7mm --line-numbers \
-      --line-numbers-interval 5 --line-numbers-side left
-    
-    # Grid with A, B, C... / 1, 2, 3... labels
-    eink-template-gen grid --spacing 5mm --cell-labels
-    
-    # Grid with axis labels
-    eink-template-gen grid --spacing 5mm --major_every 5 --axis-labels \
-      --axis-labels-interval 5 --axis-labels-origin bottomLeft
-
-
-<a id="org5dd39bb"></a>
-
-# Spacing Modes
-
-
-<a id="org822b701"></a>
-
-## Millimeter Mode (Default)
-
-Human-readable spacing with automatic pixel-perfect adjustment:
-
-    eink-template-gen lined --spacing 6mm
-    # Note: Adjusted spacing from 6mm to 6.011mm (71px) for pixel-perfect alignment
-
-Disable auto-adjustment for true-scale (may cause slight blur):
-
-    eink-template-gen lined --spacing 6mm --no-auto-adjust
-
-
-<a id="org07d35e6"></a>
-
-## Pixel Mode
-
-Exact pixel control:
-
-    eink-template-gen lined --spacing 71px
-
-
-<a id="org13125da"></a>
-
-## Line Count Mode
-
-Fit an exact number of lines by automatically calculating spacing:
-
-    # Fit exactly 40 lines with default 0mm margins
-    eink-template-gen lined --lines 40
-    # Fit exactly 40 lines with 10mm margins
-    eink-template-gen lined --lines 40 --margin 10
-    # Grid with specific dimensions
-    eink-template-gen grid --lines 40x30 --margin 10
-
-Use `--enforce-exact-spacing` to allow fractional pixel spacing (may cause
-slight blur but ensures exact fit).
-
-
-<a id="org48aa382"></a>
+-   **Pixel-Perfect Alignment:** Automatically adjusts margins and spacing to eliminate blurry lines and aliasing artifacts.
+-   **Multiple Template Types:** Generate lined, dotgrid, grid, manuscript, french ruled, music staff, isometric, hexgrid, and hybrid pages.
+-   **Flexible Layouts:** Create single pages, uniform N x M grids, mixed-type grids, and complex, ratio-based layouts using JSON.
+-   **Decorative Title Pages:** Generate artistic cover pages using Truchet tiles, L-System fractals, noise fields, and more.
+-   **Powerful Customization:** Add major/minor lines, decorative separators, line numbers, and axis labels.
+-   **Flexible Spacing:** Define layouts using millimeters (default), exact pixels, or by fitting an exact line count.
+
+
+<a id="orgc977ff5"></a>
 
 # Installation
 
     pip install eink-template-gen
 
 
-<a id="org9290c23"></a>
+<a id="org9c9be0a"></a>
+
+# Full Documentation
+
+For detailed guides, feature deep-dives, and advanced examples, please see the `docs/` directory:
+
+-   **Features**
+    -   [Template Types](docs/features/template-types.md)
+    -   [Flexible Layouts](docs/features/layouts.md)
+    -   [Decorative Title Pages](docs/features/title-pages.md)
+-   **Guides**
+    -   [Customization Options (Separators, Labels, etc.)](docs/guides/customization.md)
+    -   [Spacing Modes (mm, px, line count)](docs/guides/spacing-modes.md)
+-   **Examples**
+    -   [Advanced Usage Examples](docs/advanced-examples.md)
+-   **Reference**
+    -   [Command Reference (All Flags)](docs/reference/command-reference.md)
+    -   [Technical Details (Algorithm, Palette)](docs/reference/technical-details.md)
+
+
+<a id="org4d3fd7b"></a>
 
 # Supported Devices
 
 Built-in device profiles:
 
--   Supernote Manta (10.7", 1920×2560, 300 DPI)
--   Supernote A5 X (10.3", 1404×1872, 226 DPI)
--   Supernote A6 X (7.8", 1404×1872, 300 DPI)
--   Supernote Nomad (7.8", 1404×1872, 300 DPI)
+-   Supernote Manta (10.7", 1920x2560, 300 DPI)
+-   Supernote A5 X (10.3", 1404x1872, 226 DPI)
+-   Supernote A6 X (7.8", 1404x1872, 300 DPI)
+-   Supernote Nomad (7.8", 1404x1872, 300 DPI)
 
 
-<a id="org11c1697"></a>
+<a id="orgf812c59"></a>
 
 # Configuration
 
@@ -609,80 +159,31 @@ Set a default device to avoid specifying `--device` every time:
 Configuration is stored locally in `config.json`.
 
 
-<a id="orgde5362c"></a>
+<a id="org223eac5"></a>
 
 # Usage Examples
 
 
-<a id="orgb246ed0"></a>
+<a id="org6a8e515"></a>
 
 ## Basic Templates
 
     # Simple lined paper
     eink-template-gen lined --spacing 7mm
+    
     # Dot grid with major crosshairs
     eink-template-gen dotgrid --spacing 5mm --major_every 5
+    
     # Graph paper with axis labels
     eink-template-gen grid --spacing 5mm --major_every 5 --axis-labels
+    
     # Manuscript paper for handwriting practice
     eink-template-gen manuscript --spacing 8mm
 
-
-<a id="orgd21b7e4"></a>
-
-## Advanced Layouts
-
-    # 2×2 grid of different templates
-    eink-template-gen multi --rows 2 --columns 2 \
-      --cell_types lined,grid,dotgrid,manuscript --spacing 6mm
-    
-    # Cornell notes from JSON
-    eink-template-gen layout --file cornell_layout.json
-    
-    # Split page: lined + dotgrid
-    eink-template-gen hybrid_lined_dotgrid --spacing 6mm --split-ratio 0.6
-    
-    # Advanced multi: 2x1 grid of lined paper with line numbers
-    eink-template-gen multi --rows 2 --columns 1 --type lined \
-      --spacing 7mm --line-numbers --line-numbers-interval 1
+For more complex examples, including `multi`, `layout`, and `title` commands, see the [Advanced Usage Examples](docs/advanced-examples.md) documentation.
 
 
-<a id="org90f9847"></a>
-
-## Title Pages
-
-    # Truchet pattern with a *filled* background and custom title
-    eink-template-gen title --type truchet --spacing 10mm \
-      --truchet-fill-grey 12 --truchet-variant mixed \
-      --title-text "Lab Notebook" --title-font-size 40
-    
-    # L-System fractal with 5 iterations and a decorative border
-    eink-template-gen title --type koch_snowflake --spacing 1mm \
-      --lsystem-iterations 5 --decorative-border ornate \
-      --title-text "Fractals"
-    
-    # Organic contour map using turbulent noise and a custom seed
-    eink-template-gen title --type contour_lines --noise-style turbulent \
-      --noise-scale 0.02 --octaves 6 --noise-seed 1234 \
-      --title-text "Field Notes" --title-y-center 1800
-
-
-<a id="orgcf2d933"></a>
-
-## Utility Commands
-
-    # List available devices
-    eink-template-gen util list-devices
-    # List all template types
-    eink-template-gen util list-templates
-    # Analyze spacing for a device
-    eink-template-gen util info 6mm --device a5x
-    # Set defaults
-    eink-template-gen util set-default-device manta
-    eink-template-gen util set-default-margin 10
-
-
-<a id="orgd2dc58a"></a>
+<a id="org3962a62"></a>
 
 # Output
 
@@ -699,77 +200,7 @@ Templates are saved to `out/<device_id>/` by default:
 Use `--output-dir` and `--filename` to customize output location.
 
 
-<a id="orgf3d6433"></a>
-
-# Technical Details
-
-
-<a id="org934da52"></a>
-
-## Pixel-Perfect Algorithm
-
--   Calculate ideal spacing in pixels from mm input
--   Round to nearest integer pixel value
--   Calculate actual mm value of rounded pixels
--   Adjust top/bottom (and left/right for grids) margins to center content
--   Ensure no partial lines/dots at boundaries
-
-
-<a id="org477cd82"></a>
-
-## E-ink Greyscale Palette
-
-The tool uses the native 16-level greyscale palette (0-15) used by Supernote devices:
-
--   0 = #000000 (black)
--   8 = #808080 (medium grey)
--   15 = #ffffff (white)
-
-All greyscale values are automatically snapped to the nearest palette level for optimal e-ink rendering.
-
-
-<a id="orgc6efdd9"></a>
-
-# Command Reference
-
-
-<a id="orgcc4f6c3"></a>
-
-## Global Options
-
--   `--device DEVICE` - Target device (overrides default)
--   `--spacing SPACING` - Line/dot spacing (e.g., 6mm, 71px, or 6)
--   `--no-auto-adjust` - Disable automatic spacing adjustment
--   `--margin MM` - Page margin in mm (overrides device default)
--   `--lines SPEC` - Fit exact number of lines (e.g., 40 or 40x30)
--   `--output-dir DIR` - Output directory (default: out)
--   `--filename NAME` - Custom filename
-
-
-<a id="org5da5bde"></a>
-
-## Commands
-
--   `lined` - Generate lined template
--   `dotgrid` - Generate dot grid template
--   `grid` - Generate graph paper grid
--   `manuscript` - Generate manuscript template
--   `french_ruled` - Generate Seyès ruling
--   `music_staff` - Generate music staff
--   `isometric` - Generate isometric grid
--   `hexgrid` - Generate hexagonal grid
--   `hybrid_lined_dotgrid` - Generate hybrid template
--   `multi` - Generate multi-cell grid
--   `layout` - Generate from JSON layout
--   `title` - Generate decorative title page
--   `util` - Utility commands (list-devices, set-default-device, etc.)
-
-For detailed options for each command, run:
-
-    eink-template-gen <command> --help
-
-
-<a id="orgb5d6d6d"></a>
+<a id="org8cf8926"></a>
 
 # Contributing
 
@@ -780,14 +211,14 @@ Contributions are welcome! This project uses:
 -   Pure Python implementation (no external dependencies for noise/fractals)
 
 
-<a id="org565df64"></a>
+<a id="org580845e"></a>
 
 # License
 
-This project is licensed under the *GNU General Public License v3.0*. See the `LICENSE` file for details.
+This project is licensed under the **GNU General Public License v3.0**. See the `LICENSE` file for details.
 
 
-<a id="org026ff20"></a>
+<a id="org2b8cb51"></a>
 
 # Credits
 

@@ -1,64 +1,64 @@
 
 # Table of Contents
 
-1.  [About](#org7298b01)
-2.  [Why This Tool?](#orgcfe5b81)
-3.  [What this tool is NOT](#orgcda8fdc)
-4.  [Features](#orgdabc90f)
-    1.  [Pixel-Perfect Alignment](#orge7a2f16)
-    2.  [Template Types](#org38b6c47)
-    3.  [Flexible Layouts](#org4606b13)
-        1.  [Single Page Templates](#org87f6111)
-        2.  [Uniform Multi-Cell Grids](#org30f6eb1)
-        3.  [Mixed Multi-Type Grids](#orgc1210b6)
-        4.  [JSON Layout Engine](#orgfe9ab78)
-    4.  [Decorative Title Pages](#orga9f0496)
-        1.  [Title Text & Framing](#org59794e3)
-        2.  [Title Positioning](#org910609b)
-5.  [Customization Options](#orgcb5b9b2)
-    1.  [Major/Minor Lines](#org7d3f22e)
-    2.  [Custom Separators](#org04773e4)
-    3.  [Margin Labels](#org7bedd04)
-6.  [Spacing Modes](#orgf21e2b2)
-    1.  [Millimeter Mode (Default)](#org86fa987)
-    2.  [Pixel Mode](#org4a40690)
-    3.  [Line Count Mode](#orgf99ca66)
-7.  [Installation](#org01e7dd3)
-8.  [Supported Devices](#org6e34d90)
-9.  [Configuration](#orgcc5cd6b)
-10. [Usage Examples](#orgfd53644)
-    1.  [Basic Templates](#org395b85c)
-    2.  [Advanced Layouts](#orga5ca6d0)
-    3.  [Title Pages](#org642120a)
-    4.  [Utility Commands](#orgef6260c)
-11. [Output](#org42fc764)
-12. [Technical Details](#orgdf1f62f)
-    1.  [Pixel-Perfect Algorithm](#org3a8ba9a)
-    2.  [E-ink Greyscale Palette](#org837a16b)
-13. [Command Reference](#org8fbaa12)
-    1.  [Global Options](#org8a42ae4)
-    2.  [Commands](#org67016c3)
-14. [Contributing](#org2e75524)
-15. [License](#org229c976)
-16. [Credits](#org700c5f6)
+1.  [About](#orgf89af5b)
+2.  [Why This Tool?](#org8e39ce8)
+3.  [What this tool is NOT](#org1e6778f)
+4.  [Features](#org237219b)
+    1.  [Pixel-Perfect Alignment](#org246eec5)
+    2.  [Template Types](#org8a52a18)
+    3.  [Flexible Layouts](#org844d0f2)
+        1.  [Single Page Templates](#orgf22b7af)
+        2.  [Uniform Multi-Cell Grids](#org3167579)
+        3.  [Mixed Multi-Type Grids](#orgebf1e55)
+        4.  [JSON Layout Engine](#org08e13e9)
+    4.  [Decorative Title Pages](#orgf792a36)
+        1.  [Title Text & Framing](#orgf48395a)
+        2.  [Title Positioning](#org15f3b22)
+5.  [Customization Options](#orgf289df2)
+    1.  [Major/Minor Lines](#org970eea4)
+    2.  [Custom Separators](#orge4171cc)
+    3.  [Margin Labels](#org5704d7f)
+6.  [Spacing Modes](#org5dd39bb)
+    1.  [Millimeter Mode (Default)](#org822b701)
+    2.  [Pixel Mode](#org07d35e6)
+    3.  [Line Count Mode](#org13125da)
+7.  [Installation](#org48aa382)
+8.  [Supported Devices](#org9290c23)
+9.  [Configuration](#org11c1697)
+10. [Usage Examples](#orgde5362c)
+    1.  [Basic Templates](#orgb246ed0)
+    2.  [Advanced Layouts](#orgd21b7e4)
+    3.  [Title Pages](#org90f9847)
+    4.  [Utility Commands](#orgcf2d933)
+11. [Output](#orgd2dc58a)
+12. [Technical Details](#orgf3d6433)
+    1.  [Pixel-Perfect Algorithm](#org934da52)
+    2.  [E-ink Greyscale Palette](#org477cd82)
+13. [Command Reference](#orgc6efdd9)
+    1.  [Global Options](#orgcc4f6c3)
+    2.  [Commands](#org5da5bde)
+14. [Contributing](#orgb5d6d6d)
+15. [License](#org565df64)
+16. [Credits](#org026ff20)
 
 
 
-<a id="org7298b01"></a>
+<a id="orgf89af5b"></a>
 
 # About
 
 A device-agnostic command-line tool for generating mathematically balanced, pixel-perfect page templates for e-ink devices. Developed with the Supernote Manta, this tool supports millimeter or pixel specifications for human-readable, technically-precise, or true-scale template configurations.
 
 
-<a id="orgcfe5b81"></a>
+<a id="org8e39ce8"></a>
 
 # Why This Tool?
 
 This tool was born from the frustration of online generators that fail to handle "half-lines" or pixel alignment, resulting in uneven, blurry, or aliased lines on high-DPI e-ink screens. This generator calculates exact pixel-perfect margins and spacing based on your device's specific resolution and DPI, ensuring every line is crisp and uniform.
 
-<div class="DETAILS" id="org964501a">
-<div class="SUMMARY" id="orgc2e4d62">
+<div class="DETAILS" id="org39ccc28">
+<div class="SUMMARY" id="orgb44370d">
 <p>
 Click to see Visual Comparison: The "Why"
 </p>
@@ -86,8 +86,8 @@ The image on the left (<code>--no-auto-adjust</code>) shows blurry, anti-aliased
 </thead>
 <tbody>
 <tr>
-<td class="org-left"><img src="src/assets/screenshots/before/problem_before_blurry_lines.png" alt="problem_before_blurry_lines.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/problem_after_pixel_perfect_lined.png" alt="problem_after_pixel_perfect_lined.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/before/manta/true-scale/problem_before_blurry_lines.png" alt="problem_before_blurry_lines.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/problem_after_pixel_perfect_lined.png" alt="problem_after_pixel_perfect_lined.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -113,8 +113,8 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 </thead>
 <tbody>
 <tr>
-<td class="org-left"><img src="src/assets/screenshots/before/problem_before_grid_alignment.png" alt="problem_before_grid_alignment.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/problem_after_grid_alignment.png" alt="problem_after_grid_alignment.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/before/manta/problem_before_grid_alignment.png" alt="problem_before_grid_alignment.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/problem_after_grid_alignment.png" alt="problem_after_grid_alignment.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -122,7 +122,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 </div>
 
 
-<a id="orgcda8fdc"></a>
+<a id="org1e6778f"></a>
 
 # What this tool is NOT
 
@@ -133,12 +133,12 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   Monetized or Paywalled Tool
 
 
-<a id="orgdabc90f"></a>
+<a id="org237219b"></a>
 
 # Features
 
 
-<a id="orge7a2f16"></a>
+<a id="org246eec5"></a>
 
 ## Pixel-Perfect Alignment
 
@@ -148,7 +148,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   Optional `--lines` mode to fit an exact number of lines with automatic spacing calculation
 
 
-<a id="org38b6c47"></a>
+<a id="org8a52a18"></a>
 
 ## Template Types
 
@@ -164,8 +164,8 @@ Generate a wide variety of template patterns:
 -   `hexgrid` - Flat-top hexagonal grid
 -   `hybrid_lined_dotgrid` - Split layout with lined on one side, dotgrid on the other
 
-<div class="DETAILS" id="org7725dcc">
-<div class="SUMMARY" id="orgc684029">
+<div class="DETAILS" id="org7ac919c">
+<div class="SUMMARY" id="org6ebdae3">
 <p>
 Click to see Screenshot Gallery: Template Types
 </p>
@@ -191,9 +191,9 @@ Click to see Screenshot Gallery: Template Types
 </thead>
 <tbody>
 <tr>
-<td class="org-left"><img src="src/assets/screenshots/gallery_lined_with_numbers.png" alt="gallery_lined_with_numbers.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/gallery_dotgrid_with_crosshairs.png" alt="gallery_dotgrid_with_crosshairs.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/gallery_grid_with_axis_labels.png" alt="gallery_grid_with_axis_labels.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/gallery_lined_with_numbers.png" alt="gallery_lined_with_numbers.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/gallery_dotgrid_with_crosshairs.png" alt="gallery_dotgrid_with_crosshairs.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/gallery_grid_with_axis_labels.png" alt="gallery_grid_with_axis_labels.png" /></td>
 </tr>
 
 <tr>
@@ -203,9 +203,9 @@ Click to see Screenshot Gallery: Template Types
 </tr>
 
 <tr>
-<td class="org-left"><img src="src/assets/screenshots/gallery_manuscript.png" alt="gallery_manuscript.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/gallery_french_ruled.png" alt="gallery_french_ruled.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/gallery_music_staff.png" alt="gallery_music_staff.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/gallery_manuscript.png" alt="gallery_manuscript.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/gallery_french_ruled.png" alt="gallery_french_ruled.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/gallery_music_staff.png" alt="gallery_music_staff.png" /></td>
 </tr>
 
 <tr>
@@ -215,9 +215,9 @@ Click to see Screenshot Gallery: Template Types
 </tr>
 
 <tr>
-<td class="org-left"><img src="src/assets/screenshots/gallery_isometric.png" alt="gallery_isometric.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/gallery_hexgrid.png" alt="gallery_hexgrid.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/gallery_hybrid.png" alt="gallery_hybrid.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/gallery_isometric.png" alt="gallery_isometric.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/gallery_hexgrid.png" alt="gallery_hexgrid.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/gallery_hybrid.png" alt="gallery_hybrid.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -225,12 +225,12 @@ Click to see Screenshot Gallery: Template Types
 </div>
 
 
-<a id="org4606b13"></a>
+<a id="org844d0f2"></a>
 
 ## Flexible Layouts
 
 
-<a id="org87f6111"></a>
+<a id="orgf22b7af"></a>
 
 ### Single Page Templates
 
@@ -238,7 +238,7 @@ Click to see Screenshot Gallery: Template Types
     eink-template-gen grid --spacing 5mm --major_every 5 --axis-labels
 
 
-<a id="org30f6eb1"></a>
+<a id="org3167579"></a>
 
 ### Uniform Multi-Cell Grids
 
@@ -252,7 +252,7 @@ Create N × M grids where all cells use the same template:
 The `multi` command also supports an `--orientation` flag (`horizontal` or `vertical`) which determines the layout flow.
 
 
-<a id="orgc1210b6"></a>
+<a id="orgebf1e55"></a>
 
 ### Mixed Multi-Type Grids
 
@@ -262,7 +262,7 @@ Create N × M grids where each cell can be a different template type:
       --cell_types lined,grid,dotgrid,manuscript --spacing 6mm
 
 
-<a id="orgfe9ab78"></a>
+<a id="org08e13e9"></a>
 
 ### JSON Layout Engine
 
@@ -314,8 +314,8 @@ Example JSON structure for Cornell Notes with a Title:
 
 **Note: When using JSON, separators can be defined as simple strings (e.g., "bold") or as objects with specific parameters to customize their appearance.**
 
-<div class="DETAILS" id="org07e63ee">
-<div class="SUMMARY" id="org6a7c9f2">
+<div class="DETAILS" id="org041eab3">
+<div class="SUMMARY" id="org2517a07">
 <p>
 Click to see Screenshot Gallery: Flexible Layouts
 </p>
@@ -344,10 +344,10 @@ Click to see Screenshot Gallery: Flexible Layouts
 </thead>
 <tbody>
 <tr>
-<td class="org-left"><img src="src/assets/screenshots/layout_multi_uniform.png" alt="layout_multi_uniform.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/layout_multi_vertical.png" alt="layout_multi_vertical.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/layout_multi_mixed.png" alt="layout_multi_mixed.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/layout_json_cornell.png" alt="layout_json_cornell.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/layout_multi_uniform.png" alt="layout_multi_uniform.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/layout_multi_vertical.png" alt="layout_multi_vertical.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/layout_multi_mixed.png" alt="layout_multi_mixed.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/layout_json_cornell.png" alt="layout_json_cornell.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -355,7 +355,7 @@ Click to see Screenshot Gallery: Flexible Layouts
 </div>
 
 
-<a id="orga9f0496"></a>
+<a id="orgf792a36"></a>
 
 ## Decorative Title Pages
 
@@ -382,8 +382,8 @@ All title pages support:
 -   Custom title text with configurable frames
 -   Reproducible patterns via seed values
 
-<div class="DETAILS" id="org6ec891c">
-<div class="SUMMARY" id="orgf776945">
+<div class="DETAILS" id="org7effce1">
+<div class="SUMMARY" id="org5fece10">
 <p>
 Click to see Screenshot Gallery: Title Pages
 </p>
@@ -409,9 +409,9 @@ Click to see Screenshot Gallery: Title Pages
 </thead>
 <tbody>
 <tr>
-<td class="org-left"><img src="src/assets/screenshots/title_truchet_filled.png" alt="title_truchet_filled.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/title_diagonal_truchet.png" alt="title_diagonal_truchet.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/title_hexagonal_truchet.png" alt="title_hexagonal_truchet.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/title_truchet_filled.png" alt="title_truchet_filled.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/title_diagonal_truchet.png" alt="title_diagonal_truchet.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/title_hexagonal_truchet.png" alt="title_hexagonal_truchet.png" /></td>
 </tr>
 
 <tr>
@@ -421,9 +421,9 @@ Click to see Screenshot Gallery: Title Pages
 </tr>
 
 <tr>
-<td class="org-left"><img src="src/assets/screenshots/title_ten_print.png" alt="title_ten_print.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/title_lsystem_koch.png" alt="title_lsystem_koch.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/title_lsystem_plant.png" alt="title_lsystem_plant.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/title_ten_print.png" alt="title_ten_print.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/title_lsystem_koch.png" alt="title_lsystem_koch.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/title_lsystem_plant.png" alt="title_lsystem_plant.png" /></td>
 </tr>
 
 <tr>
@@ -433,9 +433,9 @@ Click to see Screenshot Gallery: Title Pages
 </tr>
 
 <tr>
-<td class="org-left"><img src="srcA/assets/screenshots/title_contour_lines.png" alt="title_contour_lines.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/title_noise_field.png" alt="title_noise_field.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/title_with_frame.png" alt="title_with_frame.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/title_contour_lines.png" alt="title_contour_lines.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/title_noise_field.png" alt="title_noise_field.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/title_with_frame.png" alt="title_with_frame.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -443,7 +443,7 @@ Click to see Screenshot Gallery: Title Pages
 </div>
 
 
-<a id="org59794e3"></a>
+<a id="orgf48395a"></a>
 
 ### Title Text & Framing
 
@@ -458,7 +458,7 @@ All title pages support a powerful set of arguments for adding and styling a tit
 -   ****`--title-no-frame`**:** Disables the frame entirely.
 
 
-<a id="org910609b"></a>
+<a id="org15f3b22"></a>
 
 ### Title Positioning
 
@@ -470,12 +470,12 @@ By default, the title is placed in the top-third of the page. You can override t
 -   ****`--title-x-center 500`**:** Set an exact horizontal position in pixels.
 
 
-<a id="orgcb5b9b2"></a>
+<a id="orgf289df2"></a>
 
 # Customization Options
 
 
-<a id="org7d3f22e"></a>
+<a id="org970eea4"></a>
 
 ## Major/Minor Lines
 
@@ -484,7 +484,7 @@ By default, the title is placed in the top-third of the page. You can override t
 -   Force Alignment: `--force-major-alignment` adjusts margins to ensure grids end on major lines
 
 
-<a id="org04773e4"></a>
+<a id="orge4171cc"></a>
 
 ## Custom Separators
 
@@ -495,8 +495,8 @@ Add decorative header/footer separators:
 
 Available styles: bold, double, wavy, dashed, thick<sub>thin</sub>, zig-zag, scalloped, castellated, dotted, dash-dot, barber-stripe, stitch
 
-<div class="DETAILS" id="org728f907">
-<div class="SUMMARY" id="orgd1e8e39">
+<div class="DETAILS" id="org40c4ac6">
+<div class="SUMMARY" id="org9a877dc">
 <p>
 Click to see Screenshot: Custom Separators
 </p>
@@ -505,13 +505,13 @@ Click to see Screenshot: Custom Separators
 
 <p>
 Example of 'wavy' and 'double' separators.
-<img src="src/assets/screenshots/custom_separators.png" alt="custom_separators.png" />
+<img src="src/assets/screenshots/manta/custom_separators.png" alt="custom_separators.png" />
 </p>
 
 </div>
 
 
-<a id="org7bedd04"></a>
+<a id="org5704d7f"></a>
 
 ## Margin Labels
 
@@ -533,12 +533,12 @@ Example of 'wavy' and 'double' separators.
       --axis-labels-interval 5 --axis-labels-origin bottomLeft
 
 
-<a id="orgf21e2b2"></a>
+<a id="org5dd39bb"></a>
 
 # Spacing Modes
 
 
-<a id="org86fa987"></a>
+<a id="org822b701"></a>
 
 ## Millimeter Mode (Default)
 
@@ -552,7 +552,7 @@ Disable auto-adjustment for true-scale (may cause slight blur):
     eink-template-gen lined --spacing 6mm --no-auto-adjust
 
 
-<a id="org4a40690"></a>
+<a id="org07d35e6"></a>
 
 ## Pixel Mode
 
@@ -561,7 +561,7 @@ Exact pixel control:
     eink-template-gen lined --spacing 71px
 
 
-<a id="orgf99ca66"></a>
+<a id="org13125da"></a>
 
 ## Line Count Mode
 
@@ -578,14 +578,14 @@ Use `--enforce-exact-spacing` to allow fractional pixel spacing (may cause
 slight blur but ensures exact fit).
 
 
-<a id="org01e7dd3"></a>
+<a id="org48aa382"></a>
 
 # Installation
 
     pip install eink-template-gen
 
 
-<a id="org6e34d90"></a>
+<a id="org9290c23"></a>
 
 # Supported Devices
 
@@ -597,7 +597,7 @@ Built-in device profiles:
 -   Supernote Nomad (7.8", 1404×1872, 300 DPI)
 
 
-<a id="orgcc5cd6b"></a>
+<a id="org11c1697"></a>
 
 # Configuration
 
@@ -609,12 +609,12 @@ Set a default device to avoid specifying `--device` every time:
 Configuration is stored locally in `config.json`.
 
 
-<a id="orgfd53644"></a>
+<a id="orgde5362c"></a>
 
 # Usage Examples
 
 
-<a id="org395b85c"></a>
+<a id="orgb246ed0"></a>
 
 ## Basic Templates
 
@@ -628,7 +628,7 @@ Configuration is stored locally in `config.json`.
     eink-template-gen manuscript --spacing 8mm
 
 
-<a id="orga5ca6d0"></a>
+<a id="orgd21b7e4"></a>
 
 ## Advanced Layouts
 
@@ -647,7 +647,7 @@ Configuration is stored locally in `config.json`.
       --spacing 7mm --line-numbers --line-numbers-interval 1
 
 
-<a id="org642120a"></a>
+<a id="org90f9847"></a>
 
 ## Title Pages
 
@@ -667,7 +667,7 @@ Configuration is stored locally in `config.json`.
       --title-text "Field Notes" --title-y-center 1800
 
 
-<a id="orgef6260c"></a>
+<a id="orgcf2d933"></a>
 
 ## Utility Commands
 
@@ -682,7 +682,7 @@ Configuration is stored locally in `config.json`.
     eink-template-gen util set-default-margin 10
 
 
-<a id="org42fc764"></a>
+<a id="orgd2dc58a"></a>
 
 # Output
 
@@ -699,12 +699,12 @@ Templates are saved to `out/<device_id>/` by default:
 Use `--output-dir` and `--filename` to customize output location.
 
 
-<a id="orgdf1f62f"></a>
+<a id="orgf3d6433"></a>
 
 # Technical Details
 
 
-<a id="org3a8ba9a"></a>
+<a id="org934da52"></a>
 
 ## Pixel-Perfect Algorithm
 
@@ -715,7 +715,7 @@ Use `--output-dir` and `--filename` to customize output location.
 -   Ensure no partial lines/dots at boundaries
 
 
-<a id="org837a16b"></a>
+<a id="org477cd82"></a>
 
 ## E-ink Greyscale Palette
 
@@ -728,12 +728,12 @@ The tool uses the native 16-level greyscale palette (0-15) used by Supernote dev
 All greyscale values are automatically snapped to the nearest palette level for optimal e-ink rendering.
 
 
-<a id="org8fbaa12"></a>
+<a id="orgc6efdd9"></a>
 
 # Command Reference
 
 
-<a id="org8a42ae4"></a>
+<a id="orgcc4f6c3"></a>
 
 ## Global Options
 
@@ -746,7 +746,7 @@ All greyscale values are automatically snapped to the nearest palette level for 
 -   `--filename NAME` - Custom filename
 
 
-<a id="org67016c3"></a>
+<a id="org5da5bde"></a>
 
 ## Commands
 
@@ -769,7 +769,7 @@ For detailed options for each command, run:
     eink-template-gen <command> --help
 
 
-<a id="org2e75524"></a>
+<a id="orgb5d6d6d"></a>
 
 # Contributing
 
@@ -780,14 +780,14 @@ Contributions are welcome! This project uses:
 -   Pure Python implementation (no external dependencies for noise/fractals)
 
 
-<a id="org229c976"></a>
+<a id="org565df64"></a>
 
 # License
 
 This project is licensed under the *GNU General Public License v3.0*. See the `LICENSE` file for details.
 
 
-<a id="org700c5f6"></a>
+<a id="org026ff20"></a>
 
 # Credits
 

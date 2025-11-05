@@ -89,6 +89,7 @@ config.json
 *~
 \#*#
 .#*
+*.org
 
 # JetBrains
 *.iml

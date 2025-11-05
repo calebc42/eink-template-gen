@@ -57,6 +57,7 @@ Issues = "https://github.com/calebc42/eink-template-gen/issues"
 Documentation = "https://github.com/calebc42/eink-template-gen#readme"
 
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["eink_template_gen*"]
 exclude = ["tests*", "docs*", "examples*"]
 
@@ -73,7 +74,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["eink_template_gen"]
+source = ["src/eink_template_gen"]
 omit = ["*/tests/*"]
 
 [tool.coverage.report]

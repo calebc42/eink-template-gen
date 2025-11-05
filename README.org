@@ -1,177 +1,468 @@
 #+TITLE: E-ink Template Generator
-#+AUTHOR: Caleb Christensen
-#+EMAIL: git@calebc42.com
 
-[[https://img.shields.io/pypi/v/supernote-template-gen.svg][https://pypi.org/project/eink-template-gen/]]
-[[https://img.shields.io/github/actions/workflow/status/yourusername/supernote-template-gen/python-package.yml?branch=main][https://github.com/calebc42/eink-template-gen/actions]]
-[[https://img.shields.io/badge/License-GPLv3-blue.svg][https://www.gnu.org/licenses/gpl-3.0]]
+* About
+A device-agnostic command-line tool for generating mathematically balanced, pixel-perfect page templates for e-ink devices. Developed with the Supernote Manta, this tool supports millimeter or pixel specifications for human-readable, technically-precise, or true-scale template configurations.
 
-A command-line tool for generating pixel-perfect, mathematically precise page templates for e-ink devices like the Supernote, with support for complex, ratio-based JSON layouts.
-
+* Why This Tool?
 This tool was born from the frustration of online generators that fail to handle "half-lines" or pixel alignment, resulting in uneven, blurry, or aliased lines on high-DPI e-ink screens. This generator calculates exact pixel-perfect margins and spacing based on your device's specific resolution and DPI, ensuring every line is crisp and uniform.
 
-* Features
-- *Pixel-Perfect Alignment:* Automatically adjusts margins and spacing to ensure no half-pixels or blurry lines.
-- *Device-Specific:* Comes pre-configured with the exact DPI and resolution for Supernote devices (=manta=, =a5x=, =a6x=).
-- *Multiple Template Types:* Generate =lined=, =dotgrid=, =grid=, =manuscript=, =french_ruled=, =music_staff=, =isometric=, and =hexgrid= templates.
-- *Flexible Layouts:*
-  - *Single Page:* Create simple, full-page templates.
-  - *Uniform Grids:* Create =N x M= grids of the *same* template (e.g., a 2x2 grid of lined paper).
-  - *Multi-Type Grids:* Create =N x M= grids where *each cell* is a different type.
-  - *JSON Layout Engine:* Design complex, ratio-based layouts (like Cornell notes) using a simple JSON file.
+#+BEGIN_DETAILS
+#+BEGIN_SUMMARY
+Click to see Visual Comparison: The "Why"
+#+END_SUMMARY
 
-[[./path/to/cornell_image.png]]
+**Problem: Blurry Lines (Fractional Pixels)**
+The image on the left (=--no-auto-adjust=) shows blurry, anti-aliased lines. The image on the right (default) shows the pixel-perfect, crisp lines this tool creates.
+
+| "Before" (Blurry) | "After" (Pixel-Perfect) |
+|---|---|
+| [[file:assets/screenshots/before/problem_before_blurry_lines.png]] | [[file:assets/screenshots/problem_after_pixel_perfect_lined.png]] |
+
+**Problem: Grid Misalignment**
+The image on the left (default) shows a grid being awkwardly cut off. The image on the right (=--force-major-alignment=) shows the margins being automatically adjusted to end perfectly on a major grid line.
+
+| "Before" (Misaligned) | "After" (Force-Aligned) |
+|---|---|
+| [[file:assets/screenshots/before/problem_before_grid_alignment.png]] | [[file:assets/screenshots/problem_after_grid_alignment.png]] |
+
+#+END_DETAILS
+
+* What this tool is NOT
+- Calendar/Schedule Generator
+- Task/To Do list Generator
+- Color e-ink Template Generator (yet)
+- Real-Time GUI Editor
+- Monetized or Paywalled Tool
+
+* Features
+** Pixel-Perfect Alignment
+- Automatically adjusts margins and spacing to ensure precise sub-pixel placement
+- Eliminates blurry lines and aliasing artifacts
+- Handles fractional pixel calculations with configurable rounding strategies
+- Optional =--lines= mode to fit an exact number of lines with automatic spacing calculation
+
+** Template Types
+Generate a wide variety of template patterns:
+
+- =lined= - Horizontal ruled lines with optional line numbering
+- =dotgrid= - Dot grid with optional major crosshairs
+- =grid= - Full graph paper with major/minor lines and crosshairs
+- =manuscript= - 4-line handwriting guides (baseline, midline, ascender, descender)
+- =french_ruled= - Seyès ruling with vertical guides
+- =music_staff= - 5-line musical notation staves
+- =isometric= - 60° triangular isometric grid
+- =hexgrid= - Flat-top hexagonal grid
+- =hybrid_lined_dotgrid= - Split layout with lined on one side, dotgrid on the other
+
+#+BEGIN_DETAILS
+#+BEGIN_SUMMARY
+Click to see Screenshot Gallery: Template Types
+#+END_SUMMARY
+
+| Lined (w/ Numbers) | Dotgrid (w/ Crosshairs) | Grid (w/ Axis Labels) |
+|---|---|---|
+| [[file:assets/screenshots/gallery_lined_with_numbers.png]] | [[file:assets/screenshots/gallery_dotgrid_with_crosshairs.png]] | [[file:assets/screenshots/gallery_grid_with_axis_labels.png]] |
+| *Manuscript* | *French Ruled* | *Music Staff* |
+| [[file:assets/screenshots/gallery_manuscript.png]] | [[file:assets/screenshots/gallery_french_ruled.png]] | [[file:assets/screenshots/gallery_music_staff.png]] |
+| *Isometric* | *Hex Grid* | *Hybrid* |
+| [[file:assets/screenshots/gallery_isometric.png]] | [[file:assets/screenshots/gallery_hexgrid.png]] | [[file:assets/screenshots/gallery_hybrid.png]] |
+
+#+END_DETAILS
+
+** Flexible Layouts
+*** Single Page Templates
+
+#+BEGIN_SRC bash
+eink-template-gen lined --spacing 7mm --margin 10
+eink-template-gen grid --spacing 5mm --major_every 5 --axis-labels
+#+END_SRC
+
+*** Uniform Multi-Cell Grids
+Create N × M grids where all cells use the same template:
+
+#+BEGIN_SRC bash
+# 2x2 grid of dotgrid
+eink-template-gen multi --rows 2 --columns 2 --type dotgrid --spacing 5mm
+# 2 stacked (vertical) sections of lined paper
+eink-template-gen multi --rows 2 --columns 1 --type lined --spacing 7mm --orientation vertical
+#+END_SRC
+
+The =multi= command also supports an =--orientation= flag (=horizontal= or =vertical=) which determines the layout flow.
+
+*** Mixed Multi-Type Grids
+Create N × M grids where each cell can be a different template type:
+
+#+BEGIN_SRC bash
+eink-template-gen multi --rows 2 --columns 2 \
+  --cell_types lined,grid,dotgrid,manuscript --spacing 6mm
+#+END_SRC
+
+*** JSON Layout Engine
+Design complex, ratio-based layouts (like Cornell notes) using JSON:
+
+#+BEGIN_SRC bash
+eink-template-gen layout --file cornell_layout.json
+#+END_SRC
+
+Example JSON structure for Cornell Notes with a Title:
+
+#+BEGIN_SRC json
+{
+  "device": "manta",
+  "master_spacing_mm": 7,
+  "margin_mm": 12,
+  "header_separator": {
+    "style": "wavy",
+    "amplitude": 10.0,
+    "wavelength": 100.0
+  },
+  "page_layout": [
+    {
+      "name": "Cue Column",
+      "region_rect": [0, 0.1, 0.3, 0.75],
+      "template": "dotgrid",
+      "spacing_mm": 5,
+      "kwargs": {"dot_size_px": 1}
+    },
+    {
+      "name": "Notes Section",
+      "region_rect": [0.3, 0.1, 0.7, 0.75],
+      "template": "lined",
+      "kwargs": {"line_width_px": 0.75}
+    },
+    {
+      "name": "Summary Section",
+      "region_rect": [0, 0.85, 1.0, 0.15],
+      "template": "grid",
+      "kwargs": {"line_width_px": 0.5}
+    }
+  ],
+  "title_element": {
+    "text": "Lecture Notes",
+    "region_rect": [0, 0, 1.0, 0.1],
+    "font_size": 32,
+    "font_weight": "bold",
+    "v_align": "center",
+    "show_frame": false
+  }
+}
+#+END_SRC
+
+*Note: When using JSON, separators can be defined as simple strings (e.g., "bold") or as objects with specific parameters to customize their appearance.*
+
+#+BEGIN_DETAILS
+#+BEGIN_SUMMARY
+Click to see Screenshot Gallery: Flexible Layouts
+#+END_SUMMARY
+
+| Uniform 2x2 Grid | Vertical Stacked | Mixed-Type Grid | JSON (Cornell) |
+|---|---|---|---|
+| [[file:assets/screenshots/layout_multi_uniform.png]] | [[file:assets/screenshots/layout_multi_vertical.png]] | [[file:assets/screenshots/layout_multi_mixed.png]] | [[file:assets/screenshots/layout_json_cornell.png]] |
+
+#+END_DETAILS
+
+** Decorative Title Pages
+Generate artistic cover pages with multiple pattern types:
+
+- =truchet= - Classic Truchet tiles with variants (classic, cross, triangle, wave, mixed)
+- =diagonal_truchet= - Diagonal split tiles
+- =hexagonal_truchet= - Truchet patterns on hexagonal grid
+- =ten_print= - Random diagonal maze pattern
+- L-System Fractals:
+  - =hilbert_curve= - Space-filling Hilbert curve
+  - =dragon_curve= - Classic dragon fractal
+  - =koch_snowflake= - 6-fold symmetric snowflake
+  - =sierpinski_triangle= - Recursive triangle pattern
+  - =plant_fractal= - Organic branching pattern
+  - =gosper_curve= - Hexagonal space-filling curve
+  - =levy_c_curve= - Elegant symmetric fractal
+- =contour_lines= - Topographic-style contour maps using Perlin-like noise
+- =noise_field= - Greyscale texture patterns
+
+All title pages support:
+
+- Optional decorative borders (simple, double, ornate, geometric)
+- Custom title text with configurable frames
+- Reproducible patterns via seed values
+
+#+BEGIN_DETAILS
+#+BEGIN_SUMMARY
+Click to see Screenshot Gallery: Title Pages
+#+END_SUMMARY
+
+| Truchet (Filled) | Diagonal Truchet | Hexagonal Truchet |
+|---|---|---|
+| [[file:assets/screenshots/title_truchet_filled.png]] | [[file:assets/screenshots/title_diagonal_truchet.png]] | [[file:assets/screenshots/title_hexagonal_truchet.png]] |
+| *10 Print* | *Koch Snowflake* | *Plant Fractal* |
+| [[file:assets/screenshots/title_ten_print.png]] | [[file:assets/screenshots/title_lsystem_koch.png]] | [[file:assets/screenshots/title_lsystem_plant.png]] |
+| *Contour Lines* | *Noise Field* | *Title w/ Frame* |
+| [[file:assets/screenshots/title_contour_lines.png]] | [[file:assets/screenshots/title_noise_field.png]] | [[file:assets/screenshots/title_with_frame.png]] |
+
+#+END_DETAILS
+
+*** Title Text & Framing
+All title pages support a powerful set of arguments for adding and styling a title block:
+
+-   *=--title-text "My Notes"=* :: The text to display.
+-   *=--title-frame-shape rounded-rectangle=* :: Shape of the frame (rectangle, ellipse, etc.).
+-   *=--title-border-style dashed=* :: Border style (solid, dashed, dotted, double, ornate).
+-   *=--title-font-size 32=* :: Font size in points.
+-   *=--title-font-family Sans=* :: Font family (Serif, Sans, Monospace).
+-   *=--title-fill-grey 15=* :: Frame fill color (0-15, 15=white).
+-   *=--title-no-frame=* :: Disables the frame entirely.
+
+*** Title Positioning
+By default, the title is placed in the top-third of the page. You can override this:
+
+-   *=--title-v-align center=* :: Vertical alignment (top, center, bottom).
+-   *=--title-y-center 1000=* :: Set an exact vertical position in pixels.
+-   *=--title-h-align left=* :: Horizontal alignment (left, center, right).
+-   *=--title-x-center 500=* :: Set an exact horizontal position in pixels.
+
+* Customization Options
+** Major/Minor Lines
+- Major Lines: Every Nth line can be thicker (e.g., =--major_every 5=)
+- Crosshairs: Automatic crosshair markers at major intersections
+- Force Alignment: =--force-major-alignment= adjusts margins to ensure grids end on major lines
+
+** Custom Separators
+Add decorative header/footer separators:
+
+#+BEGIN_SRC bash
+eink-template-gen lined --spacing 7mm \
+  --header-sep wavy --footer-sep double
+#+END_SRC
+
+Available styles: bold, double, wavy, dashed, thick_thin, zig-zag, scalloped, castellated, dotted, dash-dot, barber-stripe, stitch
+
+#+BEGIN_DETAILS
+#+BEGIN_SUMMARY
+Click to see Screenshot: Custom Separators
+#+END_SUMMARY
+
+Example of 'wavy' and 'double' separators.
+[[file:assets/screenshots/custom_separators.png]]
+
+#+END_DETAILS
+
+** Margin Labels
+- Line Numbers: =--line-numbers= with configurable side, interval, and styling
+- Cell Labels: =--cell-labels= for grid cells (A, B, C... / 1, 2, 3...)
+- Axis Labels: =--axis-labels= for plot-style numbering (0, 5, 10...)
+
+*Note: For the =grid= command, you may use either =--cell-labels= or =--axis-labels=, but not both at the same time.*
+
+#+BEGIN_SRC bash
+# Lined paper with line numbers
+eink-template-gen lined --spacing 7mm --line-numbers \
+  --line-numbers-interval 5 --line-numbers-side left
+
+# Grid with A, B, C... / 1, 2, 3... labels
+eink-template-gen grid --spacing 5mm --cell-labels
+
+# Grid with axis labels
+eink-template-gen grid --spacing 5mm --major_every 5 --axis-labels \
+  --axis-labels-interval 5 --axis-labels-origin bottomLeft
+#+END_SRC
+
+* Spacing Modes
+** Millimeter Mode (Default)
+Human-readable spacing with automatic pixel-perfect adjustment:
+
+#+BEGIN_SRC bash
+eink-template-gen lined --spacing 6mm
+# Note: Adjusted spacing from 6mm to 6.011mm (71px) for pixel-perfect alignment
+#+END_SRC
+
+Disable auto-adjustment for true-scale (may cause slight blur):
+
+#+BEGIN_SRC bash
+eink-template-gen lined --spacing 6mm --no-auto-adjust
+#+END_SRC
+
+** Pixel Mode
+Exact pixel control:
+
+#+BEGIN_SRC bash
+eink-template-gen lined --spacing 71px
+#+END_SRC
+
+** Line Count Mode
+Fit an exact number of lines by automatically calculating spacing:
+
+#+BEGIN_SRC bash
+# Fit exactly 40 lines with default 0mm margins
+eink-template-gen lined --lines 40
+# Fit exactly 40 lines with 10mm margins
+eink-template-gen lined --lines 40 --margin 10
+# Grid with specific dimensions
+eink-template-gen grid --lines 40x30 --margin 10
+#+END_SRC
+
+Use =--enforce-exact-spacing= to allow fractional pixel spacing (may cause
+slight blur but ensures exact fit).
 
 * Installation
 
-Once available on PyPI, you will be able to install it via:
 #+BEGIN_SRC bash
 pip install eink-template-gen
 #+END_SRC
 
-To install from source for development:
-#+BEGIN_SRC bash
-# 1. Clone the repository
-git clone https://github.com/calebc42/eink-template-gen.git
-cd eink-template-gen
+* Supported Devices
+Built-in device profiles:
 
-# 2. Install in "editable" mode with dev dependencies
-pip install -e .[dev]
-#+END_SRC
+- Supernote Manta (10.7", 1920×2560, 300 DPI)
+- Supernote A5 X (10.3", 1404×1872, 226 DPI)
+- Supernote A6 X (7.8", 1404×1872, 300 DPI)
+- Supernote Nomad (7.8", 1404×1872, 300 DPI)
 
-* Usage
-
-The generator provides a single command-line tool, =eink-template-gen=.
-
-** 1. Basic Example (Single Page)
-
-Generate a simple 6mm lined template for the Supernote Manta. The tool will auto-adjust the spacing for the Manta's 300 DPI screen.
+* Configuration
+Set a default device to avoid specifying =--device= every time:
 
 #+BEGIN_SRC bash
-eink-template-gen --device manta --template lined --spacing 6
+eink-template-gen util set-default-device manta
+eink-template-gen util set-default-margin 10
 #+END_SRC
-: Note: Adjusted spacing from 6.0mm to 6.011mm (71px) for pixel-perfect alignment
-: ✓ Template written to out/manta/lined_6mm_0_5px.png
 
-** 2. Grid Example (Uniform)
+Configuration is stored locally in =config.json=.
 
-Generate a 2-column, 2-row grid of dot-grid paper.
+* Usage Examples
+** Basic Templates
 
 #+BEGIN_SRC bash
-eink-template-gen --device manta --template dotgrid --spacing 5 --rows 2 --columns 2
+# Simple lined paper
+eink-template-gen lined --spacing 7mm
+# Dot grid with major crosshairs
+eink-template-gen dotgrid --spacing 5mm --major_every 5
+# Graph paper with axis labels
+eink-template-gen grid --spacing 5mm --major_every 5 --axis-labels
+# Manuscript paper for handwriting practice
+eink-template-gen manuscript --spacing 8mm
 #+END_SRC
-: Generating 2x2 uniform dotgrid grid for Supernote Manta...
-: ✓ Template written to out/manta/dotgrid_5_16mm_1_5rad_2col_2rows.png
 
-** 3. Multi-Type Grid Example
-
-Generate a 1x2 layout with lined paper on the left and a dot grid on the right.
+** Advanced Layouts
 
 #+BEGIN_SRC bash
-eink-template-gen --device manta --rows 1 --columns 2 --spacing 6 \
-  --cell_types lined,dotgrid
-#+END_SRC
-: Generating 1x2 multi-type grid for Supernote Manta...
-: ✓ Template written to out/manta/1x2_multi_grid_6mm.png
+# 2×2 grid of different templates
+eink-template-gen multi --rows 2 --columns 2 \
+  --cell_types lined,grid,dotgrid,manuscript --spacing 6mm
 
-** 4. JSON Layout Example (Power-User)
+# Cornell notes from JSON
+eink-template-gen layout --file cornell_layout.json
 
-This is the most powerful feature. You can define complex, ratio-based layouts in a JSON file.
+# Split page: lined + dotgrid
+eink-template-gen hybrid_lined_dotgrid --spacing 6mm --split-ratio 0.6
 
-Create a file named =cornell.json=:
-#+BEGIN_SRC json
-{
-  "device": "manta",
-  "margin_mm": 10,
-  "master_spacing_mm": 8,
-  "output_filename": "cornell_layout.png",
-  "header_separator": "bold",
-  "footer_separator": "bold",
-  "page_layout": [
-    {
-      "name": "Title",
-      "region_rect": [0, 0, 1.0, 0.10],
-      "template": "lined",
-      "spacing_mm": 8,
-      "kwargs": { "line_width_px": 1.0 }
-    },
-    {
-      "name": "Cue Column",
-      "region_rect": [0, 0.10, 0.20, 0.70],
-      "template": "dotgrid",
-      "spacing_mm": 6,
-      "kwargs": { "dot_radius_px": 1.5 }
-    },
-    {
-      "name": "Notes Section",
-      "region_rect": [0.20, 0.10, 0.80, 0.70],
-      "template": "manuscript",
-      "spacing_mm": 8,
-      "kwargs": { "midline_style": "dotted" }
-    },
-    {
-      "name": "Summary",
-      "region_rect": [0, 0.80, 1.0, 0.20],
-      "template": "french_ruled",
-      "spacing_mm": 2,
-      "kwargs": {}
-    }
-  ]
-}
+# Advanced multi: 2x1 grid of lined paper with line numbers
+eink-template-gen multi --rows 2 --columns 1 --type lined \
+  --spacing 7mm --line-numbers --line-numbers-interval 1
 #+END_SRC
 
-Now, just pass this file to the =--layout= argument:
+** Title Pages
 
 #+BEGIN_SRC bash
-supernote-gen --layout cornell.json
+# Truchet pattern with a *filled* background and custom title
+eink-template-gen title --type truchet --spacing 10mm \
+  --truchet-fill-grey 12 --truchet-variant mixed \
+  --title-text "Lab Notebook" --title-font-size 40
+
+# L-System fractal with 5 iterations and a decorative border
+eink-template-gen title --type koch_snowflake --spacing 1mm \
+  --lsystem-iterations 5 --decorative-border ornate \
+  --title-text "Fractals"
+
+# Organic contour map using turbulent noise and a custom seed
+eink-template-gen title --type contour_lines --noise-style turbulent \
+  --noise-scale 0.02 --octaves 6 --noise-seed 1234 \
+  --title-text "Field Notes" --title-y-center 1800
 #+END_SRC
-: Loading layout from: cornell.json
-: Note: Page content area is 1684px × 2256px
-:   Drawing region: 'Title'
-:   Drawing region: 'Cue Column'
-:   Drawing region: 'Notes Section'
-:   Drawing region: 'Summary'
-: ✓ Template written to out/manta/cornell_layout.png
 
-* JSON =page_layout= Reference
+** Utility Commands
 
-| Key           | Type   | Description                                                                                                                              |
-|---------------+--------+------------------------------------------------------------------------------------------------------------------------------------------|
-| =name=        | string | (Optional) A human-readable name for the region (used for logging).                                                                      |
-| =region_rect= | list   | *(Required)* A 4-item list of ratios: =[x_start, y_start, width, height]=. All values are floats between =0.0= and =1.0=, relative to the page's content area. |
-| =template=    | string | *(Required)* The template type to draw in this region.                                                                                    |
-| =spacing_mm=  | float  | (Optional) A specific spacing for this region. Defaults to =master_spacing_mm=.                                                              |
-| =kwargs=      | dict   | (Optional) A dictionary of arguments for the specific template type (e.g., ={"line_width_px": 1.0}= or ={"midline_style": "dotted"}=).       |
-
-* Available Templates
-- =lined=
-- =dotgrid=
-- =grid=
-- =manuscript= (4-line handwriting practice)
-- =french_ruled= (Seyès)
-- =music_staff=
-- =isometric= (triangular grid)
-- =hexgrid= (hexagonal grid)
-- =hybrid_lined_dotgrid= (Special legacy template)
-
-* Development
-
-To contribute, install the package with its =dev= dependencies:
 #+BEGIN_SRC bash
-pip install -e .[dev]
+# List available devices
+eink-template-gen util list-devices
+# List all template types
+eink-template-gen util list-templates
+# Analyze spacing for a device
+eink-template-gen util info 6mm --device a5x
+# Set defaults
+eink-template-gen util set-default-device manta
+eink-template-gen util set-default-margin 10
 #+END_SRC
 
-Run tests:
+* Output
+Templates are saved to =out/<device_id>/= by default:
+
+#+BEGIN_EXAMPLE
+out/
+├── manta/
+│   ├── lined_7mm_0_5px.png
+│   ├── grid_5mm_0_5px_h-wavy.png
+│   └── title_truchet_10mm_seed42.png
+└── a5x/
+    └── lined_6mm_71px.png
+#+END_EXAMPLE
+
+Use =--output-dir= and =--filename= to customize output location.
+
+* Technical Details
+** Pixel-Perfect Algorithm
+- Calculate ideal spacing in pixels from mm input
+- Round to nearest integer pixel value
+- Calculate actual mm value of rounded pixels
+- Adjust top/bottom (and left/right for grids) margins to center content
+- Ensure no partial lines/dots at boundaries
+
+** E-ink Greyscale Palette
+The tool uses the native 16-level greyscale palette (0-15) used by Supernote devices:
+
+- 0 = #000000 (black)
+- 8 = #808080 (medium grey)
+- 15 = #ffffff (white)
+
+All greyscale values are automatically snapped to the nearest palette level for optimal e-ink rendering.
+
+* Command Reference
+** Global Options
+- =--device DEVICE= - Target device (overrides default)
+- =--spacing SPACING= - Line/dot spacing (e.g., 6mm, 71px, or 6)
+- =--no-auto-adjust= - Disable automatic spacing adjustment
+- =--margin MM= - Page margin in mm (overrides device default)
+- =--lines SPEC= - Fit exact number of lines (e.g., 40 or 40x30)
+- =--output-dir DIR= - Output directory (default: out)
+- =--filename NAME= - Custom filename
+
+** Commands
+- =lined= - Generate lined template
+- =dotgrid= - Generate dot grid template
+- =grid= - Generate graph paper grid
+- =manuscript= - Generate manuscript template
+- =french_ruled= - Generate Seyès ruling
+- =music_staff= - Generate music staff
+- =isometric= - Generate isometric grid
+- =hexgrid= - Generate hexagonal grid
+- =hybrid_lined_dotgrid= - Generate hybrid template
+- =multi= - Generate multi-cell grid
+- =layout= - Generate from JSON layout
+- =title= - Generate decorative title page
+- =util= - Utility commands (list-devices, set-default-device, etc.)
+
+For detailed options for each command, run:
+
 #+BEGIN_SRC bash
-pytest
+eink-template-gen <command> --help
 #+END_SRC
 
-Format and lint code:
-#+BEGIN_SRC bash
-black .
-ruff check --fix .
-#+END_SRC
+* Contributing
+Contributions are welcome! This project uses:
+
+- Cairo for high-quality 2D graphics rendering
+- Python 3.8+
+- Pure Python implementation (no external dependencies for noise/fractals)
 
 * License
+This project is licensed under the /GNU General Public License v3.0/. See the =LICENSE= file for details.
 
-This project is licensed under the *GNU General Public License v3.0*. See the =LICENSE= file for details.
+* Credits
+Developed for the Supernote community with love for pixel-perfect templates.

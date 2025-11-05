@@ -5,7 +5,7 @@ Supernote Template Generator - CLI Entry Point
 import sys
 import argparse
 from eink_template_gen.templates import TEMPLATE_REGISTRY
-from eink_template_gen.titles import TITLE_REGISTRY
+from eink_template_gen.titles import COVER_REGISTRY
 from eink_template_gen.devices import list_devices
 from eink_template_gen.separators import SEPARATOR_STYLES
 from eink_template_gen.config import get_default_margin
@@ -19,7 +19,7 @@ from eink_template_gen.actions import (
     handle_show_spacing_info,
     handle_json_generation,
     handle_set_default_margin,
-    handle_title_generation,
+    handle_cover_generation,
     
     # These are the new handlers we will create by splitting handle_cli_generation
     handle_single_template_generation,
@@ -131,11 +131,11 @@ def configure_title_parser(subparsers, common_parser):
         help='Generate a decorative title page pattern',
         description='Generate a decorative title page pattern (e.g., Truchet tiles, fractals, noise patterns).'
     )
-    title_parser.set_defaults(func=handle_title_generation)
+    title_parser.set_defaults(func=handle_cover_generation)
 
     title_parser.add_argument(
         '--type', 
-        choices=list(TITLE_REGISTRY.keys()), 
+        choices=list(COVER_REGISTRY.keys()), 
         required=True,
         dest='title', # Explicitly set dest to 'title' to match original args
         help='Title page pattern type'

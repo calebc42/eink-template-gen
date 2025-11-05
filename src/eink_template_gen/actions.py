@@ -27,7 +27,7 @@ from .utils import (
     calculate_spacing_from_line_count,
     format_line_count_summary
 )
-from .titles import TITLE_REGISTRY
+from .covers import COVER_REGISTRY
 
 # --- Generation Helper: 1. Setup ---
 
@@ -410,7 +410,7 @@ def handle_list_templates(args=None):
         print(f"  {template_name}")
     
     print("\nAvailable title patterns:")
-    for title_name in TITLE_REGISTRY.keys():
+    for title_name in COVER_REGISTRY.keys():
         print(f"  {title_name}")
         
     print("\nComplex layout commands:")
@@ -527,7 +527,7 @@ def handle_json_generation(args):
 
 # --- Action 3: Title Page Generation ---
 
-def handle_title_generation(args):
+def handle_cover_generation(args):
     """
     Handle generation of title page patterns
     """
@@ -589,8 +589,8 @@ def handle_title_generation(args):
         if args.title == 'noise_field':
             title_kwargs['greyscale_levels'] = args.greyscale_levels
     
-    # Build title_config
-    title_config = {
+    # Build cover_config
+    cover_config = {
         'show_frame': not args.title_no_frame,
         'frame_shape': args.title_frame_shape,
         'border_style': args.title_border_style,
@@ -608,17 +608,17 @@ def handle_title_generation(args):
         'v_align': args.title_v_align,
     }
     if args.title_text and args.title_text.strip():
-        title_config['text'] = args.title_text
-    if args.title_x_center is not None: title_config['x_center'] = args.title_x_center
-    if args.title_y_center is not None: title_config['y_center'] = args.title_y_center
-    if args.title_frame_width is not None: title_config['frame_width'] = args.title_frame_width
-    if args.title_frame_height is not None: title_config['frame_height'] = args.title_frame_height
+        cover_config['text'] = args.title_text
+    if args.title_x_center is not None: cover_config['x_center'] = args.title_x_center
+    if args.title_y_center is not None: cover_config['y_center'] = args.title_y_center
+    if args.title_frame_width is not None: cover_config['frame_width'] = args.title_frame_width
+    if args.title_frame_height is not None: cover_config['frame_height'] = args.title_frame_height
     
-    title_kwargs['title_config'] = title_config
+    title_kwargs['cover_config'] = cover_config
 
     # 3. Generate Surface
     print(f"Generating '{args.title}' title page for {context['device_config']['name']}...")
-    title_func = TITLE_REGISTRY[args.title]
+    title_func = COVER_REGISTRY[args.title]
     surface = title_func(**title_kwargs)
     
     # 4. Save and Summarize

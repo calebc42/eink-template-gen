@@ -4,12 +4,12 @@ Title page pattern generators for decorative covers
 import cairo
 from .separators import draw_separator_line
 from .separator_config import parse_separator_config
-from .title_elements import draw_title_element
+from .cover_elements import draw_title_element
 from .utils import (
     calculate_adjusted_margins, 
     calculate_adjusted_margins_x
 )
-from .title_drawing import (
+from .cover_drawing import (
     draw_truchet_tiles, 
     draw_diagonal_truchet_tiles, 
     draw_hexagonal_truchet_tiles,
@@ -29,7 +29,7 @@ def create_truchet_title(width, height, dpi, spacing_mm, margin_mm,
                          truchet_fill_grey=None,
                          truchet_variant='classic',
                          decorative_border=None,
-                         title_config=None):
+                         cover_config=None):
     """
     Create a Truchet tile pattern title page
     
@@ -37,7 +37,7 @@ def create_truchet_title(width, height, dpi, spacing_mm, margin_mm,
         ... (existing args) ...
         truchet_variant: 'classic', 'cross', 'triangle', 'wave', 'mixed'
         decorative_border: None, 'simple', 'double', 'ornate', 'geometric'
-        title_config: Dict with title frame/text configuration (optional)
+        cover_config: Dict with title frame/text configuration (optional)
     
     Returns:
         Cairo surface with Truchet tile pattern
@@ -96,8 +96,8 @@ def create_truchet_title(width, height, dpi, spacing_mm, margin_mm,
                               style=decorative_border)
     
     # Draw title frame and text if configured
-    if title_config:
-        draw_title_element(ctx, width, height, title_config)
+    if cover_config:
+        draw_title_element(ctx, width, height, cover_config)
     
     return surface
 
@@ -168,7 +168,7 @@ def create_diagonal_truchet_title(width, height, dpi, spacing_mm, margin_mm,
                                   auto_adjust_spacing=True,
                                   diagonal_fill_grey_1=0,
                                   diagonal_fill_grey_2=15,
-                                  title_config=None):
+                                  cover_config=None):
     """
     Create a diagonal Truchet tile pattern title page
     
@@ -176,7 +176,7 @@ def create_diagonal_truchet_title(width, height, dpi, spacing_mm, margin_mm,
         ... (standard args) ...
         diagonal_fill_grey_1: Greyscale 0-15 for first triangle
         diagonal_fill_grey_2: Greyscale 0-15 for second triangle
-        title_config: Dict with title frame/text configuration (optional)
+        cover_config: Dict with title frame/text configuration (optional)
     
     Returns:
         Cairo surface with diagonal Truchet tile pattern
@@ -228,8 +228,8 @@ def create_diagonal_truchet_title(width, height, dpi, spacing_mm, margin_mm,
                                 fill_grey_2=diagonal_fill_grey_2)
     
     # Draw title frame and text if configured
-    if title_config:
-        draw_title_element(ctx, width, height, title_config)
+    if cover_config:
+        draw_title_element(ctx, width, height, cover_config)
     
     return surface
 
@@ -240,14 +240,14 @@ def create_hexagonal_truchet_title(width, height, dpi, spacing_mm, margin_mm,
                                    header_separator=None, footer_separator=None,
                                    rotation_seed=None,
                                    auto_adjust_spacing=True,
-                                   title_config=None):
+                                   cover_config=None):
     """
     Create a hexagonal Truchet tile pattern title page
     'spacing_mm' defines the side length of the hexagon.
     
     Args:
         ... (standard args) ...
-        title_config: Dict with title frame/text configuration (optional)
+        cover_config: Dict with title frame/text configuration (optional)
     
     Returns:
         Cairo surface with hexagonal Truchet tile pattern
@@ -304,8 +304,8 @@ def create_hexagonal_truchet_title(width, height, dpi, spacing_mm, margin_mm,
                                  rotation_seed=rotation_seed)
     
     # Draw title frame and text if configured
-    if title_config:
-        draw_title_element(ctx, width, height, title_config)
+    if cover_config:
+        draw_title_element(ctx, width, height, cover_config)
     
     return surface
 
@@ -314,13 +314,13 @@ def create_10_print_title(width, height, dpi, spacing_mm, margin_mm,
                            header_separator=None, footer_separator=None,
                            rotation_seed=None,
                            auto_adjust_spacing=True,
-                           title_config=None):
+                           cover_config=None):
     """
     Create a "10 PRINT" (diagonal maze) title page
     
     Args:
         ... (standard args) ...
-        title_config: Dict with title frame/text configuration (optional)
+        cover_config: Dict with title frame/text configuration (optional)
     
     Returns:
         Cairo surface with "10 PRINT" pattern
@@ -370,8 +370,8 @@ def create_10_print_title(width, height, dpi, spacing_mm, margin_mm,
                         rotation_seed=rotation_seed)
     
     # Draw title frame and text if configured
-    if title_config:
-        draw_title_element(ctx, width, height, title_config)
+    if cover_config:
+        draw_title_element(ctx, width, height, cover_config)
     
     return surface
 
@@ -379,7 +379,7 @@ def create_lsystem_title(width, height, dpi, spacing_mm, margin_mm,
                          line_width_px,
                          header_separator=None, footer_separator=None,
                          auto_adjust_spacing=True,
-                         title_config=None,
+                         cover_config=None,
                          decorative_border=None,  # <-- ADD THIS
                          # L-System specific params:
                          lsystem_config=None,
@@ -495,8 +495,8 @@ def create_lsystem_title(width, height, dpi, spacing_mm, margin_mm,
                               style=decorative_border)
     
     # Draw title frame and text if configured
-    if title_config:
-        draw_title_element(ctx, width, height, title_config)
+    if cover_config:
+        draw_title_element(ctx, width, height, cover_config)
     
     return surface
 
@@ -637,7 +637,7 @@ def create_contour_lines_title(width, height, dpi, spacing_mm, margin_mm,
                                 line_width_px,
                                 header_separator=None, footer_separator=None,
                                 auto_adjust_spacing=True,
-                                title_config=None,
+                                cover_config=None,
                                 decorative_border=None, 
                                 contour_interval=0.1,
                                 noise_scale=0.02,
@@ -654,7 +654,7 @@ def create_contour_lines_title(width, height, dpi, spacing_mm, margin_mm,
         octaves: Number of noise octaves (1-6, more = more detail)
         contour_seed: Random seed for reproducibility
         contour_style: 'smooth' (terrain-like), 'turbulent' (marble-like), 'simple' (basic)
-        title_config: Dict with title frame/text configuration (optional)
+        cover_config: Dict with title frame/text configuration (optional)
     
     Returns:
         Cairo surface with contour line pattern
@@ -706,8 +706,8 @@ def create_contour_lines_title(width, height, dpi, spacing_mm, margin_mm,
                               style=decorative_border)
     
     # Draw title frame and text if configured
-    if title_config:
-        draw_title_element(ctx, width, height, title_config)
+    if cover_config:
+        draw_title_element(ctx, width, height, cover_config)
     
     return surface
 
@@ -715,7 +715,7 @@ def create_noise_field_title(width, height, dpi, spacing_mm, margin_mm,
                              line_width_px,  # Not used but kept for consistency
                              header_separator=None, footer_separator=None,
                              auto_adjust_spacing=True,
-                             title_config=None,
+                             cover_config=None,
                              decorative_border=None, 
                              # Noise field params:
                              noise_scale=0.02,
@@ -733,7 +733,7 @@ def create_noise_field_title(width, height, dpi, spacing_mm, margin_mm,
         noise_seed: Random seed
         noise_style: 'smooth', 'turbulent', or 'simple'
         greyscale_levels: Number of grey levels (1-16)
-        title_config: Dict with title frame/text configuration (optional)
+        cover_config: Dict with title frame/text configuration (optional)
     
     Returns:
         Cairo surface with noise field pattern
@@ -783,13 +783,13 @@ def create_noise_field_title(width, height, dpi, spacing_mm, margin_mm,
                               style=decorative_border)
     
     # Draw title frame and text if configured
-    if title_config:
-        draw_title_element(ctx, width, height, title_config)
+    if cover_config:
+        draw_title_element(ctx, width, height, cover_config)
     
     return surface
 
-# Update TITLE_REGISTRY at the bottom of titles.py
-TITLE_REGISTRY = {
+# Update COVER_REGISTRY at the bottom of titles.py
+COVER_REGISTRY = {
     'truchet': create_truchet_title,
     'diagonal_truchet': create_diagonal_truchet_title,
     'hexagonal_truchet': create_hexagonal_truchet_title,

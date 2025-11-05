@@ -8,7 +8,7 @@ from .devices import snap_to_eink_greyscale
 from .lsystem import generate_lsystem_string
 from .noise import simple_noise_2d, fractal_noise_2d, turbulence_2d
 
-# In title_drawing.py, update draw_truchet_tiles function:
+# In cover_drawing.py, update draw_truchet_tiles function:
 
 def draw_truchet_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_px, 
                        line_width, rotation_seed=None, fill_grey=None,
@@ -808,7 +808,7 @@ def draw_noise_field(ctx, x_start, x_end, y_start, y_end,
     
     ctx.restore()
 
-# In title_drawing.py, add at the end:
+# In cover_drawing.py, add at the end:
 
 def draw_decorative_border(ctx, x_start, x_end, y_start, y_end, 
                           border_width=2, style='simple'):

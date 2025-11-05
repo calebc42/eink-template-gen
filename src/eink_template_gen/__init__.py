@@ -22,7 +22,7 @@ from .actions import (
     handle_show_spacing_info,
     handle_json_generation,
     handle_set_default_margin,
-    handle_title_generation,
+    handle_cover_generation,
     handle_single_template_generation,
     handle_multi_template_generation
 )
@@ -58,7 +58,7 @@ from .drawing import (
 __all__ = [
     # Actions
     'handle_json_generation',
-    'handle_title_generation',
+    'handle_cover_generation',
     'handle_single_template_generation',
     'handle_multi_template_generation',
     

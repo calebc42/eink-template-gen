@@ -7,7 +7,7 @@ from . import drawing
 from .separators import draw_separator_line, draw_separator
 from .separator_config import parse_separator_config
 from .devices import snap_to_eink_greyscale
-from .title_elements import draw_title_element
+from .cover_elements import draw_title_element
 from .utils import (
     calculate_adjusted_margins, 
     calculate_adjusted_margins_x,
@@ -1025,11 +1025,11 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
     # This draws *after* all other regions, so it appears on top.
     if 'title_element' in config:
         print(f"  Drawing title element...")
-        title_config = config['title_element']
+        cover_config = config['title_element']
         
         # Pass the page dimensions AND the content area boundaries
         # so region_rect works correctly.
-        draw_title_element(ctx, width, height, title_config,
+        draw_title_element(ctx, width, height, cover_config,
                             content_x_start, content_y_start,
                             content_width, content_height)
 

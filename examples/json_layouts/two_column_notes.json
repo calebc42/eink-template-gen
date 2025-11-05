@@ -1,0 +1,22 @@
+{
+  "master_spacing_mm": 7,
+  "output_filename": "two_column_notes.png",
+  "header_separator": "bold",
+  "footer_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Cue Column",
+      "region_rect": [0, 0, 0.3, 1.0],
+      "template": "dotgrid",
+      "spacing_mm": 7,
+      "kwargs": { "dot_radius_px": 1.5 }
+    },
+    {
+      "name": "Notes Column",
+      "region_rect": [0.3, 0, 0.7, 1.0],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": { "line_width_px": 0.5 }
+    }
+  ]
+}

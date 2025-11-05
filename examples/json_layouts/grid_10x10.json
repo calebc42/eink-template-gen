@@ -1,0 +1,21 @@
+{
+  "master_spacing_mm": 5,
+  "output_filename": "grid_force_aligned_10x10.png",
+  
+  "force_major_alignment": true,
+
+  "page_layout": [
+    {
+      "name": "Force-Aligned Grid",
+      "region_rect": [0, 0, 1.0, 1.0],
+      "template": "grid",
+      "spacing_mm": 5,
+      "kwargs": { 
+        "line_width_px": 0.5,
+        "major_every": 10,
+        "major_width_add_px": 1.0,
+        "crosshair_size": 5
+      }
+    }
+  ]
+}

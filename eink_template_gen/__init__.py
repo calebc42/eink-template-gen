@@ -1,4 +1,4 @@
-# template_gen/__init__.py
+# eink_template_gen/__init__.py
 """
 Supernote Template Generator
 Generate custom, pixel-perfect templates for e-ink devices
@@ -16,13 +16,15 @@ except Exception:
 # --- Core Functions (from .actions) ---
 # These are the main entry points
 from .actions import (
-    handle_cli_generation,
-    handle_json_generation,
     handle_list_devices,
-    handle_list_templates,
     handle_set_default_device,
+    handle_list_templates,
+    handle_show_spacing_info,
+    handle_json_generation,
     handle_set_default_margin,
-    handle_show_spacing_info
+    handle_title_generation,
+    handle_single_template_generation,
+    handle_multi_template_generation
 )
 
 # --- Config Functions (from .config) ---
@@ -32,16 +34,10 @@ from .config import get_default_device, set_default_device, get_default_margin, 
 from .devices import DEVICES, get_device, list_devices
 
 # --- Template Functions (from .templates) ---
+# These are the new/remaining factory functions
 from .templates import (
     TEMPLATE_REGISTRY,
-    create_lined_template,
-    create_dotgrid_template,
-    create_grid_template,
-    create_manuscript_template,
-    create_french_ruled_template,
-    create_music_staff_template,
-    create_isometric_template,
-    create_hex_template,
+    create_template_surface,
     create_hybrid_template,
     create_column_template,
     create_cell_grid_template,
@@ -61,28 +57,23 @@ from .drawing import (
 # Define what `from template_gen import *` imports
 __all__ = [
     # Actions
-    'handle_cli_generation',
     'handle_json_generation',
+    'handle_title_generation',
+    'handle_single_template_generation',
+    'handle_multi_template_generation',
     
     # Config/Device
     'get_default_device',
     'set_default_device',
     'get_default_margin',
-    'set_default_margin'
+    'set_default_margin',
     'get_device',
     'list_devices',
     'DEVICES',
     
     # Templates
     'TEMPLATE_REGISTRY',
-    'create_lined_template',
-    'create_dotgrid_template',
-    'create_grid_template',
-    'create_manuscript_template',
-    'create_french_ruled_template',
-    'create_music_staff_template',
-    'create_isometric_template',
-    'create_hex_template',
+    'create_template_surface',
     'create_hybrid_template',
     'create_column_template',
     'create_cell_grid_template',

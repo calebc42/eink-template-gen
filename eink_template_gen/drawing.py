@@ -5,8 +5,8 @@ import cairo
 from math import pi, sin, cos, tan, radians, sqrt
 from .devices import snap_to_eink_greyscale
 
-def draw_lined_section(ctx, x_start, x_end, y_start, y_end, spacing_px, line_width, 
-                      skip_first=False, skip_last=False, major_every=None, major_width_add_px=1.5):
+def draw_lined_section(ctx, x_start, x_end, y_start, y_end, spacing_px, line_width,
+                       skip_first=False, skip_last=False, major_every=None, major_width_add_px=1.5):
     """
     Draw horizontal ruled lines in a bounded area with optional weight variation
     
@@ -159,23 +159,44 @@ def draw_grid(ctx, x_start, x_end, y_start, y_end, spacing_px, line_width,
                 ctx.stroke()
 
 def draw_manuscript_lines(ctx, x_start, x_end, y_start, y_end, spacing_px, 
-                         line_width, midline_style='dashed', ascender_opacity=0.3):
+                         line_width, midline_style='dashed', ascender_opacity=0.3,
+                         skip_first=False, skip_last=False):
     """
     Draw manuscript lines for handwriting practice (4-line system)
+    
+    Args:
+        ctx: Cairo context
+        x_start: Left boundary (pixels)
+        x_end: Right boundary (pixels)
+        y_start: Top boundary (pixels)
+        y_end: Bottom boundary (pixels)
+        spacing_px: Spacing between baseline groups (pixels)
+        line_width: Width of lines (pixels)
+        midline_style: 'dashed' or 'dotted' for the midline
+        ascender_opacity: Opacity for the ascender line (0.0-1.0 or 0-15)
+        skip_first: If True, skip the first ascender line
+        skip_last: If True, skip the last descender line
     """
-    # --- MODIFIED: Snap the ascender opacity to e-ink greyscale ---
+    # Snap the ascender opacity to e-ink greyscale
     ascender_grey = snap_to_eink_greyscale(ascender_opacity)
     
     gap = spacing_px // 3
     
     y = y_start
+    line_index = 0
+    
     while y + spacing_px <= y_end:
-        # --- MODIFIED: Ascender line (light) - using snapped greyscale ---
-        ctx.set_source_rgb(ascender_grey, ascender_grey, ascender_grey)
-        ctx.set_line_width(line_width)
-        ctx.move_to(x_start, y + 0.5)
-        ctx.line_to(x_end, y + 0.5)
-        ctx.stroke()
+        # Determine if this is the first or last line group
+        is_first = (line_index == 0)
+        is_last = (y + spacing_px * 2 > y_end)
+        
+        # Ascender line (light) - skip if first and skip_first is True
+        if not (is_first and skip_first):
+            ctx.set_source_rgb(ascender_grey, ascender_grey, ascender_grey)
+            ctx.set_line_width(line_width)
+            ctx.move_to(x_start, y + 0.5)
+            ctx.line_to(x_end, y + 0.5)
+            ctx.stroke()
         
         # Midline (dashed)
         ctx.set_source_rgb(0, 0, 0)
@@ -196,13 +217,15 @@ def draw_manuscript_lines(ctx, x_start, x_end, y_start, y_end, spacing_px,
         ctx.line_to(x_end, y + (2 * gap) + 0.5)
         ctx.stroke()
         
-        # Descender line (solid)
-        ctx.set_line_width(line_width)
-        ctx.move_to(x_start, y + spacing_px + 0.5)
-        ctx.line_to(x_end, y + spacing_px + 0.5)
-        ctx.stroke()
+        # Descender line (solid) - skip if last and skip_last is True
+        if not (is_last and skip_last):
+            ctx.set_line_width(line_width)
+            ctx.move_to(x_start, y + spacing_px + 0.5)
+            ctx.line_to(x_end, y + spacing_px + 0.5)
+            ctx.stroke()
         
         y += spacing_px
+        line_index += 1
 
 def draw_dot_grid_with_crosshairs(ctx, x_start, x_end, y_start, y_end, spacing_px, dot_radius,
                                  skip_first_row=False, skip_last_row=False,
@@ -259,7 +282,7 @@ def draw_dot_grid_with_crosshairs(ctx, x_start, x_end, y_start, y_end, spacing_p
                 ctx.line_to(x + crosshair_size, y)
                 ctx.stroke()
                 
-                # Left extension  
+                # Left extension
                 ctx.move_to(x - crosshair_size, y)
                 ctx.line_to(x - dot_radius, y)
                 ctx.stroke()
@@ -274,10 +297,11 @@ def draw_dot_grid_with_crosshairs(ctx, x_start, x_end, y_start, y_end, spacing_p
                 ctx.line_to(x, y + crosshair_size)
                 ctx.stroke()
 
-def draw_french_ruled(ctx, x_start, x_end, y_start, y_end, spacing_px, 
-                     line_width, margin_line_offset_px=None, 
+def draw_french_ruled(ctx, x_start, x_end, y_start, y_end, spacing_px,
+                     line_width, margin_line_offset_px=None,
                      margin_line_color=(1, 0, 0), margin_line_opacity=0.3,
-                     show_vertical_lines=True):
+                     show_vertical_lines=True,
+                     skip_first=False, skip_last=False):
     """
     Draw French ruled (Seyès) lines for handwriting
     """
@@ -306,7 +330,7 @@ def draw_french_ruled(ctx, x_start, x_end, y_start, y_end, spacing_px,
         # Let's assume it's from m_left for now, as passed by template
         margin_x = x_start + margin_line_offset_px
         if margin_x < x_end:
-            # --- MODIFIED: Use greyscale snap for margin line ---
+            # Use greyscale snap for margin line
             grey_val = snap_to_eink_greyscale(margin_line_opacity)
             ctx.set_source_rgb(grey_val, grey_val, grey_val) # Assuming red is not desired
             ctx.set_line_width(line_width * 1.5)
@@ -593,7 +617,7 @@ def draw_hex_grid(ctx, x_start, x_end, y_start, y_end, spacing_px, line_width,
 
     ctx.restore()
     
-# --- Draw Line Numbering (from previous step) ---
+# Draw Line Numbering
 def draw_line_numbering(ctx, y_start, y_end, spacing_px, config):
     """
     Draws line numbers in the margin.
@@ -668,7 +692,6 @@ def draw_line_numbering(ctx, y_start, y_end, spacing_px, config):
     finally:
         ctx.restore()
 
-# --- MODIFIED FUNCTION: draw_cell_labeling ---
 def draw_cell_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
     """
     Draws 'A, B, C' and '1, 2, 3' style labels in the page margins.
@@ -739,7 +762,7 @@ def draw_cell_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
             
             extents = ctx.text_extents(label_str)
 
-            # --- MODIFIED: Align text to grid ---
+            # Align text to grid
             if y_axis_side == "right":
                 # Left-aligned: x_pos is the start of the text
                 text_x = x_end + y_axis_padding_px
@@ -758,7 +781,6 @@ def draw_cell_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
     finally:
         ctx.restore()
 
-# --- MODIFIED FUNCTION: draw_axis_labeling ---
 def draw_axis_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
     """
     Draws '0, 5, 10' style plot numbering in the margins.
@@ -839,7 +861,7 @@ def draw_axis_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
                 
                 extents = ctx.text_extents(label_str)
 
-                # --- MODIFIED: Align text to grid ---
+                # Align text to grid
                 if y_axis_side == "right":
                     # Left-aligned: x_pos is the start of the text
                     text_x = x_end + y_axis_padding_px

@@ -1,0 +1,24 @@
+{
+  "master_spacing_mm": 2,
+  "output_filename": "music_lyrics.png",
+  "header_separator": "double",
+  "page_layout": [
+    {
+      "name": "Music Staves",
+      "region_rect": [0, 0, 1.0, 0.6],
+      "template": "music_staff",
+      "spacing_mm": 2,
+      "kwargs": { 
+        "line_width_px": 0.75,
+        "staff_gap_mm": 12 
+      }
+    },
+    {
+      "name": "Lyrics/Notes",
+      "region_rect": [0, 0.6, 1.0, 0.4],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": { "line_width_px": 0.5 }
+    }
+  ]
+}

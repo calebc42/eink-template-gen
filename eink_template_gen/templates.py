@@ -1,19 +1,9 @@
 """
-Template creation functions
+Template creation functions and the new Template Factory
 """
 import cairo
 from math import sin, cos, tan, radians, sqrt
-from .drawing import (
-    draw_lined_section, 
-    draw_dot_grid, 
-    draw_grid, 
-    draw_manuscript_lines,
-    draw_french_ruled,
-    draw_dot_grid_with_crosshairs,
-    draw_music_staff,
-    draw_isometric_grid,
-    draw_hex_grid
-)
+from . import drawing
 from .separators import draw_separator_line, draw_separator
 from .separator_config import parse_separator_config
 from .devices import snap_to_eink_greyscale
@@ -25,6 +15,323 @@ from .utils import (
     calculate_major_aligned_margins_x,
     parse_spacing
 )
+
+# --- Dispatcher Helper for Dotgrid ---
+# This helper encapsulates the one tricky bit of logic from the old
+# create_dotgrid_template: choosing which draw function to use.
+
+def _draw_dotgrid_dispatcher(ctx, x_start, x_end, y_start, y_end, spacing_px, 
+                             dot_radius, skip_first_row, skip_last_row, 
+                             major_every=None, crosshair_size=4, **kwargs):
+    """
+    Dispatches to the correct dotgrid draw function based on whether
+    major_every is specified.
+    """
+    if major_every:
+        drawing.draw_dot_grid_with_crosshairs(
+            ctx, x_start, x_end, y_start, y_end, spacing_px, dot_radius,
+            skip_first_row=skip_first_row,
+            skip_last_row=skip_last_row,
+            major_every=major_every,
+            crosshair_size=crosshair_size
+        )
+    else:
+        drawing.draw_dot_grid(
+            ctx, x_start, x_end, y_start, y_end, spacing_px, dot_radius,
+            skip_first_row=skip_first_row,
+            skip_last_row=skip_last_row
+        )
+
+
+# --- Data-Driven Template Registry ---
+
+TEMPLATE_REGISTRY = {
+    'lined': {
+        'draw_func': drawing.draw_lined_section,
+        'horizontal_align_unit': 'none', # Lined templates don't adjust H margin
+        'vertical_align_unit': 'default',
+        'specific_args_map': {
+            'line_width_px': 'line_width',
+            'major_every': 'major_every',
+            'major_width_add_px': 'major_width_add_px'
+        }
+    },
+    'dotgrid': {
+        'draw_func': _draw_dotgrid_dispatcher,
+        'horizontal_align_unit': 'default', # Uses spacing_px
+        'vertical_align_unit': 'default',
+        'specific_args_map': {
+            'dot_radius_px': 'dot_radius',
+            'major_every': 'major_every',
+            'crosshair_size': 'crosshair_size'
+        }
+    },
+    'grid': {
+        'draw_func': drawing.draw_grid,
+        'horizontal_align_unit': 'default',
+        'vertical_align_unit': 'default',
+        'specific_args_map': {
+            'line_width_px': 'line_width',
+            'major_every': 'major_every',
+            'major_width_add_px': 'major_width_add_px',
+            'crosshair_size': 'crosshair_size'
+        }
+    },
+    'manuscript': {
+        'draw_func': drawing.draw_manuscript_lines,
+        'horizontal_align_unit': 'none',
+        'vertical_align_unit': 'default',
+        'specific_args_map': {
+            'line_width_px': 'line_width',
+            'midline_style': 'midline_style',
+            'ascender_opacity': 'ascender_opacity'
+        }
+    },
+    'french_ruled': {
+        'draw_func': drawing.draw_french_ruled,
+        'horizontal_align_unit': 'french_ruled', # Uses spacing_px * 4
+        'vertical_align_unit': 'default',
+        'specific_args_map': {
+            'line_width_px': 'line_width',
+            'margin_line_offset_px': 'margin_line_offset_px', # Not passed from CLI
+            'show_vertical_lines': 'show_vertical_lines'      # Not passed from CLI
+        }
+    },
+    'music_staff': {
+        'draw_func': drawing.draw_music_staff,
+        'horizontal_align_unit': 'none',
+        'vertical_align_unit': 'music_staff', # Uses custom staff_unit_px
+        'specific_args_map': {
+            'line_width_px': 'line_width',
+            'staff_gap_mm': 'staff_gap_mm',
+            # 'staff_spacing_mm' and 'dpi' are handled specially
+        }
+    },
+    'isometric': {
+        'draw_func': drawing.draw_isometric_grid,
+        'horizontal_align_unit': 'isometric', # Custom alignment
+        'vertical_align_unit': 'isometric',   # Custom alignment
+        'specific_args_map': {
+            'line_width_px': 'line_width',
+            'major_every': 'major_every',
+            'major_width_add_px': 'major_width_add_px'
+        }
+    },
+    'hexgrid': {
+        'draw_func': drawing.draw_hex_grid,
+        'horizontal_align_unit': 'hexgrid', # Custom alignment
+        'vertical_align_unit': 'hexgrid',   # Custom alignment
+        'specific_args_map': {
+            'line_width_px': 'line_width',
+            'major_every': 'major_every',
+            'major_width_add_px': 'major_width_add_px'
+        }
+    },
+    'hybrid_lined_dotgrid': {
+        # Hybrid is a special case and doesn't fit the simple factory.
+        # We will keep its original function.
+        'draw_func': 'hybrid_special_case',
+    }
+}
+
+
+# --- The New Template Factory ---
+
+def create_template_surface(
+    template_type, 
+    device_config, 
+    spacing_str, 
+    margin_mm, 
+    auto_adjust_spacing, 
+    force_major_alignment, 
+    header_separator, 
+    footer_separator, 
+    template_kwargs
+):
+    """
+    Primary factory for generating single-page templates.
+    Reads from TEMPLATE_REGISTRY to configure and draw the template.
+    """
+    
+    # --- Special Case: Hybrid Template ---
+    # The hybrid template is a complex layout, not a simple repeating
+    # pattern. We call its original function directly.
+    if template_type == 'hybrid_lined_dotgrid':
+        # NOTE: We need to parse spacing_str to mm for the hybrid func
+        # This is a safe assumption for this special case.
+        try:
+            spacing_mm_val = float(str(spacing_str).lower().replace('mm','').replace('px',''))
+        except ValueError:
+            spacing_mm_val = 6.0 # Fallback
+            
+        return create_hybrid_template(
+            width=device_config['width'],
+            height=device_config['height'],
+            dpi=device_config['dpi'],
+            spacing_mm=spacing_mm_val,
+            margin_mm=margin_mm,
+            section_gap_mm=template_kwargs.get('section_gap_mm', spacing_mm_val),
+            line_width_px=template_kwargs.get('line_width_px', 0.5),
+            dot_radius_px=template_kwargs.get('dot_radius_px', 1.5),
+            header_separator=header_separator,
+            footer_separator=footer_separator,
+            split_ratio=template_kwargs.get('split_ratio', 0.6),
+            auto_adjust_spacing=auto_adjust_spacing,
+            force_major_alignment=force_major_alignment
+        )
+    
+    # --- 1. Look up config ---
+    config = TEMPLATE_REGISTRY.get(template_type)
+    if not config:
+        raise ValueError(f"Unknown template type '{template_type}' in factory.")
+
+    # --- 2. Setup Device & Spacing ---
+    width = device_config['width']
+    height = device_config['height']
+    dpi = device_config['dpi']
+    mm2px = dpi / 25.4
+    
+    spacing_px, original_mm, adjusted_mm, was_adjusted, mode = parse_spacing(
+        spacing_str, dpi, auto_adjust=auto_adjust_spacing
+    )
+    
+    if mode == 'mm' and was_adjusted:
+        print(f"Note: Adjusted spacing from {original_mm}mm to {adjusted_mm:.3f}mm ({int(spacing_px)}px) for pixel-perfect alignment")
+    elif mode == 'px':
+        print(f"Using exact pixel spacing: {int(spacing_px)}px (≈{original_mm:.2f}mm)")
+
+    # --- 3. Setup Canvas ---
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    ctx = cairo.Context(surface)
+    ctx.set_source_rgb(1, 1, 1) # White background
+    ctx.paint()
+
+    # --- 4. Calculate Pixel-Perfect Margins ---
+    base_margin = round(margin_mm * mm2px)
+    content_height = height - (2 * base_margin)
+    content_width = width - (2 * base_margin)
+    
+    # Get alignment units based on template type
+    v_align_unit_px = spacing_px
+    h_align_unit_px = spacing_px
+    
+    if config.get('vertical_align_unit') == 'music_staff':
+        staff_gap_mm = template_kwargs.get('staff_gap_mm', 10)
+        staff_gap_px = round(staff_gap_mm * mm2px)
+        v_align_unit_px = (spacing_px * 4) + staff_gap_px # Full staff unit
+    elif config.get('vertical_align_unit') == 'isometric':
+        v_align_unit_px = spacing_px * tan(radians(60))
+    elif config.get('vertical_align_unit') == 'hexgrid':
+        v_align_unit_px = sqrt(3) * spacing_px
+
+    if config.get('horizontal_align_unit') == 'none':
+        h_align_unit_px = 1 # No adjustment
+    elif config.get('horizontal_align_unit') == 'french_ruled':
+        h_align_unit_px = spacing_px * 4
+    elif config.get('horizontal_align_unit') == 'isometric':
+        h_align_unit_px = spacing_px / cos(radians(30))
+    elif config.get('horizontal_align_unit') == 'hexgrid':
+        h_align_unit_px = 1.5 * spacing_px
+
+    # Calculate final margins
+    major_every = template_kwargs.get('major_every')
+    if force_major_alignment and major_every and template_type in ['grid', 'dotgrid']:
+        m_top, m_bottom, _ = calculate_major_aligned_margins(content_height, v_align_unit_px, base_margin, major_every)
+        m_left, m_right, _ = calculate_major_aligned_margins_x(content_width, h_align_unit_px, base_margin, major_every)
+        print(f"Note: Force-aligned grid to major lines.")
+    else:
+        m_top, m_bottom = calculate_adjusted_margins(content_height, v_align_unit_px, base_margin)
+        m_left, m_right = calculate_adjusted_margins_x(content_width, h_align_unit_px, base_margin)
+
+    # --- 5. Draw Separators ---
+    header_style, header_kwargs = parse_separator_config(header_separator)
+    if header_style:
+        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
+    
+    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    if footer_style:
+        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
+
+    # --- 6. Prepare and Call Drawing Function ---
+    draw_func = config['draw_func']
+    
+    # Base arguments required by all draw functions
+    draw_kwargs = {
+        'ctx': ctx,
+        'x_start': m_left,
+        'x_end': width - m_right,
+        'y_start': m_top,
+        'y_end': height - m_bottom,
+        'spacing_px': spacing_px,
+    }
+    
+    # *** START FIX ***
+    # Add skip args *only if* they are relevant
+    if template_type in ['lined', 'manuscript', 'french_ruled']:
+        draw_kwargs['skip_first'] = header_style is not None
+        draw_kwargs['skip_last'] = footer_style is not None
+    elif template_type in ['grid', 'dotgrid']:
+        draw_kwargs['skip_first_row'] = header_style is not None
+        draw_kwargs['skip_last_row'] = footer_style is not None
+    # *** END FIX ***
+    
+    # Translate and filter template_kwargs
+    arg_map = config.get('specific_args_map', {})
+    for cli_arg, func_arg in arg_map.items():
+        if cli_arg in template_kwargs:
+            draw_kwargs[func_arg] = template_kwargs[cli_arg]
+            
+    # Handle --no_crosshairs
+    if 'no_crosshairs' in template_kwargs and template_kwargs['no_crosshairs']:
+        draw_kwargs['crosshair_size'] = 0
+        
+    # Handle special case for music_staff
+    if template_type == 'music_staff':
+        draw_kwargs['staff_spacing_mm'] = adjusted_mm
+        draw_kwargs['dpi'] = dpi
+        # Remove args it doesn't understand
+        draw_kwargs.pop('spacing_px', None)
+
+    # Call the specific drawing function
+    try:
+        draw_func(**draw_kwargs)
+    except TypeError as e:
+        print(f"\n--- ERROR ---")
+        print(f"Argument mismatch calling draw function for '{template_type}'.")
+        print(f"Error: {e}")
+        print(f"Attempted to call: {draw_func.__name__}")
+        print(f"With arguments: {list(draw_kwargs.keys())}")
+        raise
+
+    # --- 7. Draw Extras (Line Numbers, Labels) ---
+    if 'line_number_config' in template_kwargs:
+        print("Note: Drawing line numbers...")
+        drawing.draw_line_numbering(
+            ctx, m_top, height - m_bottom, spacing_px,
+            config=template_kwargs['line_number_config']
+        )
+        
+    if 'cell_label_config' in template_kwargs:
+        print("Note: Drawing cell labels...")
+        drawing.draw_cell_labeling(
+            ctx, m_left, width - m_right, m_top, height - m_bottom,
+            spacing_px, config=template_kwargs['cell_label_config']
+        )
+
+    if 'axis_label_config' in template_kwargs:
+        print("Note: Drawing axis labels...")
+        drawing.draw_axis_labeling(
+            ctx, m_left, width - m_right, m_top, height - m_bottom,
+            spacing_px, config=template_kwargs['axis_label_config']
+        )
+    
+    # --- 8. Return Surface ---
+    return surface
+
+# --- COMPLEX LAYOUT FACTORIES (UNCHANGED) ---
+# These functions are called by `handle_multi_template_generation`
+# and `handle_json_generation`. They are already factories,
+# so they remain.
 
 def create_hybrid_template(width, height, dpi, spacing_mm, margin_mm,
                           section_gap_mm, line_width_px, dot_radius_px,
@@ -84,14 +391,14 @@ def create_hybrid_template(width, height, dpi, spacing_mm, margin_mm,
     skip_last = footer_style is not None
 
     # draw lined section (left) with boundary skipping
-    draw_lined_section(ctx, m_left, split_x - half_gap,
+    drawing.draw_lined_section(ctx, m_left, split_x - half_gap,
                       m_top, height - m_bottom,
                       spacing_px, line_width_px,
                       skip_first=skip_first,
                       skip_last=skip_last)
     
     # draw dot grid section (right) with boundary skipping
-    draw_dot_grid(ctx, split_x + half_gap, width - m_right,
+    drawing.draw_dot_grid(ctx, split_x + half_gap, width - m_right,
                  m_top, height - m_bottom,
                  spacing_px, dot_radius_px,
                  skip_first_row=skip_first,
@@ -99,572 +406,6 @@ def create_hybrid_template(width, height, dpi, spacing_mm, margin_mm,
     
     # --- MODIFIED: draw vertical separator with grey ---
     draw_separator(ctx, split_x, m_top, height - m_bottom, grey=5)
-    
-    return surface
-
-def create_lined_template(width, height, dpi, spacing_mm, margin_mm,
-                         line_width_px,
-                         header_separator=None, footer_separator=None,
-                         major_every=None, major_width_add_px=1.5,
-                         auto_adjust_spacing=True,
-                         line_number_config=None,
-                         force_major_alignment=None): # <-- FIX
-    """
-    Create a simple lined template
-    """
-    mm2px = dpi / 25.4
-    
-    # Auto-adjust spacing if requested (skip if margin is 0 - line count mode)
-    if auto_adjust_spacing and margin_mm > 0:
-        from .utils import snap_spacing_to_clean_pixels
-        adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
-        if was_adjusted:
-            print(f"Note: Adjusted spacing from {spacing_mm}mm to {adjusted_mm:.3f}mm for pixel-perfect alignment")
-            spacing_mm = adjusted_mm
-    else:
-        spacing_px = spacing_mm * mm2px
-    
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
-    
-    # white background
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.paint()
-    
-    # calculate base margins
-    base_margin = round(margin_mm * mm2px)
-    
-    # Lined templates don't have a horizontal grid, so no x-adjustment
-    m_left = base_margin
-    m_right = base_margin
-    
-    # Calculate adjusted top/bottom margins
-    content_height = height - (2 * base_margin)
-    m_top, m_bottom = calculate_adjusted_margins(content_height, spacing_px, base_margin)
-    
-    # --- MODIFIED: Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
-    if header_style:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
-    
-    # --- MODIFIED: Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
-    if footer_style:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
-    
-    # --- MODIFIED: Update skip logic ---
-    skip_first_line = header_style is not None
-    skip_last_line = footer_style is not None
-    
-    draw_lined_section(ctx, m_left, width - m_right,
-                      m_top, height - m_bottom,
-                      spacing_px, line_width_px,
-                      skip_first=skip_first_line,
-                      skip_last=skip_last_line,
-                      major_every=major_every,
-                      major_width_add_px=major_width_add_px)
-    
-    # --- Draw Line Numbering (from previous step) ---
-    if line_number_config:
-        from .drawing import draw_line_numbering # Local import
-        print("Note: Drawing line numbers...")
-        draw_line_numbering(
-            ctx, m_top, height - m_bottom, spacing_px,
-            config=line_number_config
-        )
-    
-    return surface
-
-def create_dotgrid_template(width, height, dpi, spacing_mm, margin_mm,
-                           dot_radius_px,
-                           header_separator=None, footer_separator=None,
-                           major_every=None, major_width_add_px=1.5,
-                           crosshair_size=4,
-                           auto_adjust_spacing=True,
-                           force_major_alignment=False): # <-- This one was already correct
-    """
-    Create a dot grid template
-    """
-    mm2px = dpi / 25.4
-
-    if auto_adjust_spacing:
-        from .utils import snap_spacing_to_clean_pixels
-        adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
-        if was_adjusted:
-            print(f"Note: Adjusted spacing from {spacing_mm}mm to {adjusted_mm:.3f}mm for pixel-perfect alignment")
-        spacing_mm = adjusted_mm
-    else:
-        spacing_px = spacing_mm * mm2px
-    
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
-    
-    # white background
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.paint()
-    
-    # calculate base margins
-    base_margin = round(margin_mm * mm2px)
-    
-    # Calculate adjusted margins for both axes
-    content_height = height - (2 * base_margin)
-    content_width = width - (2 * base_margin)
-    
-    if force_major_alignment and major_every:
-        from .utils import calculate_major_aligned_margins, calculate_major_aligned_margins_x
-        m_top, m_bottom, num_v_units = calculate_major_aligned_margins(
-            content_height, spacing_px, base_margin, major_every
-        )
-        m_left, m_right, num_h_units = calculate_major_aligned_margins_x(
-            content_width, spacing_px, base_margin, major_every
-        )
-        print(f"Note: Force-aligned to {num_h_units}×{num_v_units} major units ({major_every}×{major_every} grid)")
-    else:
-        m_top, m_bottom = calculate_adjusted_margins(content_height, spacing_px, base_margin)
-        m_left, m_right = calculate_adjusted_margins_x(content_width, spacing_px, base_margin)
-    
-    # --- MODIFIED: Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
-    if header_style:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
-    
-    # --- MODIFIED: Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
-    if footer_style:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
-    
-    # --- MODIFIED: Update skip logic ---
-    skip_first = header_style is not None
-    skip_last = footer_style is not None
-    
-    # draw dot grid with crosshairs if major_every is specified
-    if major_every:
-        draw_dot_grid_with_crosshairs(ctx, m_left, width - m_right,
-                     m_top, height - m_bottom,
-                     spacing_px, dot_radius_px,
-                     skip_first_row=skip_first,
-                     skip_last_row=skip_last,
-                     major_every=major_every,
-                     crosshair_size=crosshair_size)
-    else:
-        draw_dot_grid(ctx, m_left, width - m_right,
-                     m_top, height - m_bottom,
-                     spacing_px, dot_radius_px,
-                     skip_first_row=skip_first,
-                     skip_last_row=skip_last)
-    
-    return surface
-
-def create_grid_template(width, height, dpi, spacing_mm, margin_mm,
-                        line_width_px,
-                        header_separator=None, footer_separator=None,
-                        major_every=None, major_width_add_px=1.5,
-                        crosshair_size=3, no_crosshairs=False,
-                        auto_adjust_spacing=True,
-                        force_major_alignment=False, # <-- This one was already correct
-                        cell_label_config=None,
-                        axis_label_config=None):
-    """
-    Create a full grid template (horizontal and vertical lines)
-    """
-    mm2px = dpi / 25.4
-
-    if auto_adjust_spacing:
-        from .utils import snap_spacing_to_clean_pixels
-        adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
-        if was_adjusted:
-            print(f"Note: Adjusted spacing from {spacing_mm}mm to {adjusted_mm:.3f}mm for pixel-perfect alignment")
-        spacing_mm = adjusted_mm
-    else:
-        spacing_px = spacing_mm * mm2px
-    
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
-    
-    # white background
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.paint()
-    
-    # calculate base margins
-    base_margin = round(margin_mm * mm2px)
-    
-    # Calculate adjusted margins for both axes
-    content_height = height - (2 * base_margin)
-    content_width = width - (2 * base_margin)
-    
-    if force_major_alignment and major_every:
-        from .utils import calculate_major_aligned_margins, calculate_major_aligned_margins_x
-        m_top, m_bottom, num_v_units = calculate_major_aligned_margins(
-            content_height, spacing_px, base_margin, major_every
-        )
-        m_left, m_right, num_h_units = calculate_major_aligned_margins_x(
-            content_width, spacing_px, base_margin, major_every
-        )
-        print(f"Note: Force-aligned to {num_h_units}×{num_v_units} major units ({major_every}×{major_every} grid)")
-    else:
-        m_top, m_bottom = calculate_adjusted_margins(content_height, spacing_px, base_margin)
-        m_left, m_right = calculate_adjusted_margins_x(content_width, spacing_px, base_margin)
-
-    # Calculate crosshair size
-    actual_crosshair_size = 0 if no_crosshairs else crosshair_size
-    
-    # --- MODIFIED: Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
-    if header_style:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
-    
-    # --- MODIFIED: Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
-    if footer_style:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
-    
-    # --- MODIFIED: Update skip logic ---
-    skip_first = header_style is not None
-    skip_last = footer_style is not None
-    
-    draw_grid(ctx, m_left, width - m_right,
-             m_top, height - m_bottom,
-             spacing_px, line_width_px,
-             skip_first_row=skip_first,
-             skip_last_row=skip_last,
-             major_every=major_every,
-             major_width_add_px=major_width_add_px,
-             crosshair_size=actual_crosshair_size)
-    
-    # --- NEW: Draw Cell Labeling ---
-    if cell_label_config:
-        from .drawing import draw_cell_labeling # Local import
-        print("Note: Drawing cell labels...")
-        draw_cell_labeling(
-            ctx, m_left, width - m_right, m_top, height - m_bottom,
-            spacing_px, config=cell_label_config
-        )
-
-    # --- NEW: Draw Axis Labeling ---
-    if axis_label_config:
-        from .drawing import draw_axis_labeling # Local import
-        print("Note: Drawing axis labels...")
-        draw_axis_labeling(
-            ctx, m_left, width - m_right, m_top, height - m_bottom,
-            spacing_px, config=axis_label_config
-        )
-    
-    return surface
-
-def create_manuscript_template(width, height, dpi, spacing_mm, margin_mm,
-                              line_width_px,
-                              header_separator=None, footer_separator=None,
-                              midline_style='dashed', ascender_opacity=0.3,
-                              auto_adjust_spacing=True,
-                              force_major_alignment=None): # <-- FIX
-    """
-    Create a manuscript template for handwriting practice (4-line system)
-    """
-    mm2px = dpi / 25.4
-
-    if auto_adjust_spacing:
-        from .utils import snap_spacing_to_clean_pixels
-        adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
-        if was_adjusted:
-            print(f"Note: Adjusted spacing from {spacing_mm}mm to {adjusted_mm:.3f}mm for pixel-perfect alignment")
-        spacing_mm = adjusted_mm
-    else:
-        spacing_px = spacing_mm * mm2px
-    
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
-    
-    # white background
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.paint()
-    
-    # calculate base margins
-    base_margin = round(margin_mm * mm2px)
-    
-    # No horizontal grid component, so no x-adjustment
-    m_left = base_margin
-    m_right = base_margin
-    
-    # Calculate adjusted top/bottom margins
-    content_height = height - (2 * base_margin)
-    m_top, m_bottom = calculate_adjusted_margins(content_height, spacing_px, base_margin)
-    
-    # --- MODIFIED: Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
-    if header_style:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
-    
-    # --- MODIFIED: Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
-    if footer_style:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
-    
-    # draw manuscript lines
-    # Your change to draw_manuscript_lines to use greyscale is handled
-    # automatically by passing the opacity value, which it snaps.
-    draw_manuscript_lines(ctx, m_left, width - m_right,
-                         m_top, height - m_bottom,
-                         spacing_px, line_width_px,
-                         midline_style, ascender_opacity)
-    
-    return surface
-
-def create_french_ruled_template(width, height, dpi, spacing_mm, margin_mm,
-                                line_width_px,
-                                header_separator=None, footer_separator=None,
-                                margin_line_offset_mm=20, show_margin_line=True,
-                                show_vertical_lines=True,
-                                auto_adjust_spacing=True,
-                                force_major_alignment=None): # <-- FIX
-    """
-    Create a French ruled (Seyès) template for handwriting
-    """
-    mm2px = dpi / 25.4
-
-    if auto_adjust_spacing:
-        from .utils import snap_spacing_to_clean_pixels
-        adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
-        if was_adjusted:
-            print(f"Note: Adjusted spacing from {spacing_mm}mm to {adjusted_mm:.3f}mm for pixel-perfect alignment")
-        spacing_mm = adjusted_mm
-    else:
-        spacing_px = spacing_mm * mm2px
-    
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
-    
-    # white background
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.paint()
-    
-    # calculate base margins
-    base_margin = round(margin_mm * mm2px)
-    
-    # Calculate adjusted top/bottom margins
-    content_height = height - (2 * base_margin)
-    m_top, m_bottom = calculate_adjusted_margins(content_height, spacing_px, base_margin)
-
-    # Calculate adjusted left/right margins
-    # Vertical lines are spaced at 4 * spacing_px
-    vertical_spacing_px = spacing_px * 4
-    content_width = width - (2 * base_margin)
-    m_left, m_right = calculate_adjusted_margins_x(content_width, vertical_spacing_px, base_margin)
-    
-    # --- MODIFIED: Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
-    if header_style:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
-    
-    # --- MODIFIED: Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
-    if footer_style:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
-    
-    # Calculate margin line offset
-    margin_line_offset_px = round(margin_line_offset_mm * mm2px) if show_margin_line else None
-    
-    # draw French ruled lines
-    draw_french_ruled(ctx, m_left, width - m_right,
-                     m_top, height - m_bottom,
-                     spacing_px, line_width_px,
-                     margin_line_offset_px=margin_line_offset_px,
-                     show_vertical_lines=show_vertical_lines)
-    
-    return surface
-
-def create_music_staff_template(width, height, dpi, spacing_mm, margin_mm,
-                               line_width_px,
-                               header_separator=None, footer_separator=None,
-                               staff_gap_mm=10,
-                               auto_adjust_spacing=True,
-                               force_major_alignment=None): # <-- FIX
-    """
-    Create a music staff template for musical notation
-    """
-    mm2px = dpi / 25.4
-
-    if auto_adjust_spacing:
-        from .utils import snap_spacing_to_clean_pixels
-        adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
-        if was_adjusted:
-            print(f"Note: Adjusted spacing from {spacing_mm}mm to {adjusted_mm:.3f}mm for pixel-perfect alignment")
-        spacing_mm = adjusted_mm
-    else:
-        spacing_px = spacing_mm * mm2px
-    
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
-    
-    # white background
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.paint()
-    
-    # calculate base margins
-    base_margin = round(margin_mm * mm2px)
-    
-    # No horizontal grid component
-    m_left = base_margin
-    m_right = base_margin
-    
-    # Use the adjusted spacing_px
-    line_spacing_px = spacing_px
-    staff_gap_px = int(staff_gap_mm * mm2px)
-    
-    # Height of one complete staff (5 lines = 4 spaces) plus gap
-    staff_height_px = line_spacing_px * 4
-    staff_unit_px = staff_height_px + staff_gap_px
-    
-    # Calculate adjusted top/bottom margins to eliminate leftover space
-    content_height = height - (2 * base_margin)
-    m_top, m_bottom = calculate_adjusted_margins(content_height, staff_unit_px, base_margin)
-    
-    # --- MODIFIED: Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
-    if header_style:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
-    
-    # --- MODIFIED: Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
-    if footer_style:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
-    
-    # Draw music staves
-    # We pass staff_spacing_mm (the original or adjusted mm) for consistency
-    draw_music_staff(ctx, m_left, width - m_right,
-                    m_top, height - m_bottom,
-                    spacing_mm, dpi, line_width_px, staff_gap_mm)
-    
-    return surface
-
-def create_isometric_template(width, height, dpi, spacing_mm, margin_mm,
-                             line_width_px,
-                             header_separator=None, footer_separator=None,
-                             auto_adjust_spacing=True,
-                             force_major_alignment=None): # <-- FIX
-    """
-    Create an isometric grid template for technical drawing
-    """
-    mm2px = dpi / 25.4
-
-    if auto_adjust_spacing:
-        from .utils import snap_spacing_to_clean_pixels  # Import if not at top
-        adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
-        if was_adjusted:
-            print(f"Note: Adjusted spacing from {spacing_mm}mm to {adjusted_mm:.3f}mm for pixel-perfect alignment")
-        spacing_mm = adjusted_mm  # Update for filename/reporting
-    else:
-        spacing_px = spacing_mm * mm2px
-    
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
-    
-    # white background
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.paint()
-    
-    # calculate margins
-    base_margin = round(margin_mm * mm2px)
-
-    # The user's snapped 'spacing_px' is the PERPENDICULAR spacing (p).
-    # This is what draw_isometric_grid expects.
-    
-    from math import sin, cos, tan, radians
-    
-    # 1. The perpendicular spacing 'p' is the user's snapped spacing.
-    perpendicular_spacing_p = spacing_px
-
-    # 2. Calculate the true VERTICAL repeating unit (the triangle height 'h').
-    # h = p * tan(60)
-    vertical_unit_h = perpendicular_spacing_p * tan(radians(60))
-
-    # 3. Adjust Top/Bottom margins using this vertical unit.
-    content_height = height - (2 * base_margin)
-    m_top, m_bottom = calculate_adjusted_margins(content_height, vertical_unit_h, base_margin)
-
-    # 4. Calculate the true HORIZONTAL repeating unit (the side length 's').
-    # This is the spacing for the vertical 0-degree lines.
-    # p = s * cos(30)  =>  s = p / cos(30)
-    horizontal_unit_s = perpendicular_spacing_p / cos(radians(30))
-    
-    # 5. Adjust Left/Right margins using this horizontal unit.
-    content_width = width - (2 * base_margin)
-    m_left, m_right = calculate_adjusted_margins_x(content_width, horizontal_unit_s, base_margin)
-    
-    # --- MODIFIED: Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
-    if header_style:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
-    
-    # --- MODIFIED: Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
-    if footer_style:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
-    
-    # Draw isometric grid
-    draw_isometric_grid(ctx, m_left, width - m_right,
-                       m_top, height - m_bottom,
-                       perpendicular_spacing_p, line_width_px) # Pass the original 'p'
-    
-    return surface
-
-def create_hex_template(width, height, dpi, spacing_mm, margin_mm,
-                         line_width_px,
-                         header_separator=None, footer_separator=None,
-                         auto_adjust_spacing=True,
-                         force_major_alignment=None): # <-- FIX
-    """
-    Create a hexagonal grid template
-    'spacing_mm' defines the side length of the hexagon
-    """
-    mm2px = dpi / 25.4
-
-    if auto_adjust_spacing:
-        from .utils import snap_spacing_to_clean_pixels
-        adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
-        if was_adjusted:
-            print(f"Note: Adjusted spacing from {spacing_mm}mm to {adjusted_mm:.3f}mm for pixel-perfect alignment")
-        spacing_mm = adjusted_mm
-    else:
-        spacing_px = spacing_mm * mm2px
-    
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
-    
-    # white background
-    ctx.set_source_rgb(1, 1, 1)
-    ctx.paint()
-    
-    # calculate base margins
-    base_margin = round(margin_mm * mm2px)
-    
-    # 'spacing_px' is the side length (s)
-    s = spacing_px
-    
-    # Calculate horizontal and vertical distances between hex centers
-    v_dist = sqrt(3) * s
-    h_dist = 1.5 * s
-
-    # Adjust margins based on the repeating grid units
-    content_height = height - (2 * base_margin)
-    m_top, m_bottom = calculate_adjusted_margins(content_height, v_dist, base_margin)
-    
-    content_width = width - (2 * base_margin)
-    m_left, m_right = calculate_adjusted_margins_x(content_width, h_dist, base_margin)
-    
-    # --- MODIFIED: Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
-    if header_style:
-        draw_separator_line(ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs)
-    
-    # --- MODIFIED: Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
-    if footer_style:
-        draw_separator_line(ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs)
-    
-    # Draw hex grid
-    draw_hex_grid(ctx, m_left, width - m_right,
-                  m_top, height - m_bottom,
-                  spacing_px, line_width_px)
     
     return surface
 
@@ -780,49 +521,53 @@ def create_column_template(width, height, dpi, spacing_mm, margin_mm,
             
             # --- Draw content in the cell ---
             if base_template == 'lined':
-                draw_lined_section(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_lined_section(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                                  spacing_px, template_kwargs.get('line_width_px', 0.5),
                                  skip_first=skip_first, skip_last=skip_last,
                                  major_every=template_kwargs.get('major_every'),
                                  major_width_add_px=template_kwargs.get('major_width_add_px', 1.5))
             
             elif base_template == 'dotgrid':
-                draw_dot_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
-                            spacing_px, template_kwargs.get('dot_radius_px', 1.5),
-                            skip_first_row=skip_first, skip_last_row=skip_last)
-            
+                # Use the dispatcher to handle major_every
+                _draw_dotgrid_dispatcher(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                                         spacing_px,
+                                         dot_radius=template_kwargs.get('dot_radius_px', 1.5),
+                                         skip_first_row=skip_first, skip_last_row=skip_last,
+                                         major_every=template_kwargs.get('major_every'),
+                                         crosshair_size=template_kwargs.get('crosshair_size', 4))
+
             elif base_template == 'grid':
-                draw_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                          spacing_px, template_kwargs.get('line_width_px', 0.5),
                          skip_first_row=skip_first, skip_last_row=skip_last,
                          major_every=template_kwargs.get('major_every'),
                          major_width_add_px=template_kwargs.get('major_width_add_px', 1.5),
-                         crosshair_size=template_kwargs.get('crosshair_size', 3))
+                         crosshair_size=0 if template_kwargs.get('no_crosshairs') else template_kwargs.get('crosshair_size', 3))
             
             elif base_template == 'manuscript':
-                 draw_manuscript_lines(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                 drawing.draw_manuscript_lines(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                          spacing_px, template_kwargs.get('line_width_px', 0.5),
                          template_kwargs.get('midline_style', 'dashed'),
                          template_kwargs.get('ascender_opacity', 0.3))
             
             elif base_template == 'french_ruled':
                 # Note: French ruled margin line probably won't work well in columns
-                draw_french_ruled(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_french_ruled(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                          spacing_px, template_kwargs.get('line_width_px', 0.5),
                          margin_line_offset_px=None, # Disable margin line in columns
                          show_vertical_lines=True)
             
             elif base_template == 'music_staff':
-                draw_music_staff(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_music_staff(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                                 spacing_mm, dpi, template_kwargs.get('line_width_px', 0.5),
                                 template_kwargs.get('staff_gap_mm', 10))
             
             elif base_template == 'isometric':
-                draw_isometric_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_isometric_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                                     spacing_px, template_kwargs.get('line_width_px', 0.5))
             
             elif base_template == 'hexgrid':
-                draw_hex_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_hex_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                               spacing_px, template_kwargs.get('line_width_px', 0.5))
             
             # --- MODIFIED: Draw Column Separator with grey ---
@@ -957,7 +702,7 @@ def create_cell_grid_template(width, height, dpi, spacing_mm, margin_mm,
             # This calls the correct draw function based on the cell's type
             
             if template_type == 'lined':
-                draw_lined_section(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_lined_section(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                                  spacing_px, template_kwargs.get('line_width_px', 0.5),
                                  skip_first=skip_first, skip_last=skip_last,
                                  major_every=template_kwargs.get('major_every'),
@@ -970,17 +715,21 @@ def create_cell_grid_template(width, height, dpi, spacing_mm, margin_mm,
                                         template_kwargs['line_number_config'])
             
             elif template_type == 'dotgrid':
-                draw_dot_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
-                            spacing_px, template_kwargs.get('dot_radius_px', 1.5),
-                            skip_first_row=skip_first, skip_last_row=skip_last)
+                # Use the dispatcher to handle major_every
+                _draw_dotgrid_dispatcher(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                                         spacing_px,
+                                         dot_radius=template_kwargs.get('dot_radius_px', 1.5),
+                                         skip_first_row=skip_first, skip_last_row=skip_last,
+                                         major_every=template_kwargs.get('major_every'),
+                                         crosshair_size=template_kwargs.get('crosshair_size', 4))
             
             elif template_type == 'grid':
-                draw_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                          spacing_px, template_kwargs.get('line_width_px', 0.5),
                          skip_first_row=skip_first, skip_last_row=skip_last,
                          major_every=template_kwargs.get('major_every'),
                          major_width_add_px=template_kwargs.get('major_width_add_px', 1.5),
-                         crosshair_size=template_kwargs.get('crosshair_size', 4))
+                         crosshair_size=0 if template_kwargs.get('no_crosshairs') else template_kwargs.get('crosshair_size', 4))
                 
                 # --- NEW: Check for cell labeling ---
                 if 'cell_label_config' in template_kwargs:
@@ -995,28 +744,28 @@ def create_cell_grid_template(width, height, dpi, spacing_mm, margin_mm,
                                        spacing_px, template_kwargs['axis_label_config'])
             
             elif template_type == 'manuscript':
-                 draw_manuscript_lines(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                 drawing.draw_manuscript_lines(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                          spacing_px, template_kwargs.get('line_width_px', 0.5),
                          template_kwargs.get('midline_style', 'dashed'),
                          template_kwargs.get('ascender_opacity', 0.3))
             
             elif template_type == 'french_ruled':
-                draw_french_ruled(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_french_ruled(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                          spacing_px, template_kwargs.get('line_width_px', 0.5),
                          margin_line_offset_px=None,
                          show_vertical_lines=True)
             
             elif template_type == 'music_staff':
-                draw_music_staff(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_music_staff(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                                 spacing_mm, dpi, template_kwargs.get('line_width_px', 0.5),
                                 template_kwargs.get('staff_gap_mm', 10))
             
             elif template_type == 'isometric':
-                draw_isometric_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_isometric_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                                     spacing_px, template_kwargs.get('line_width_px', 0.5))
             
             elif template_type == 'hexgrid':
-                draw_hex_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                drawing.draw_hex_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                               spacing_px, template_kwargs.get('line_width_px', 0.5))
             
             # --- MODIFIED: Draw Separators with grey ---
@@ -1167,7 +916,7 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
                 'major_every': json_kwargs.get('major_every'),
                 'major_width_add_px': json_kwargs.get('major_width_add_px', 1.5)
             }
-            draw_lined_section(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+            drawing.draw_lined_section(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                              region_spacing_px, **draw_kwargs)
             
             # Check for line numbering config in the region
@@ -1179,14 +928,16 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
                                     cfg)
         
         elif template_type == 'dotgrid':
-            # Build clean kwargs
-            draw_kwargs = {
-                'dot_radius': json_kwargs.get('dot_radius_px', 1.5),
-                'skip_first_row': json_kwargs.get('skip_first_row', False),
-                'skip_last_row': json_kwargs.get('skip_last_row', False)
-            }
-            draw_dot_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
-                        region_spacing_px, **draw_kwargs)
+            # Use the dispatcher to handle major_every
+            _draw_dotgrid_dispatcher(
+                ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+                region_spacing_px,
+                dot_radius=json_kwargs.get('dot_radius_px', 1.5),
+                skip_first_row=json_kwargs.get('skip_first_row', False),
+                skip_last_row=json_kwargs.get('skip_last_row', False),
+                major_every=json_kwargs.get('major_every'),
+                crosshair_size=json_kwargs.get('crosshair_size', 4)
+            )
         
         elif template_type == 'grid':
             # Build clean kwargs
@@ -1198,7 +949,7 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
                 'major_width_add_px': json_kwargs.get('major_width_add_px', 1.5),
                 'crosshair_size': json_kwargs.get('crosshair_size', 4)
             }
-            draw_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+            drawing.draw_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                      region_spacing_px, **draw_kwargs)
             
             if 'cell_label_config' in region:
@@ -1224,7 +975,7 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
                 'midline_style': json_kwargs.get('midline_style', 'dashed'),
                 'ascender_opacity': json_kwargs.get('ascender_opacity', 0.3)
             }
-            draw_manuscript_lines(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+            drawing.draw_manuscript_lines(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                      region_spacing_px, **draw_kwargs)
         
         elif template_type == 'french_ruled':
@@ -1234,7 +985,7 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
                 'margin_line_offset_px': json_kwargs.get('margin_line_offset_px'), # None by default
                 'show_vertical_lines': json_kwargs.get('show_vertical_lines', True)
             }
-            draw_french_ruled(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+            drawing.draw_french_ruled(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                      region_spacing_px, **draw_kwargs)
         
         elif template_type == 'music_staff':
@@ -1242,10 +993,10 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
             draw_kwargs = {
                 'line_width': json_kwargs.get('line_width_px', 0.5),
                 'staff_gap_mm': json_kwargs.get('staff_gap_mm', 10),
-                'staff_spacing_mm': region_spacing_mm,
+                'staff_spacing_mm': region_spacing_mm, # Pass mm
                 'dpi': dpi
             }
-            draw_music_staff(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+            drawing.draw_music_staff(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                              **draw_kwargs)
         
         elif template_type == 'isometric':
@@ -1255,7 +1006,7 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
                 'major_every': json_kwargs.get('major_every'),
                 'major_width_add_px': json_kwargs.get('major_width_add_px', 1.5)
             }
-            draw_isometric_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+            drawing.draw_isometric_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                                 region_spacing_px, **draw_kwargs)
         
         elif template_type == 'hexgrid':
@@ -1264,7 +1015,7 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
                 'line_width': json_kwargs.get('line_width_px', 0.5)
                 # other hex kwargs like major_every could go here
             }
-            draw_hex_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
+            drawing.draw_hex_grid(ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end,
                           region_spacing_px, **draw_kwargs)
         
         elif template_type:
@@ -1283,16 +1034,3 @@ def create_json_layout_template(config, device_config, margin_mm, auto_adjust=Tr
                             content_width, content_height)
 
     return surface
-
-# Template registry for easy lookup
-TEMPLATE_REGISTRY = {
-    'lined': create_lined_template,
-    'dotgrid': create_dotgrid_template,
-    'grid': create_grid_template,
-    'hybrid_lined_dotgrid': create_hybrid_template,
-    'manuscript': create_manuscript_template,
-    'french_ruled': create_french_ruled_template,
-    'music_staff': create_music_staff_template,
-    'isometric': create_isometric_template,
-    'hexgrid': create_hex_template,
-}

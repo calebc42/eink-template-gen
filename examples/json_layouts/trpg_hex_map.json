@@ -1,0 +1,22 @@
+{
+  "master_spacing_mm": 8,
+  "output_filename": "trpg_hex_map.png",
+  "header_separator": "double",
+  "footer_separator": "double",
+  "page_layout": [
+    {
+      "name": "Hex Map Area",
+      "region_rect": [0, 0, 1.0, 0.6],
+      "template": "hexgrid",
+      "spacing_mm": 4,
+      "kwargs": { "line_width_px": 0.5 }
+    },
+    {
+      "name": "Notes Area",
+      "region_rect": [0, 0.6, 1.0, 0.4],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": { "line_width_px": 0.75 }
+    }
+  ]
+}

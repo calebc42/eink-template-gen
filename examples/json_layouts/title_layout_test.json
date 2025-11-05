@@ -1,0 +1,22 @@
+{
+  "device": "manta",
+  "master_spacing_mm": 8,
+  "header_separator": "bold",
+
+  "title_element": {
+    "region_rect": [0.05, 0.1, 0.9, 0.2],
+    "text": "My JSON Title",
+    "frame_shape": "ellipse",
+    "border_style": "dashed",
+    "fill_grey": 14
+  },
+  
+  "page_layout": [
+    {
+      "name": "Background Pattern",
+      "region_rect": [0, 0, 1, 1],
+      "template": "dotgrid",
+      "spacing_mm": 8
+    }
+  ]
+}

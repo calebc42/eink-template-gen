@@ -1,0 +1,20 @@
+{
+  "master_spacing_mm": 5,
+  "output_filename": "grid_force_align.png",
+  
+  "auto_adjust_spacing": false,
+  "force_major_alignment": true,
+
+  "page_layout": [
+    {
+      "name": "Design Grid (Force Aligned)",
+      "region_rect": [0, 0, 1.0, 1.0],
+      "template": "grid",
+      "spacing_mm": 5,
+      "kwargs": { 
+        "line_width_px": 0.5,
+        "major_every": 5
+      }
+    }
+  ]
+}

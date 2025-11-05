@@ -1,0 +1,38 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 8,
+  "output_filename": "cornell_layout.png",
+  "header_separator": "bold",
+  "footer_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Title",
+      "region_rect": [0, 0, 1.0, 0.10],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": { "line_width_px": 1.0 }
+    },
+    {
+      "name": "Cue Column",
+      "region_rect": [0, 0.10, 0.20, 0.70],
+      "template": "dotgrid",
+      "spacing_mm": 6,
+      "kwargs": { "dot_radius_px": 1.5 }
+    },
+    {
+      "name": "Notes Section",
+      "region_rect": [0.20, 0.10, 0.80, 0.70],
+      "template": "manuscript",
+      "spacing_mm": 8,
+      "kwargs": { "midline_style": "dotted", "line_width_px": 0.5 }
+    },
+    {
+      "name": "Summary",
+      "region_rect": [0, 0.80, 1.0, 0.20],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {}
+    }
+  ]
+}

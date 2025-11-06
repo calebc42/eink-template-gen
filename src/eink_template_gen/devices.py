@@ -1,19 +1,15 @@
 """
 Device specifications for supported e-ink devices
 """
-
 import json
+import sys
 
-try:
-    # Python 3.9+
-    from importlib.resources import as_file, files
-except ImportError:
-    # Python 3.8
-    from importlib import import_module
-    from importlib.resources import path as as_file
-
-    def files(package):
-        return import_module(package)
+# Use the correct import logic based on Python version
+if sys.version_info >= (3, 9):
+    from importlib.resources import files, as_file
+else:
+    # Python 3.8 uses the 'importlib_resources' backport
+    from importlib_resources import files, as_file
 
 
 # --- Greyscale Palette ---

@@ -6,10 +6,10 @@ import sys
 
 # Use the correct import logic based on Python version
 if sys.version_info >= (3, 9):
-    from importlib.resources import files, as_file
+    from importlib.resources import as_file, files
 else:
     # Python 3.8 uses the 'importlib_resources' backport
-    from importlib_resources import files, as_file
+    from importlib_resources import as_file, files
 
 
 # --- Greyscale Palette ---

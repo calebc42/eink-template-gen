@@ -1,45 +1,43 @@
 
 # Table of Contents
 
-1.  [Badges](#org7093156)
-2.  [About](#orge931c2e)
-3.  [Why This Tool?](#orgd38f80b)
-4.  [What this tool is NOT](#orgfcf8a38)
-5.  [Features](#org29b7b3a)
-6.  [Installation](#org9f6cd8e)
-    1.  [Development Version](#org054a11b)
-7.  [Full Documentation](#org2e14bf5)
-8.  [Supported Devices](#orgf818800)
-9.  [Configuration](#org8c737f3)
-10. [Usage Examples](#org74e02a3)
-    1.  [Basic Templates](#org27cd1e7)
-11. [Output](#orgaf853ac)
-12. [Contributing](#orgaf92f6b)
-13. [License](#org4a0752f)
-14. [Credits](#org3d6df0b)
+1.  [Badges](#orgd423e8d)
+2.  [About](#org3fc80c6)
+3.  [Why This Tool?](#org06c68ea)
+4.  [What this tool is NOT](#org167ac6c)
+5.  [Features](#orgb00f2af)
+6.  [Installation](#org60ef345)
+    1.  [Development Version](#orgc316ee3)
+7.  [Full Documentation](#orgcd6ce53)
+8.  [Supported Devices](#orgda41109)
+9.  [Configuration](#orga180554)
+10. [Usage Examples](#org59f367a)
+    1.  [Basic Templates](#org8ec067d)
+11. [Output](#org5155af7)
+12. [Contributing](#orgf931f62)
+13. [License](#orgf7567a3)
+14. [Credits](#orgbdfc3ec)
 
 
-<a id="org7093156"></a>
+<a id="orgd423e8d"></a>
 
 # Badges
 
-[[[https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml.svg](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml)]]
+[![img](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml.svg)](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml)
 
 
-<a id="orge931c2e"></a>
+<a id="org3fc80c6"></a>
 
 # About
 
 A device-agnostic command-line tool for generating mathematically balanced, pixel-perfect page templates for e-ink devices. Developed with the Supernote Manta, this tool supports millimeter or pixel specifications for human-readable, technically-precise, or true-scale template configurations.
 
 
-<a id="orgd38f80b"></a>
+<a id="org06c68ea"></a>
 
 # Why This Tool?
 
 This tool was born from the frustration of online generators that fail to handle "half-lines" or pixel alignment, resulting in uneven, blurry, or aliased lines on high-DPI e-ink screens. This generator calculates exact pixel-perfect margins and spacing based on your device's specific resolution and DPI, ensuring every line is crisp and uniform.
-
-:SUMMARY: Click to see Visual Comparison: The "Why"
 
 **Problem: Blurry Lines (Fractional Pixels)**
 The image on the left (`--no-auto-adjust`) shows blurry, anti-aliased lines. The image on the right (default) shows the pixel-perfect, crisp lines this tool creates.
@@ -116,10 +114,8 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 </tbody>
 </table>
 
-:END:
 
-
-<a id="orgfcf8a38"></a>
+<a id="org167ac6c"></a>
 
 # What this tool is NOT
 
@@ -130,7 +126,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   Monetized or Paywalled Tool
 
 
-<a id="org29b7b3a"></a>
+<a id="orgb00f2af"></a>
 
 # Features
 
@@ -142,14 +138,14 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   **Flexible Spacing:** Define layouts using millimeters (default), exact pixels, or by fitting an exact line count.
 
 
-<a id="org9f6cd8e"></a>
+<a id="org60ef345"></a>
 
 # Installation
 
     pip install eink-template-gen
 
 
-<a id="org054a11b"></a>
+<a id="orgc316ee3"></a>
 
 ## Development Version
 
@@ -175,7 +171,7 @@ Install in editable mode: This links the command eink-template-gen to your local
     pip install -e .
 
 
-<a id="org2e14bf5"></a>
+<a id="orgcd6ce53"></a>
 
 # Full Documentation
 
@@ -195,7 +191,7 @@ For detailed guides, feature deep-dives, and advanced examples, please see the `
     -   [Technical Details (Algorithm, Palette)](docs/reference/technical-details.md)
 
 
-<a id="orgf818800"></a>
+<a id="orgda41109"></a>
 
 # Supported Devices
 
@@ -207,7 +203,7 @@ Built-in device profiles:
 -   Supernote Nomad (7.8", 1404x1872, 300 DPI)
 
 
-<a id="org8c737f3"></a>
+<a id="orga180554"></a>
 
 # Configuration
 
@@ -219,12 +215,12 @@ Set a default device to avoid specifying `--device` every time:
 Configuration is stored locally in `config.json`.
 
 
-<a id="org74e02a3"></a>
+<a id="org59f367a"></a>
 
 # Usage Examples
 
 
-<a id="org27cd1e7"></a>
+<a id="org8ec067d"></a>
 
 ## Basic Templates
 
@@ -243,7 +239,7 @@ Configuration is stored locally in `config.json`.
 For more complex examples, including `multi`, `layout`, and `title` commands, see the [Advanced Usage Examples](docs/advanced-examples.md) documentation.
 
 
-<a id="orgaf853ac"></a>
+<a id="org5155af7"></a>
 
 # Output
 
@@ -260,7 +256,7 @@ Templates are saved to `out/<device_id>/` by default:
 Use `--output-dir` and `--filename` to customize output location.
 
 
-<a id="orgaf92f6b"></a>
+<a id="orgf931f62"></a>
 
 # Contributing
 
@@ -271,14 +267,14 @@ Contributions are welcome! This project uses:
 -   Pure Python implementation (no external dependencies for noise/fractals)
 
 
-<a id="org4a0752f"></a>
+<a id="orgf7567a3"></a>
 
 # License
 
 This project is licensed under the **GNU General Public License v3.0**. See the `LICENSE` file for details.
 
 
-<a id="org3d6df0b"></a>
+<a id="orgbdfc3ec"></a>
 
 # Credits
 

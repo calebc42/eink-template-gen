@@ -1,6 +1,7 @@
 """
 Drawing functions for title page patterns
 """
+
 import random
 from math import pi, sqrt
 
@@ -12,9 +13,19 @@ from .noise import fractal_noise_2d, simple_noise_2d, turbulence_2d
 
 # In cover_drawing.py, update draw_truchet_tiles function:
 
-def draw_truchet_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_px,
-                       line_width, rotation_seed=None, fill_grey=None,
-                       variant='classic'):  # <-- ADD THIS PARAMETER
+
+def draw_truchet_tiles(
+    ctx,
+    x_start,
+    x_end,
+    y_start,
+    y_end,
+    tile_size_px,
+    line_width,
+    rotation_seed=None,
+    fill_grey=None,
+    variant="classic",
+):  # <-- ADD THIS PARAMETER
     """
     Draw Truchet tile pattern with quarter-circle arcs
 
@@ -55,30 +66,30 @@ def draw_truchet_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_px,
             rotation = random.choice([0, 1, 2, 3])
 
             # Choose tile type based on variant
-            if variant == 'cross':
-                _draw_truchet_cross_tile(ctx, x, y, tile_size_px, rotation,
-                                        fill_grey, line_width)
-            elif variant == 'triangle':
-                _draw_truchet_triangle_tile(ctx, x, y, tile_size_px, rotation,
-                                           fill_grey, line_width)
-            elif variant == 'wave':
-                _draw_truchet_wave_tile(ctx, x, y, tile_size_px, rotation,
-                                       fill_grey, line_width)
-            elif variant == 'mixed':
+            if variant == "cross":
+                _draw_truchet_cross_tile(ctx, x, y, tile_size_px, rotation, fill_grey, line_width)
+            elif variant == "triangle":
+                _draw_truchet_triangle_tile(
+                    ctx, x, y, tile_size_px, rotation, fill_grey, line_width
+                )
+            elif variant == "wave":
+                _draw_truchet_wave_tile(ctx, x, y, tile_size_px, rotation, fill_grey, line_width)
+            elif variant == "mixed":
                 # Randomly choose between different styles
-                tile_type = random.choice(['classic', 'cross', 'triangle'])
-                if tile_type == 'cross':
-                    _draw_truchet_cross_tile(ctx, x, y, tile_size_px, rotation,
-                                            fill_grey, line_width)
-                elif tile_type == 'triangle':
-                    _draw_truchet_triangle_tile(ctx, x, y, tile_size_px, rotation,
-                                               fill_grey, line_width)
+                tile_type = random.choice(["classic", "cross", "triangle"])
+                if tile_type == "cross":
+                    _draw_truchet_cross_tile(
+                        ctx, x, y, tile_size_px, rotation, fill_grey, line_width
+                    )
+                elif tile_type == "triangle":
+                    _draw_truchet_triangle_tile(
+                        ctx, x, y, tile_size_px, rotation, fill_grey, line_width
+                    )
                 else:  # classic
-                    _draw_truchet_tile(ctx, x, y, tile_size_px, rotation,
-                                      fill_grey, line_width)
+                    _draw_truchet_tile(ctx, x, y, tile_size_px, rotation, fill_grey, line_width)
             else:  # 'classic'
-                _draw_truchet_tile(ctx, x, y, tile_size_px, rotation,
-                                  fill_grey, line_width)
+                _draw_truchet_tile(ctx, x, y, tile_size_px, rotation, fill_grey, line_width)
+
 
 def _draw_truchet_tile(ctx, x, y, size, rotation, fill_grey, line_width):
     """
@@ -110,10 +121,10 @@ def _draw_truchet_tile(ctx, x, y, size, rotation, fill_grey, line_width):
         ctx.set_source_rgb(fill_color, fill_color, fill_color)
 
         # Draw Path 1 (Top-Right Region)
-        ctx.move_to(x, y) # Top-left
+        ctx.move_to(x, y)  # Top-left
         # Arc from (x,y) to (x+size, y+size)
-        ctx.arc(x, y + size, size, -pi/2, 0)
-        ctx.line_to(x + size, y) # Top-right
+        ctx.arc(x, y + size, size, -pi / 2, 0)
+        ctx.line_to(x + size, y)  # Top-right
         ctx.close_path()
         ctx.fill()
 
@@ -121,9 +132,9 @@ def _draw_truchet_tile(ctx, x, y, size, rotation, fill_grey, line_width):
         # We must move to the arc's start point: (x+size, y+size)
         ctx.move_to(x + size, y + size)
         # Arc from (x+size, y+size) to (x,y)
-        ctx.arc(x + size, y, size, pi/2, pi)
-        ctx.line_to(x, y + size) # Bottom-left
-        ctx.close_path() # Close back to (x+size, y+size)
+        ctx.arc(x + size, y, size, pi / 2, pi)
+        ctx.line_to(x, y + size)  # Bottom-left
+        ctx.close_path()  # Close back to (x+size, y+size)
         ctx.fill()
     else:
         # --- OUTLINE LOGIC ---
@@ -131,15 +142,16 @@ def _draw_truchet_tile(ctx, x, y, size, rotation, fill_grey, line_width):
         ctx.set_line_width(line_width)
 
         # Top-left to bottom-right arc
-        ctx.arc(x, y + size, size, -pi/2, 0)
+        ctx.arc(x, y + size, size, -pi / 2, 0)
         ctx.stroke()
 
         # Bottom-right to top-left arc
-        ctx.arc(x + size, y, size, pi/2, pi)
+        ctx.arc(x + size, y, size, pi / 2, pi)
         ctx.stroke()
 
     # Restore context state
     ctx.restore()
+
 
 def _draw_truchet_cross_tile(ctx, x, y, size, rotation, fill_grey, line_width):
     """
@@ -245,8 +257,18 @@ def _draw_truchet_wave_tile(ctx, x, y, size, rotation, fill_grey, line_width):
     ctx.stroke()
     ctx.restore()
 
-def draw_diagonal_truchet_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_px,
-                                rotation_seed=None, fill_grey_1=0, fill_grey_2=15):
+
+def draw_diagonal_truchet_tiles(
+    ctx,
+    x_start,
+    x_end,
+    y_start,
+    y_end,
+    tile_size_px,
+    rotation_seed=None,
+    fill_grey_1=0,
+    fill_grey_2=15,
+):
     """
     Draw diagonal Truchet tile pattern (squares split by a diagonal).
 
@@ -279,6 +301,7 @@ def draw_diagonal_truchet_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_p
             rotation = random.choice([0, 1])
 
             _draw_diagonal_tile(ctx, x, y, tile_size_px, rotation, color_1, color_2)
+
 
 def _draw_diagonal_tile(ctx, x, y, size, rotation, color_1_val, color_2_val):
     """
@@ -318,10 +341,13 @@ def _draw_diagonal_tile(ctx, x, y, size, rotation, color_1_val, color_2_val):
 
     ctx.restore()
 
+
 # --- Hexagonal Truchet ---
 
-def draw_hexagonal_truchet_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_px,
-                                 line_width, rotation_seed=None):
+
+def draw_hexagonal_truchet_tiles(
+    ctx, x_start, x_end, y_start, y_end, tile_size_px, line_width, rotation_seed=None
+):
     """
     Draw a Truchet pattern on a hexagonal grid.
     'tile_size_px' is the side length 's' of the hexagon.
@@ -377,6 +403,7 @@ def draw_hexagonal_truchet_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_
 
     ctx.restore()
 
+
 def _draw_hexagonal_tile(ctx, x_c, y_c, s, rotation):
     """
     Draw a single hexagonal tile with 3 spokes connecting
@@ -430,8 +457,10 @@ def _draw_hexagonal_tile(ctx, x_c, y_c, s, rotation):
 
     ctx.restore()
 
-def draw_10_print_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_px,
-                        line_width, rotation_seed=None):
+
+def draw_10_print_tiles(
+    ctx, x_start, x_end, y_start, y_end, tile_size_px, line_width, rotation_seed=None
+):
     """
     Draw "10 PRINT" pattern (random forward/back slashes).
 
@@ -466,6 +495,7 @@ def draw_10_print_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_px,
 
     ctx.restore()
 
+
 def _draw_10_print_tile(ctx, x, y, size, direction):
     """
     Draw a single forward or back slash in a tile.
@@ -486,8 +516,8 @@ def _draw_10_print_tile(ctx, x, y, size, direction):
 
     ctx.stroke()
 
-def draw_lsystem_pattern(ctx, lsystem_config, x_start, y_start,
-                         width, height, line_width):
+
+def draw_lsystem_pattern(ctx, lsystem_config, x_start, y_start, width, height, line_width):
     """
     High-level "turtle" that draws a generated L-System string.
 
@@ -509,9 +539,7 @@ def draw_lsystem_pattern(ctx, lsystem_config, x_start, y_start,
 
     # 1. Generate the command string
     command_string = generate_lsystem_string(
-        lsystem_config["axiom"],
-        lsystem_config["rules"],
-        lsystem_config["iterations"]
+        lsystem_config["axiom"], lsystem_config["rules"], lsystem_config["iterations"]
     )
 
     # 2. Setup the turtle
@@ -522,7 +550,7 @@ def draw_lsystem_pattern(ctx, lsystem_config, x_start, y_start,
 
     # Move to the starting position and set initial angle
     ctx.move_to(x_start, y_start)
-    ctx.save() # Save this initial state
+    ctx.save()  # Save this initial state
 
     # Set the starting angle
     # We must translate to origin (0,0) to rotate the *world*,
@@ -575,6 +603,7 @@ def draw_lsystem_pattern(ctx, lsystem_config, x_start, y_start,
     ctx.stroke()
     ctx.restore()
 
+
 def _smooth_heightmap(heightmap, passes=1):
     """Apply simple 3x3 Gaussian smoothing to heightmap"""
     for _ in range(passes):
@@ -597,10 +626,20 @@ def _smooth_heightmap(heightmap, passes=1):
         heightmap = smoothed
     return heightmap
 
-def draw_contour_lines(ctx, x_start, x_end, y_start, y_end,
-                       contour_interval=0.1, line_width=1.0,
-                       noise_scale=0.02, octaves=4, seed=None,
-                       style='smooth'):
+
+def draw_contour_lines(
+    ctx,
+    x_start,
+    x_end,
+    y_start,
+    y_end,
+    contour_interval=0.1,
+    line_width=1.0,
+    noise_scale=0.02,
+    octaves=4,
+    seed=None,
+    style="smooth",
+):
     """
     Draw contour lines based on noise heightmap (like topographic maps).
 
@@ -639,9 +678,9 @@ def draw_contour_lines(ctx, x_start, x_end, y_start, y_end,
     def noise_func_smooth(x, y):
         return fractal_noise_2d(x, y, octaves, 0.5, 2.0, actual_seed)
 
-    if style == 'turbulent':
+    if style == "turbulent":
         noise_func = noise_func_turbulent
-    elif style == 'simple':
+    elif style == "simple":
         noise_func = noise_func_simple
     else:  # 'smooth'
         noise_func = noise_func_smooth
@@ -680,18 +719,17 @@ def draw_contour_lines(ctx, x_start, x_end, y_start, y_end,
         for sy in range(samples_y - 1):
             for sx in range(samples_x - 1):
                 # Get the four corners of this cell
-                tl = heightmap[sy][sx]         # top-left
-                tr = heightmap[sy][sx + 1]     # top-right
-                bl = heightmap[sy + 1][sx]     # bottom-left
-                br = heightmap[sy + 1][sx + 1] # bottom-right
+                tl = heightmap[sy][sx]  # top-left
+                tr = heightmap[sy][sx + 1]  # top-right
+                bl = heightmap[sy + 1][sx]  # bottom-left
+                br = heightmap[sy + 1][sx + 1]  # bottom-right
 
                 # Convert to pixel coordinates
                 px = x_start + (sx * sample_step)
                 py = y_start + (sy * sample_step)
 
                 # Draw line segments where contour crosses edges
-                _draw_contour_cell(ctx, px, py, sample_step, sample_step,
-                                  tl, tr, bl, br, threshold)
+                _draw_contour_cell(ctx, px, py, sample_step, sample_step, tl, tr, bl, br, threshold)
 
     ctx.restore()
 
@@ -767,9 +805,18 @@ def _draw_contour_cell(ctx, x, y, width, height, tl, tr, bl, br, threshold):
         ctx.stroke()
 
 
-def draw_noise_field(ctx, x_start, x_end, y_start, y_end,
-                     noise_scale=0.02, octaves=4, seed=None,
-                     style='smooth', greyscale_levels=16):
+def draw_noise_field(
+    ctx,
+    x_start,
+    x_end,
+    y_start,
+    y_end,
+    noise_scale=0.02,
+    octaves=4,
+    seed=None,
+    style="smooth",
+    greyscale_levels=16,
+):
     """
     Draw a noise field as a greyscale pattern (for testing/backgrounds).
 
@@ -801,9 +848,9 @@ def draw_noise_field(ctx, x_start, x_end, y_start, y_end,
     def noise_func_smooth(x, y):
         return fractal_noise_2d(x, y, octaves, 0.5, 2.0, actual_seed)
 
-    if style == 'turbulent':
+    if style == "turbulent":
         noise_func = noise_func_turbulent
-    elif style == 'simple':
+    elif style == "simple":
         noise_func = noise_func_simple
     else:  # 'smooth'
         noise_func = noise_func_smooth
@@ -830,10 +877,11 @@ def draw_noise_field(ctx, x_start, x_end, y_start, y_end,
 
     ctx.restore()
 
+
 # In cover_drawing.py, add at the end:
 
-def draw_decorative_border(ctx, x_start, x_end, y_start, y_end,
-                          border_width=2, style='simple'):
+
+def draw_decorative_border(ctx, x_start, x_end, y_start, y_end, border_width=2, style="simple"):
     """
     Draw decorative borders around the pattern area.
 
@@ -846,11 +894,10 @@ def draw_decorative_border(ctx, x_start, x_end, y_start, y_end,
     ctx.save()
     ctx.set_source_rgb(0, 0, 0)
 
-    if style == 'double':
+    if style == "double":
         # Inner border
         ctx.set_line_width(border_width * 0.6)
-        ctx.rectangle(x_start + 5, y_start + 5,
-                     x_end - x_start - 10, y_end - y_start - 10)
+        ctx.rectangle(x_start + 5, y_start + 5, x_end - x_start - 10, y_end - y_start - 10)
         ctx.stroke()
 
         # Outer border
@@ -858,7 +905,7 @@ def draw_decorative_border(ctx, x_start, x_end, y_start, y_end,
         ctx.rectangle(x_start, y_start, x_end - x_start, y_end - y_start)
         ctx.stroke()
 
-    elif style == 'ornate':
+    elif style == "ornate":
         # Main border
         ctx.set_line_width(border_width)
         ctx.rectangle(x_start, y_start, x_end - x_start, y_end - y_start)
@@ -866,12 +913,12 @@ def draw_decorative_border(ctx, x_start, x_end, y_start, y_end,
 
         # Corner ornaments
         corner_size = 15
-        _draw_border_corner_ornament(ctx, x_start, y_start, corner_size, 'top-left')
-        _draw_border_corner_ornament(ctx, x_end, y_start, corner_size, 'top-right')
-        _draw_border_corner_ornament(ctx, x_start, y_end, corner_size, 'bottom-left')
-        _draw_border_corner_ornament(ctx, x_end, y_end, corner_size, 'bottom-right')
+        _draw_border_corner_ornament(ctx, x_start, y_start, corner_size, "top-left")
+        _draw_border_corner_ornament(ctx, x_end, y_start, corner_size, "top-right")
+        _draw_border_corner_ornament(ctx, x_start, y_end, corner_size, "bottom-left")
+        _draw_border_corner_ornament(ctx, x_end, y_end, corner_size, "bottom-right")
 
-    elif style == 'geometric':
+    elif style == "geometric":
         # Border with small geometric accents
         ctx.set_line_width(border_width)
         ctx.rectangle(x_start, y_start, x_end - x_start, y_end - y_start)
@@ -882,18 +929,18 @@ def draw_decorative_border(ctx, x_start, x_end, y_start, y_end,
         square_size = 3
         for x in range(int(x_start) + spacing, int(x_end), spacing):
             # Top edge
-            ctx.rectangle(x - square_size/2, y_start - square_size/2, square_size, square_size)
+            ctx.rectangle(x - square_size / 2, y_start - square_size / 2, square_size, square_size)
             ctx.fill()
             # Bottom edge
-            ctx.rectangle(x - square_size/2, y_end - square_size/2, square_size, square_size)
+            ctx.rectangle(x - square_size / 2, y_end - square_size / 2, square_size, square_size)
             ctx.fill()
 
         for y in range(int(y_start) + spacing, int(y_end), spacing):
             # Left edge
-            ctx.rectangle(x_start - square_size/2, y - square_size/2, square_size, square_size)
+            ctx.rectangle(x_start - square_size / 2, y - square_size / 2, square_size, square_size)
             ctx.fill()
             # Right edge
-            ctx.rectangle(x_end - square_size/2, y - square_size/2, square_size, square_size)
+            ctx.rectangle(x_end - square_size / 2, y - square_size / 2, square_size, square_size)
             ctx.fill()
 
     else:  # 'simple'
@@ -909,30 +956,30 @@ def _draw_border_corner_ornament(ctx, x, y, size, position):
     ctx.save()
     ctx.set_line_width(1.0)
 
-    if position == 'top-left':
+    if position == "top-left":
         # Small curve in corner
-        ctx.arc(x + size, y + size, size, pi, 3*pi/2)
+        ctx.arc(x + size, y + size, size, pi, 3 * pi / 2)
         ctx.stroke()
         # Inner detail
-        ctx.arc(x + size/2, y + size/2, size/2, pi, 3*pi/2)
+        ctx.arc(x + size / 2, y + size / 2, size / 2, pi, 3 * pi / 2)
         ctx.stroke()
 
-    elif position == 'top-right':
-        ctx.arc(x - size, y + size, size, 3*pi/2, 2*pi)
+    elif position == "top-right":
+        ctx.arc(x - size, y + size, size, 3 * pi / 2, 2 * pi)
         ctx.stroke()
-        ctx.arc(x - size/2, y + size/2, size/2, 3*pi/2, 2*pi)
-        ctx.stroke()
-
-    elif position == 'bottom-left':
-        ctx.arc(x + size, y - size, size, pi/2, pi)
-        ctx.stroke()
-        ctx.arc(x + size/2, y - size/2, size/2, pi/2, pi)
+        ctx.arc(x - size / 2, y + size / 2, size / 2, 3 * pi / 2, 2 * pi)
         ctx.stroke()
 
-    elif position == 'bottom-right':
-        ctx.arc(x - size, y - size, size, 0, pi/2)
+    elif position == "bottom-left":
+        ctx.arc(x + size, y - size, size, pi / 2, pi)
         ctx.stroke()
-        ctx.arc(x - size/2, y - size/2, size/2, 0, pi/2)
+        ctx.arc(x + size / 2, y - size / 2, size / 2, pi / 2, pi)
+        ctx.stroke()
+
+    elif position == "bottom-right":
+        ctx.arc(x - size, y - size, size, 0, pi / 2)
+        ctx.stroke()
+        ctx.arc(x - size / 2, y - size / 2, size / 2, 0, pi / 2)
         ctx.stroke()
 
     ctx.restore()

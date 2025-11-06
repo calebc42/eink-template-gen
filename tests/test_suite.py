@@ -129,7 +129,7 @@ class TestUtilityFunctions:
         spacing_px, orig_mm, adj_mm, adjusted, mode = parse_spacing("71px", 300, True)
         assert mode == "px"
         assert spacing_px == 71.0
-        assert not adjusted # No adjustment in px mode
+        assert not adjusted  # No adjustment in px mode
 
     def test_parse_spacing_no_unit(self):
         """Test parsing spacing without unit (defaults to mm)"""

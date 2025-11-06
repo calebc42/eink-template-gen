@@ -1,13 +1,22 @@
 """
 Device specifications for supported e-ink devices
 """
-"""
-Device specifications for supported e-ink devices
-"""
+import json
+try:
+    # Python 3.9+
+    from importlib.resources import files, as_file
+except ImportError:
+    # Python 3.8
+    from importlib.resources import path as as_file
+    from importlib import import_module
+    
+    def files(package):
+        return import_module(package)
+
+# --- Greyscale Palette (Unchanged) ---
 
 # E-ink native greyscale palette (16 levels)
-# Values confirmed from Supernote device testing
-# All Supernote devices use the same 16-level greyscale
+# ... (all your existing EINK_GREYSCALE_PALETTE and snap_to_eink_greyscale code) ...
 EINK_GREYSCALE_PALETTE = [
     0.0,        # 0:  #000000 (black)
     16/255,     # 1:  #101010
@@ -36,11 +45,6 @@ def snap_to_eink_greyscale(grey_value):
     
     Returns:
         Float snapped to nearest e-ink greyscale level (0.0-1.0)
-        
-    Examples:
-        snap_to_eink_greyscale(0.5) → 0.5019... (#808080)
-        snap_to_eink_greyscale(8) → 0.5019... (#808080)
-        snap_to_eink_greyscale(0.33) → 0.3137... (#505050)
     """
     # Handle 0-15 integer scale
     if grey_value > 1.0:
@@ -70,44 +74,35 @@ def print_greyscale_palette():
         print(f"  {i:2d}: {value:.4f} → {hex_str}")
     print("=" * 50)
 
-DEVICES = {
-    'manta': {
-        'width': 1920,
-        'height': 2560,
-        'dpi': 300,
-        'name': 'Supernote Manta',
-        'diagonal_inches': 10.7,
-        'toolbar_width_px': 116,
-        'default_margin_mm': 10
-    },
-    'a5x': {
-        'width': 1404,
-        'height': 1872,
-        'dpi': 226,
-        'name': 'Supernote A5 X',
-        'diagonal_inches': 10.3,
-        'toolbar_width_px': 116,
-        'default_margin_mm': 8.5
-    },
-    'a6x': {
-        'width': 1404,
-        'height': 1872,
-        'dpi': 300,
-        'name': 'Supernote A6 X',
-        'diagonal_inches': 7.8,
-        'toolbar_width_px': 99,
-        'default_margin_mm': 8.5
-    },
-    'nomad': {
-        'width': 1404,
-        'height': 1872,
-        'dpi': 300,
-        'name': 'Supernote Nomad',
-        'diagonal_inches': 7.8,
-        'toolbar_width_px': 116,
-        'default_margin_mm': 8
-    }
-}
+# --- Device Loading (NEW) ---
+
+def _load_devices():
+    """
+    Loads device definitions from the devices.json file.
+    """
+    try:
+        # Get a reference to the devices.json file within the package
+        # 'files' returns a Traversable object
+        json_path_ref = files('eink_template_gen').joinpath('devices.json')
+        
+        # 'as_file' provides a context manager to get a real file path
+        with as_file(json_path_ref) as json_file_path:
+            with open(json_file_path, 'r') as f:
+                devices_list = json.load(f)
+        
+        # Convert the list of devices into a dictionary keyed by 'id'
+        devices_dict = {device.pop('id'): device for device in devices_list}
+        return devices_dict
+        
+    except Exception as e:
+        print(f"Error loading devices.json: {e}")
+        print("Falling back to empty device list.")
+        return {}
+
+# Load devices on module import
+DEVICES = _load_devices()
+
+# --- Device Functions (Modified) ---
 
 def get_device(device_name):
     """
@@ -122,6 +117,9 @@ def get_device(device_name):
     Raises:
         ValueError: If device not found
     """
+    if not DEVICES:
+         raise ValueError("Device list is empty. Check devices.json.")
+         
     if device_name not in DEVICES:
         available = ', '.join(DEVICES.keys())
         raise ValueError(f"Unknown device '{device_name}'. Available: {available}")
@@ -130,7 +128,8 @@ def get_device(device_name):
 
 def add_device(device_id, width, height, dpi, name, diagonal_inches=None, default_margin_mm=None):
     """
-    Add a new device configuration
+    Add a new device configuration *at runtime*.
+    Note: This does not modify the devices.json file.
     
     Args:
         device_id: Unique identifier for the device (e.g., 'manta', 'a5x')

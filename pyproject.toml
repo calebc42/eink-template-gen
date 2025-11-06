@@ -30,6 +30,8 @@ classifiers = [
 
 dependencies = [
     "pycairo>=1.20.0",
+    # Add importlib-resources for Python 3.8 support
+    "importlib-resources; python_version < '3.9'"
 ]
 
 [project.optional-dependencies]
@@ -60,6 +62,11 @@ Documentation = "https://github.com/calebc42/eink-template-gen#readme"
 where = ["src"]
 include = ["eink_template_gen*"]
 exclude = ["tests*", "docs*", "examples*"]
+
+# --- ADD THIS SECTION ---
+[tool.setuptools.package-data]
+"eink_template_gen" = ["*.json"]
+# ------------------------
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

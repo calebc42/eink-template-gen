@@ -1,0 +1,42 @@
+[
+  {
+    "id": "manta",
+    "width": 1920,
+    "height": 2560,
+    "dpi": 300,
+    "name": "Supernote Manta",
+    "diagonal_inches": 10.7,
+    "toolbar_width_px": 116,
+    "default_margin_mm": 10
+  },
+  {
+    "id": "a5x",
+    "width": 1404,
+    "height": 1872,
+    "dpi": 226,
+    "name": "Supernote A5 X",
+    "diagonal_inches": 10.3,
+    "toolbar_width_px": 116,
+    "default_margin_mm": 8.5
+  },
+  {
+    "id": "a6x",
+    "width": 1404,
+    "height": 1872,
+    "dpi": 300,
+    "name": "Supernote A6 X",
+    "diagonal_inches": 7.8,
+    "toolbar_width_px": 99,
+    "default_margin_mm": 8.5
+  },
+  {
+    "id": "nomad",
+    "width": 1404,
+    "height": 1872,
+    "dpi": 300,
+    "name": "Supernote Nomad",
+    "diagonal_inches": 7.8,
+    "toolbar_width_px": 116,
+    "default_margin_mm": 8
+  }
+]

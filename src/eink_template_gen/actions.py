@@ -264,7 +264,7 @@ def _save_and_print_summary(surface, context, args):
         filename = args.filename if args.filename.endswith('.png') else f"{args.filename}.png"
         # Manually specified filename, put it in the base device_dir
         # We will *not* add the template_type directory here
-        output_dir = device_dir 
+        output_dir = device_dir
     
     elif args.command == 'layout':
         default_filename = Path(args.layout).stem + ".png"
@@ -375,7 +375,17 @@ def _save_and_print_summary(surface, context, args):
         if not is_complex_layout:
             # Recalculate margins just for display
             v_align_unit = context['spacing_px']
-            h_align_unit = context['spacing_px']
+            
+            template_type = args.command # e.g., 'lined', 'grid'
+            config = TEMPLATE_REGISTRY.get(template_type, {})
+            h_align_setting = config.get('horizontal_align_unit')
+
+            h_align_unit = context['spacing_px'] # Default for 'grid', 'dotgrid', etc.
+
+            if h_align_setting == 'none':
+                h_align_unit = 1 # For 'lined', 'manuscript'
+            elif h_align_setting == 'french_ruled':
+                h_align_unit = context['spacing_px'] * 4
             
             if force_align:
                 m_top, m_bottom, _ = calculate_major_aligned_margins(content_height, v_align_unit, base_margin_px, cli_args['major_every'])

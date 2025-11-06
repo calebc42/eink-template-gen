@@ -1,31 +1,39 @@
 
 # Table of Contents
 
-1.  [About](#orgc6243ee)
-2.  [Why This Tool?](#orgeda4cdd)
-3.  [What this tool is NOT](#orgf2ba7c1)
-4.  [Features](#org70cf0ad)
-5.  [Installation](#org8544504)
-    1.  [Development Version](#org7af9cde)
-6.  [Full Documentation](#org7d50f0b)
-7.  [Supported Devices](#org4fb1b4c)
-8.  [Configuration](#org657c333)
-9.  [Usage Examples](#org4422797)
-    1.  [Basic Templates](#orga689170)
-10. [Output](#org44399c6)
-11. [Contributing](#org704ebfb)
-12. [License](#org2de9852)
-13. [Credits](#org274ed63)
+1.  [Badges](#org4417d7e)
+2.  [About](#orge101f53)
+3.  [Why This Tool?](#org8418c7a)
+4.  [What this tool is NOT](#org5906391)
+5.  [Features](#org6abc8f4)
+6.  [Installation](#orgcb5df16)
+    1.  [Development Version](#org7b99295)
+7.  [Full Documentation](#org033235f)
+8.  [Supported Devices](#org3caeeac)
+9.  [Configuration](#orgad2b62b)
+10. [Usage Examples](#org99caa74)
+    1.  [Basic Templates](#org0e46d18)
+11. [Output](#orga8494e2)
+12. [Contributing](#org94670fd)
+13. [License](#orga564610)
+14. [Credits](#orga1c871b)
 
 
-<a id="orgc6243ee"></a>
+<a id="org4417d7e"></a>
+
+# Badges
+
+[[[https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml.svg](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml)]]
+
+
+<a id="orge101f53"></a>
 
 # About
 
 A device-agnostic command-line tool for generating mathematically balanced, pixel-perfect page templates for e-ink devices. Developed with the Supernote Manta, this tool supports millimeter or pixel specifications for human-readable, technically-precise, or true-scale template configurations.
 
 
-<a id="orgeda4cdd"></a>
+<a id="org8418c7a"></a>
 
 # Why This Tool?
 
@@ -86,7 +94,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 :END:
 
 
-<a id="orgf2ba7c1"></a>
+<a id="org5906391"></a>
 
 # What this tool is NOT
 
@@ -97,7 +105,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   Monetized or Paywalled Tool
 
 
-<a id="org70cf0ad"></a>
+<a id="org6abc8f4"></a>
 
 # Features
 
@@ -109,14 +117,14 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   **Flexible Spacing:** Define layouts using millimeters (default), exact pixels, or by fitting an exact line count.
 
 
-<a id="org8544504"></a>
+<a id="orgcb5df16"></a>
 
 # Installation
 
     pip install eink-template-gen
 
 
-<a id="org7af9cde"></a>
+<a id="org7b99295"></a>
 
 ## Development Version
 
@@ -142,7 +150,7 @@ Install in editable mode: This links the command eink-template-gen to your local
     pip install -e .
 
 
-<a id="org7d50f0b"></a>
+<a id="org033235f"></a>
 
 # Full Documentation
 
@@ -162,7 +170,7 @@ For detailed guides, feature deep-dives, and advanced examples, please see the `
     -   [Technical Details (Algorithm, Palette)](docs/reference/technical-details.md)
 
 
-<a id="org4fb1b4c"></a>
+<a id="org3caeeac"></a>
 
 # Supported Devices
 
@@ -174,7 +182,7 @@ Built-in device profiles:
 -   Supernote Nomad (7.8", 1404x1872, 300 DPI)
 
 
-<a id="org657c333"></a>
+<a id="orgad2b62b"></a>
 
 # Configuration
 
@@ -186,12 +194,12 @@ Set a default device to avoid specifying `--device` every time:
 Configuration is stored locally in `config.json`.
 
 
-<a id="org4422797"></a>
+<a id="org99caa74"></a>
 
 # Usage Examples
 
 
-<a id="orga689170"></a>
+<a id="org0e46d18"></a>
 
 ## Basic Templates
 
@@ -210,7 +218,7 @@ Configuration is stored locally in `config.json`.
 For more complex examples, including `multi`, `layout`, and `title` commands, see the [Advanced Usage Examples](docs/advanced-examples.md) documentation.
 
 
-<a id="org44399c6"></a>
+<a id="orga8494e2"></a>
 
 # Output
 
@@ -227,7 +235,7 @@ Templates are saved to `out/<device_id>/` by default:
 Use `--output-dir` and `--filename` to customize output location.
 
 
-<a id="org704ebfb"></a>
+<a id="org94670fd"></a>
 
 # Contributing
 
@@ -238,14 +246,14 @@ Contributions are welcome! This project uses:
 -   Pure Python implementation (no external dependencies for noise/fractals)
 
 
-<a id="org2de9852"></a>
+<a id="orga564610"></a>
 
 # License
 
 This project is licensed under the **GNU General Public License v3.0**. See the `LICENSE` file for details.
 
 
-<a id="org274ed63"></a>
+<a id="orga1c871b"></a>
 
 # Credits
 

@@ -1,6 +1,7 @@
 """
 Device specifications for supported e-ink devices
 """
+
 import json
 import sys
 

@@ -1,30 +1,31 @@
 
 # Table of Contents
 
-1.  [About](#orgb49ad43)
-2.  [Why This Tool?](#orgf062469)
-3.  [What this tool is NOT](#orgaeb4f60)
-4.  [Features](#org8c2c9a5)
-5.  [Installation](#orgc977ff5)
-6.  [Full Documentation](#org9c9be0a)
-7.  [Supported Devices](#org4d3fd7b)
-8.  [Configuration](#orgf812c59)
-9.  [Usage Examples](#org223eac5)
-    1.  [Basic Templates](#org6a8e515)
-10. [Output](#org3962a62)
-11. [Contributing](#org8cf8926)
-12. [License](#org580845e)
-13. [Credits](#org2b8cb51)
+1.  [About](#orgc6243ee)
+2.  [Why This Tool?](#orgeda4cdd)
+3.  [What this tool is NOT](#orgf2ba7c1)
+4.  [Features](#org70cf0ad)
+5.  [Installation](#org8544504)
+    1.  [Development Version](#org7af9cde)
+6.  [Full Documentation](#org7d50f0b)
+7.  [Supported Devices](#org4fb1b4c)
+8.  [Configuration](#org657c333)
+9.  [Usage Examples](#org4422797)
+    1.  [Basic Templates](#orga689170)
+10. [Output](#org44399c6)
+11. [Contributing](#org704ebfb)
+12. [License](#org2de9852)
+13. [Credits](#org274ed63)
 
 
-<a id="orgb49ad43"></a>
+<a id="orgc6243ee"></a>
 
 # About
 
 A device-agnostic command-line tool for generating mathematically balanced, pixel-perfect page templates for e-ink devices. Developed with the Supernote Manta, this tool supports millimeter or pixel specifications for human-readable, technically-precise, or true-scale template configurations.
 
 
-<a id="orgf062469"></a>
+<a id="orgeda4cdd"></a>
 
 # Why This Tool?
 
@@ -51,8 +52,8 @@ The image on the left (`--no-auto-adjust`) shows blurry, anti-aliased lines. The
 </thead>
 <tbody>
 <tr>
-<td class="org-left"><img src="src/assets/screenshots/before/manta/true-scale/problem_before_blurry_lines.png" alt="problem_before_blurry_lines.png" /></td>
-<td class="org-left"><img src="src/assets/screenshots/manta/problem_after_pixel_perfect_lined.png" alt="problem_after_pixel_perfect_lined.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/before/manta/true-scale/before_pixel_perfect.png" alt="before_pixel_perfect.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/after_pixel_perfect.png" alt="after_pixel_perfect.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -85,7 +86,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 :END:
 
 
-<a id="orgaeb4f60"></a>
+<a id="orgf2ba7c1"></a>
 
 # What this tool is NOT
 
@@ -96,7 +97,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   Monetized or Paywalled Tool
 
 
-<a id="org8c2c9a5"></a>
+<a id="org70cf0ad"></a>
 
 # Features
 
@@ -108,14 +109,40 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   **Flexible Spacing:** Define layouts using millimeters (default), exact pixels, or by fitting an exact line count.
 
 
-<a id="orgc977ff5"></a>
+<a id="org8544504"></a>
 
 # Installation
 
     pip install eink-template-gen
 
 
-<a id="org9c9be0a"></a>
+<a id="org7af9cde"></a>
+
+## Development Version
+
+If you want the latest unreleased features or want to contribute to development, you can install the package directly from this repository.
+
+Clone the repository:
+
+    git clone [https://github.com/calebc42/eink-template-gen.git](https://github.com/calebc42/eink-template-gen.git)
+    cd eink-template-gen
+
+Create and activate a virtual environment:
+
+    # On macOS/Linux
+    python3 -m venv .venv
+    source .venv/bin/activate
+    
+    # On Windows
+    python -m venv .venv
+    .\.venv\Scripts\activate
+
+Install in editable mode: This links the command eink-template-gen to your local source code, so any changes you make are immediately reflected.
+
+    pip install -e .
+
+
+<a id="org7d50f0b"></a>
 
 # Full Documentation
 
@@ -135,7 +162,7 @@ For detailed guides, feature deep-dives, and advanced examples, please see the `
     -   [Technical Details (Algorithm, Palette)](docs/reference/technical-details.md)
 
 
-<a id="org4d3fd7b"></a>
+<a id="org4fb1b4c"></a>
 
 # Supported Devices
 
@@ -147,7 +174,7 @@ Built-in device profiles:
 -   Supernote Nomad (7.8", 1404x1872, 300 DPI)
 
 
-<a id="orgf812c59"></a>
+<a id="org657c333"></a>
 
 # Configuration
 
@@ -159,12 +186,12 @@ Set a default device to avoid specifying `--device` every time:
 Configuration is stored locally in `config.json`.
 
 
-<a id="org223eac5"></a>
+<a id="org4422797"></a>
 
 # Usage Examples
 
 
-<a id="org6a8e515"></a>
+<a id="orga689170"></a>
 
 ## Basic Templates
 
@@ -183,7 +210,7 @@ Configuration is stored locally in `config.json`.
 For more complex examples, including `multi`, `layout`, and `title` commands, see the [Advanced Usage Examples](docs/advanced-examples.md) documentation.
 
 
-<a id="org3962a62"></a>
+<a id="org44399c6"></a>
 
 # Output
 
@@ -200,7 +227,7 @@ Templates are saved to `out/<device_id>/` by default:
 Use `--output-dir` and `--filename` to customize output location.
 
 
-<a id="org8cf8926"></a>
+<a id="org704ebfb"></a>
 
 # Contributing
 
@@ -211,14 +238,14 @@ Contributions are welcome! This project uses:
 -   Pure Python implementation (no external dependencies for noise/fractals)
 
 
-<a id="org580845e"></a>
+<a id="org2de9852"></a>
 
 # License
 
 This project is licensed under the **GNU General Public License v3.0**. See the `LICENSE` file for details.
 
 
-<a id="org2b8cb51"></a>
+<a id="org274ed63"></a>
 
 # Credits
 

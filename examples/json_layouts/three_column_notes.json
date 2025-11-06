@@ -1,0 +1,50 @@
+{
+  "device": "manta",
+  "margin_mm": 8,
+  "master_spacing_mm": 6,
+  "header_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Left Column",
+      "region_rect": [
+        0,
+        0,
+        0.33,
+        1.0
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Middle Column",
+      "region_rect": [
+        0.33,
+        0,
+        0.34,
+        1.0
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Right Column",
+      "region_rect": [
+        0.67,
+        0,
+        0.33,
+        1.0
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

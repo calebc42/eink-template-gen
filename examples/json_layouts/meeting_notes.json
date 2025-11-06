@@ -1,0 +1,80 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 7,
+  "header_separator": "double",
+  "footer_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Meeting Info",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.1
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.8
+      }
+    },
+    {
+      "name": "Attendees",
+      "region_rect": [
+        0,
+        0.1,
+        0.25,
+        0.2
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Agenda",
+      "region_rect": [
+        0.25,
+        0.1,
+        0.75,
+        0.2
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Discussion Notes",
+      "region_rect": [
+        0,
+        0.3,
+        1.0,
+        0.45
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Action Items",
+      "region_rect": [
+        0,
+        0.75,
+        1.0,
+        0.25
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5,
+        "major_every": 3
+      }
+    }
+  ]
+}

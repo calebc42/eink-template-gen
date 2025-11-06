@@ -1,0 +1,66 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 5,
+  "header_separator": "double",
+  "footer_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Title & Date",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 1.0
+      }
+    },
+    {
+      "name": "Diagram Area",
+      "region_rect": [
+        0,
+        0.08,
+        0.5,
+        0.6
+      ],
+      "template": "grid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5,
+        "major_every": 5
+      }
+    },
+    {
+      "name": "Calculations",
+      "region_rect": [
+        0.5,
+        0.08,
+        0.5,
+        0.6
+      ],
+      "template": "grid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Notes",
+      "region_rect": [
+        0,
+        0.68,
+        1.0,
+        0.32
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

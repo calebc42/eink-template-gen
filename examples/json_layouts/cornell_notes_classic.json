@@ -1,0 +1,65 @@
+{
+  "device": "manta",
+  "margin_mm": 12,
+  "master_spacing_mm": 7,
+  "header_separator": "bold",
+  "footer_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Header/Title",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.12
+      ],
+      "template": "lined",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 1.2
+      }
+    },
+    {
+      "name": "Cue Column",
+      "region_rect": [
+        0,
+        0.12,
+        0.25,
+        0.68
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Notes Column",
+      "region_rect": [
+        0.25,
+        0.12,
+        0.75,
+        0.68
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Summary",
+      "region_rect": [
+        0,
+        0.8,
+        1.0,
+        0.2
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "device": "manta",
+  "margin_mm": 8,
+  "master_spacing_mm": 5,
+  "header_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Month Header",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "blank"
+    },
+    {
+      "name": "Habit List",
+      "region_rect": [
+        0,
+        0.08,
+        0.3,
+        0.92
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Tracking Grid",
+      "region_rect": [
+        0.3,
+        0.08,
+        0.7,
+        0.92
+      ],
+      "template": "grid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5,
+        "major_every": 7
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 2,
+  "header_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Week Header",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "blank"
+    },
+    {
+      "name": "Practice Notes",
+      "region_rect": [
+        0,
+        0.08,
+        0.4,
+        0.5
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Staff for Examples",
+      "region_rect": [
+        0.4,
+        0.08,
+        0.6,
+        0.5
+      ],
+      "template": "music_staff",
+      "spacing_mm": 2,
+      "kwargs": {
+        "line_width_px": 0.75,
+        "staff_gap_mm": 12
+      }
+    },
+    {
+      "name": "Goals & Progress",
+      "region_rect": [
+        0,
+        0.58,
+        1.0,
+        0.42
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

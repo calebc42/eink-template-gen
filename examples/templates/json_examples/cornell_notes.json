@@ -1,0 +1,37 @@
+{
+  "device": "manta",
+  "spacing_mm": 7,
+  "page_layout": [
+    {
+      "height_ratio": 0.15,
+      "columns": [
+        {
+          "width_ratio": 1.0,
+          "template_type": "blank"
+        }
+      ]
+    },
+    {
+      "height_ratio": 0.75,
+      "columns": [
+        {
+          "width_ratio": 0.25,
+          "template_type": "lined"
+        },
+        {
+          "width_ratio": 0.75,
+          "template_type": "lined"
+        }
+      ]
+    },
+    {
+      "height_ratio": 0.1,
+      "columns": [
+        {
+          "width_ratio": 1.0,
+          "template_type": "blank"
+        }
+      ]
+    }
+  ]
+}

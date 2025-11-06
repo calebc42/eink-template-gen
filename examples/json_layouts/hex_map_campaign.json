@@ -1,0 +1,61 @@
+{
+  "device": "manta",
+  "margin_mm": 8,
+  "master_spacing_mm": 8,
+  "header_separator": "double",
+  "footer_separator": "double",
+  "page_layout": [
+    {
+      "name": "Map Title",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "blank"
+    },
+    {
+      "name": "Hex Map",
+      "region_rect": [
+        0,
+        0.08,
+        0.65,
+        0.7
+      ],
+      "template": "hexgrid",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Location Key",
+      "region_rect": [
+        0.65,
+        0.08,
+        0.35,
+        0.7
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Campaign Notes",
+      "region_rect": [
+        0,
+        0.78,
+        1.0,
+        0.22
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

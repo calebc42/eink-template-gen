@@ -1,0 +1,24 @@
+{
+  "device": "manta",
+  "margin_mm": 5,
+  "master_spacing_mm": 5,
+  "force_major_alignment": true,
+  "page_layout": [
+    {
+      "name": "Battle Grid",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        1.0
+      ],
+      "template": "grid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5,
+        "major_every": 5,
+        "major_width_add_px": 1.0
+      }
+    }
+  ]
+}

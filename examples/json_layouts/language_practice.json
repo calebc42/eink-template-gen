@@ -1,0 +1,64 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 8,
+  "header_separator": "bold",
+  "page_layout": [
+    {
+      "name": "Vocabulary Header",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "lined",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 1.0
+      }
+    },
+    {
+      "name": "Word/Phrase",
+      "region_rect": [
+        0,
+        0.08,
+        0.35,
+        0.92
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Translation",
+      "region_rect": [
+        0.35,
+        0.08,
+        0.35,
+        0.92
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Example/Notes",
+      "region_rect": [
+        0.7,
+        0.08,
+        0.3,
+        0.92
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

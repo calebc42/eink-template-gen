@@ -1,0 +1,36 @@
+{
+  "device": "manta",
+  "margin_mm": 8,
+  "master_spacing_mm": 5,
+  "page_layout": [
+    {
+      "name": "Design Area",
+      "region_rect": [
+        0,
+        0,
+        0.7,
+        1.0
+      ],
+      "template": "grid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5,
+        "major_every": 5
+      }
+    },
+    {
+      "name": "Notes",
+      "region_rect": [
+        0.7,
+        0,
+        0.3,
+        1.0
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

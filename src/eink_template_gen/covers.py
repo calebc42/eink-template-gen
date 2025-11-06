@@ -16,11 +16,7 @@ from .cover_drawing import (
     draw_noise_field,
     draw_truchet_tiles,
 )
-from .cover_elements import (
-    draw_title_element,
-    draw_title_frame,
-    draw_title_text
-)
+from .cover_elements import draw_title_element, draw_title_frame, draw_title_text
 from .separator_config import parse_separator_config
 from .separators import draw_separator_line
 from .utils import calculate_adjusted_margins, calculate_adjusted_margins_x

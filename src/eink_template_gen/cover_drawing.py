@@ -115,7 +115,6 @@ def _draw_truchet_tile(ctx, x, y, size, rotation, fill_grey, line_width):
         ctx.close_path()
         ctx.fill()
         
-        # --- START OF BUG FIX ---
         # Draw Path 2 (Bottom-Left Region)
         # We must move to the arc's start point: (x+size, y+size)
         ctx.move_to(x + size, y + size)
@@ -124,10 +123,8 @@ def _draw_truchet_tile(ctx, x, y, size, rotation, fill_grey, line_width):
         ctx.line_to(x, y + size) # Bottom-left
         ctx.close_path() # Close back to (x+size, y+size)
         ctx.fill()
-        # --- END OF BUG FIX ---
-        
     else:
-        # --- OUTLINE LOGIC (Original) ---
+        # --- OUTLINE LOGIC ---
         ctx.set_source_rgb(0, 0, 0)
         ctx.set_line_width(line_width)
         
@@ -319,7 +316,7 @@ def _draw_diagonal_tile(ctx, x, y, size, rotation, color_1_val, color_2_val):
     
     ctx.restore()
 
-# --- NEW: Hexagonal Truchet ---
+# --- Hexagonal Truchet ---
 
 def draw_hexagonal_truchet_tiles(ctx, x_start, x_end, y_start, y_end, tile_size_px, 
                                  line_width, rotation_seed=None):
@@ -629,14 +626,23 @@ def draw_contour_lines(ctx, x_start, x_end, y_start, y_end,
     
     width = x_end - x_start
     height = y_end - y_start
-    
+
     # Choose noise function
+    def noise_func_turbulent(x, y):
+        return turbulence_2d(x, y, octaves, actual_seed)
+        
+    def noise_func_simple(x, y):
+        return simple_noise_2d(x, y, actual_seed)
+        
+    def noise_func_smooth(x, y):
+        return fractal_noise_2d(x, y, octaves, 0.5, 2.0, actual_seed)
+
     if style == 'turbulent':
-        noise_func = lambda x, y: turbulence_2d(x, y, octaves, actual_seed)
+        noise_func = noise_func_turbulent
     elif style == 'simple':
-        noise_func = lambda x, y: simple_noise_2d(x, y, actual_seed)
+        noise_func = noise_func_simple
     else:  # 'smooth'
-        noise_func = lambda x, y: fractal_noise_2d(x, y, octaves, 0.5, 2.0, actual_seed)
+        noise_func = noise_func_smooth
     
     # Generate heightmap (sample-based approach)
     # Using a coarser grid for performance, then interpolating
@@ -777,22 +783,31 @@ def draw_noise_field(ctx, x_start, x_end, y_start, y_end,
         actual_seed = seed
     else:
         actual_seed = random.randint(0, 1000000)
-    
+
     # Choose noise function
+    def noise_func_turbulent(x, y):
+        return turbulence_2d(x, y, octaves, actual_seed)
+        
+    def noise_func_simple(x, y):
+        return simple_noise_2d(x, y, actual_seed)
+        
+    def noise_func_smooth(x, y):
+        return fractal_noise_2d(x, y, octaves, 0.5, 2.0, actual_seed)
+        
     if style == 'turbulent':
-        noise_func = lambda x, y: turbulence_2d(x, y, octaves, actual_seed)
+        noise_func = noise_func_turbulent
     elif style == 'simple':
-        noise_func = lambda x, y: simple_noise_2d(x, y, actual_seed)
+        noise_func = noise_func_simple
     else:  # 'smooth'
-        noise_func = lambda x, y: fractal_noise_2d(x, y, octaves, 0.5, 2.0, actual_seed)
+        noise_func = noise_func_smooth
     
     ctx.save()
     
     # Render pixel by pixel (or with a step for performance)
     step = 2  # Render every N pixels
     
-    for py in range(y_start, y_end, step):
-        for px in range(x_start, x_end, step):
+    for py in range(int(y_start), int(y_end), step):
+        for px in range(int(x_start), int(x_end), step):
             noise_x = px * noise_scale
             noise_y = py * noise_scale
             

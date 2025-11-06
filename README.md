@@ -23,8 +23,7 @@
 
 # Badges
 
-[![Python CI](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml.svg)](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml)
-
+![Python CI](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml/badge.svg)
 
 <a id="org3fc80c6"></a>
 

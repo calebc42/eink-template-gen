@@ -153,10 +153,10 @@ class TestUtilityFunctions:
 
     def test_generate_filename_basic(self):
         """Test basic filename generation"""
-        filename = generate_filename("lined", spacing=6, spacing_mode='mm')
+        filename = generate_filename("lined", spacing=6, spacing_mode="mm")
         assert filename == os.path.join("lined", "6mm.png")
 
-        filename_px = generate_filename("lined", spacing=71, spacing_mode='px')
+        filename_px = generate_filename("lined", spacing=71, spacing_mode="px")
         assert filename_px == os.path.join("lined", "71px.png")
 
     def test_generate_filename_with_params(self):

@@ -153,17 +153,17 @@ class TestUtilityFunctions:
 
     def test_generate_filename_basic(self):
         """Test basic filename generation"""
-        filename = generate_filename("lined", 6, spacing_mode="mm")
-        assert filename == "lined_6mm.png"
+        filename = generate_filename("lined", spacing=6, spacing_mode='mm')
+        assert filename == os.path.join("lined", "6mm.png")
 
-        filename_px = generate_filename("lined", 71, spacing_mode="px")
-        assert filename_px == "lined_71px.png"
+        filename_px = generate_filename("lined", spacing=71, spacing_mode='px')
+        assert filename_px == os.path.join("lined", "71px.png")
 
     def test_generate_filename_with_params(self):
         """Test filename generation with parameters"""
         filename = generate_filename(
             "grid",
-            6,
+            spacing=6,
             spacing_mode="mm",
             line_width_px=0.5,
             columns=2,
@@ -173,8 +173,8 @@ class TestUtilityFunctions:
         )
         assert "grid" in filename
         assert "6mm" in filename
-        assert "2col" in filename
-        assert "3rows" in filename
+        assert "2c" in filename
+        assert "3r" in filename
         assert "h-bold" in filename
         assert "f-wavy" in filename
 

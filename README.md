@@ -23,7 +23,9 @@
 
 # Badges
 
-![Python CI](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml/badge.svg)
+  ![Python CI](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml/badge.svg)
+  ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
+  ![License](https://img.shields.io/badge/license-GPLv3-green)
 
 <a id="org3fc80c6"></a>
 

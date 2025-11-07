@@ -175,7 +175,7 @@ def configure_title_parser(subparsers, common_parser):
 
     # --- Common Style Args ---
     title_parser.add_argument(
-        "--line_width_px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
+        "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
 
     # --- Title Pattern Options ---
@@ -418,7 +418,7 @@ def configure_multi_parser(subparsers, common_parser):
         help="Template type for a UNIFORM grid (all cells are this type)",
     )
     type_group.add_argument(
-        "--cell_types",
+        "--cell-types",
         type=str,
         help='Comma-separated list of template types for a MIXED grid (e.g., "lined,dotgrid,grid,lined")',
     )
@@ -448,32 +448,32 @@ def configure_multi_parser(subparsers, common_parser):
     # We must add all possible child-template args here
     style_group = multi_parser.add_argument_group("Child Template Styling (used by cells)")
     style_group.add_argument(
-        "--line_width_px", type=float, default=0.5, help="Line width (for lined, grid, etc.)"
+        "--line-width-px", type=float, default=0.5, help="Line width (for lined, grid, etc.)"
     )
     style_group.add_argument(
-        "--dot_radius_px", type=float, default=1.5, help="Dot radius (for dotgrid)"
+        "--dot-radius-px", type=float, default=1.5, help="Dot radius (for dotgrid)"
     )
     style_group.add_argument(
-        "--major_every", type=int, help="Make every Nth line thicker (for grid, lined)"
+        "--major-every", type=int, help="Make every Nth line thicker (for grid, lined)"
     )
     style_group.add_argument(
-        "--major_width_add_px", type=float, default=1.5, help="Added width for major lines"
+        "--major-width-add-px", type=float, default=1.5, help="Added width for major lines"
     )
     style_group.add_argument(
-        "--crosshair_size", type=int, default=4, help="Size of cross-hairs (for grid)"
+        "--crosshair-size", type=int, default=4, help="Size of cross-hairs (for grid)"
     )
-    style_group.add_argument("--no_crosshairs", action="store_true", help="Disable cross-hairs")
+    style_group.add_argument("--no-crosshairs", action="store_true", help="Disable cross-hairs")
     style_group.add_argument(
-        "--midline_style",
+        "--midline-style",
         choices=["dashed", "dotted"],
         default="dashed",
         help="Style for manuscript midline",
     )
     style_group.add_argument(
-        "--ascender_opacity", type=float, default=0.3, help="Opacity for manuscript ascender line"
+        "--ascender-opacity", type=float, default=0.3, help="Opacity for manuscript ascender line"
     )
     style_group.add_argument(
-        "--staff_gap_mm", type=float, default=10, help="Gap between music staves"
+        "--staff-gap-mm", type=float, default=10, help="Gap between music staves"
     )
     style_group.add_argument(
         "--split-ratio",
@@ -482,7 +482,7 @@ def configure_multi_parser(subparsers, common_parser):
         help="Split ratio for hybrid templates (default: 0.6)",
     )
     style_group.add_argument(
-        "--section_gap_mm", type=float, help="Gap between sections in hybrid templates in mm"
+        "--section-gap-mm", type=float, help="Gap between sections in hybrid templates in mm"
     )
 
     # --- Line Numbering Group (for child 'lined') ---
@@ -624,11 +624,11 @@ def configure_template_parsers(subparsers, common_parser):
 
     spec_group = lined_parser.add_argument_group("Lined Template Options")
     spec_group.add_argument(
-        "--line_width_px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
+        "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
-    spec_group.add_argument("--major_every", type=int, help="Make every Nth line thicker")
+    spec_group.add_argument("--major-every", type=int, help="Make every Nth line thicker")
     spec_group.add_argument(
-        "--major_width_add_px", type=float, default=1.5, help="Added width for major lines"
+        "--major-width-add-px", type=float, default=1.5, help="Added width for major lines"
     )
 
     num_group = lined_parser.add_argument_group("Line Numbering Options")
@@ -673,11 +673,11 @@ def configure_template_parsers(subparsers, common_parser):
 
     spec_group = dotgrid_parser.add_argument_group("Dotgrid Template Options")
     spec_group.add_argument(
-        "--dot_radius_px", type=float, default=1.5, help="Dot radius in pixels (default: 1.5)"
+        "--dot-radius-px", type=float, default=1.5, help="Dot radius in pixels (default: 1.5)"
     )
-    spec_group.add_argument("--major_every", type=int, help="Make every Nth dot/line a crosshair")
+    spec_group.add_argument("--major-every", type=int, help="Make every Nth dot/line a crosshair")
     spec_group.add_argument(
-        "--crosshair_size",
+        "--crosshair-size",
         type=int,
         default=4,
         help="Size of cross-hair extensions in pixels (default: 4)",
@@ -699,23 +699,23 @@ def configure_template_parsers(subparsers, common_parser):
 
     spec_group = grid_parser.add_argument_group("Grid Template Options")
     spec_group.add_argument(
-        "--line_width_px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
+        "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
-    spec_group.add_argument("--major_every", type=int, help="Make every Nth line thicker")
+    spec_group.add_argument("--major-every", type=int, help="Make every Nth line thicker")
     spec_group.add_argument(
-        "--major_width_add_px",
+        "--major-width-add-px",
         type=float,
         default=1.5,
         help="Added width for major lines (default: 1.5)",
     )
     spec_group.add_argument(
-        "--crosshair_size",
+        "--crosshair-size",
         type=int,
-        default=3,
-        help="Size of cross-hair extensions in pixels (default: 3)",
+        default=4,
+        help="Size of cross-hair extensions in pixels (default: 4)",
     )
     spec_group.add_argument(
-        "--no_crosshairs", action="store_true", help="Disable cross-hairs at major intersections"
+        "--no-crosshairs", action="store_true", help="Disable cross-hairs at major intersections"
     )
     spec_group.add_argument(
         "--force-major-alignment",
@@ -820,16 +820,16 @@ def configure_template_parsers(subparsers, common_parser):
 
     spec_group = manuscript_parser.add_argument_group("Manuscript Template Options")
     spec_group.add_argument(
-        "--line_width_px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
+        "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
     spec_group.add_argument(
-        "--midline_style",
+        "--midline-style",
         choices=["dashed", "dotted"],
         default="dashed",
         help="Style for manuscript midline (default: dashed)",
     )
     spec_group.add_argument(
-        "--ascender_opacity",
+        "--ascender-opacity",
         type=float,
         default=0.3,
         help="Opacity for manuscript ascender line (default: 0.3)",
@@ -837,33 +837,33 @@ def configure_template_parsers(subparsers, common_parser):
 
     # --- 'french_ruled' Template ---
     french_parser = subparsers.add_parser(
-        "french_ruled",
+        "french-ruled",
         parents=[common_parser],
         help="Generate a French ruled (Seyès) template",
         description="Generate a full-page French ruled (Seyès) template.",
     )
-    french_parser.set_defaults(func=handle_single_template_generation, template_type="french_ruled")
+    french_parser.set_defaults(func=handle_single_template_generation, template_type="french-ruled")
 
     spec_group = french_parser.add_argument_group("French Ruled Options")
     spec_group.add_argument(
-        "--line_width_px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
+        "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
 
     # --- 'music_staff' Template ---
     music_parser = subparsers.add_parser(
-        "music_staff",
+        "music-staff",
         parents=[common_parser],
         help="Generate a music staff template",
         description="Generate a full-page music staff template.",
     )
-    music_parser.set_defaults(func=handle_single_template_generation, template_type="music_staff")
+    music_parser.set_defaults(func=handle_single_template_generation, template_type="music-staff")
 
     spec_group = music_parser.add_argument_group("Music Staff Options")
     spec_group.add_argument(
-        "--line_width_px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
+        "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
     spec_group.add_argument(
-        "--staff_gap_mm",
+        "--staff-gap-mm",
         type=float,
         default=10,
         help="Gap between music staves in mm (default: 10)",
@@ -871,24 +871,24 @@ def configure_template_parsers(subparsers, common_parser):
 
     # --- 'hybrid_lined_dotgrid' Template ---
     hybrid_parser = subparsers.add_parser(
-        "hybrid_lined_dotgrid",
+        "hybrid-lined-dotgrid",
         parents=[common_parser],
         help="Generate a hybrid Lined/Dotgrid template",
         description="Generate a full-page hybrid template with lined on one side and dotgrid on the other.",
     )
     hybrid_parser.set_defaults(
-        func=handle_single_template_generation, template_type="hybrid_lined_dotgrid"
+        func=handle_single_template_generation, template_type="hybrid-lined-dotgrid"
     )
 
     spec_group = hybrid_parser.add_argument_group("Hybrid Template Options")
     spec_group.add_argument(
-        "--line_width_px",
+        "--line-width-px",
         type=float,
         default=0.5,
         help="Line width for lined section (default: 0.5)",
     )
     spec_group.add_argument(
-        "--dot_radius_px",
+        "--dot-radius-px",
         type=float,
         default=1.5,
         help="Dot radius for dotgrid section (default: 1.5)",
@@ -897,7 +897,7 @@ def configure_template_parsers(subparsers, common_parser):
         "--split-ratio", type=float, default=0.6, help="Split ratio (default: 0.6)"
     )
     spec_group.add_argument(
-        "--section_gap_mm",
+        "--section-gap-mm",
         type=float,
         help="Gap between sections in mm (defaults to same as --spacing)",
     )
@@ -913,7 +913,7 @@ def configure_template_parsers(subparsers, common_parser):
 
     spec_group = iso_parser.add_argument_group("Isometric Template Options")
     spec_group.add_argument(
-        "--line_width_px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
+        "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
 
     # --- 'hexgrid' Template ---
@@ -927,12 +927,13 @@ def configure_template_parsers(subparsers, common_parser):
 
     spec_group = hex_parser.add_argument_group("Hexagonal Template Options")
     spec_group.add_argument(
-        "--line_width_px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
+        "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
 
 
 def main():
     parser = argparse.ArgumentParser(
+        prog="eink-template-gen",
         description="Generate custom templates for e-ink devices",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
@@ -945,16 +946,16 @@ Examples:
 
   # --- Single Templates ---
   eink-template-gen lined --spacing 7 --line-numbers
-  eink-template-gen grid --spacing 5 --major_every 5 --axis-labels
+  eink-template-gen grid --spacing 5 --major-every 5 --axis-labels
   eink-template-gen manuscript --spacing 8
 
   # --- Multi-Cell Grids ---
   eink-template-gen multi --rows 2 --columns 2 --type dotgrid --spacing 5
-  eink-template-gen multi --rows 1 --columns 2 --cell_types lined,grid
+  eink-template-gen multi --rows 1 --columns 2 --cell-types lined,grid
 
   # --- Title Pages ---
   eink-template-gen title --type truchet --spacing 10 --truchet-seed 42
-  eink-template-gen title --type contour_lines --noise-scale 0.03 --title-text "My Notebook"
+  eink-template-gen title --type contour-lines --noise-scale 0.03 --title-text "My Notebook"
 
   # --- JSON Layouts ---
   eink-template-gen layout --file my_cornell_layout.json

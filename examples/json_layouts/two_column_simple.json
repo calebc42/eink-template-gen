@@ -1,0 +1,35 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 7,
+  "page_layout": [
+    {
+      "name": "Left Column",
+      "region_rect": [
+        0,
+        0,
+        0.5,
+        1.0
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Right Column",
+      "region_rect": [
+        0.5,
+        0,
+        0.5,
+        1.0
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

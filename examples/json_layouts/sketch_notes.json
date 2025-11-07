@@ -1,0 +1,35 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 5,
+  "page_layout": [
+    {
+      "name": "Sketch Area",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.65
+      ],
+      "template": "dotgrid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "dot_radius_px": 1.0
+      }
+    },
+    {
+      "name": "Notes Area",
+      "region_rect": [
+        0,
+        0.65,
+        1.0,
+        0.35
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

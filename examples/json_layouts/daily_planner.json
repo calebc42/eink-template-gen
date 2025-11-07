@@ -1,0 +1,61 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 6,
+  "header": "double",
+  "footer": "bold",
+  "page_layout": [
+    {
+      "name": "Date & Title",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "blank"
+    },
+    {
+      "name": "Time Schedule",
+      "region_rect": [
+        0,
+        0.08,
+        0.25,
+        0.6
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Tasks & Notes",
+      "region_rect": [
+        0.25,
+        0.08,
+        0.75,
+        0.6
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Notes/Reflections",
+      "region_rect": [
+        0,
+        0.68,
+        1.0,
+        0.32
+      ],
+      "template": "dotgrid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "dot_radius_px": 1.5
+      }
+    }
+  ]
+}

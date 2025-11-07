@@ -1,0 +1,60 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 6,
+  "header": "bold",
+  "page_layout": [
+    {
+      "name": "Week Header",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "blank"
+    },
+    {
+      "name": "Workout Log",
+      "region_rect": [
+        0,
+        0.08,
+        0.6,
+        0.7
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Tracking Grid",
+      "region_rect": [
+        0.6,
+        0.08,
+        0.4,
+        0.7
+      ],
+      "template": "grid",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Notes/Goals",
+      "region_rect": [
+        0,
+        0.78,
+        1.0,
+        0.22
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "device": "manta",
+  "margin_mm": 8,
+  "master_spacing_mm": 5,
+  "header": "bold",
+  "page_layout": [
+    {
+      "name": "Week Header",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.1
+      ],
+      "template": "blank"
+    },
+    {
+      "name": "Monday",
+      "region_rect": [
+        0,
+        0.1,
+        0.33,
+        0.45
+      ],
+      "template": "lined",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Tuesday",
+      "region_rect": [
+        0.33,
+        0.1,
+        0.34,
+        0.45
+      ],
+      "template": "lined",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Wednesday",
+      "region_rect": [
+        0.67,
+        0.1,
+        0.33,
+        0.45
+      ],
+      "template": "lined",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Thursday",
+      "region_rect": [
+        0,
+        0.55,
+        0.33,
+        0.45
+      ],
+      "template": "lined",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Friday",
+      "region_rect": [
+        0.33,
+        0.55,
+        0.34,
+        0.45
+      ],
+      "template": "lined",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Weekend",
+      "region_rect": [
+        0.67,
+        0.55,
+        0.33,
+        0.45
+      ],
+      "template": "dotgrid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "dot_radius_px": 1.5
+      }
+    }
+  ]
+}

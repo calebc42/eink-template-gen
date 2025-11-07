@@ -1,0 +1,64 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 7,
+  "header": "double",
+  "page_layout": [
+    {
+      "name": "Topic Title",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "lined",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 1.2
+      }
+    },
+    {
+      "name": "Key Concepts",
+      "region_rect": [
+        0,
+        0.08,
+        0.5,
+        0.45
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Diagrams",
+      "region_rect": [
+        0.5,
+        0.08,
+        0.5,
+        0.45
+      ],
+      "template": "dotgrid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "dot_radius_px": 1.5
+      }
+    },
+    {
+      "name": "Summary Notes",
+      "region_rect": [
+        0,
+        0.53,
+        1.0,
+        0.47
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

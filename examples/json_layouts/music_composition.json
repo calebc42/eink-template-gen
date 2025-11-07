@@ -1,0 +1,47 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 2,
+  "header": "bold",
+  "page_layout": [
+    {
+      "name": "Title",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "blank"
+    },
+    {
+      "name": "Music Staves",
+      "region_rect": [
+        0,
+        0.08,
+        1.0,
+        0.7
+      ],
+      "template": "music_staff",
+      "spacing_mm": 2,
+      "kwargs": {
+        "line_width_px": 0.75,
+        "staff_gap_mm": 15
+      }
+    },
+    {
+      "name": "Lyrics/Notes",
+      "region_rect": [
+        0,
+        0.78,
+        1.0,
+        0.22
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

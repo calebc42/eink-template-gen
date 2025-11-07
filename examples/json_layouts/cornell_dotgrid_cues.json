@@ -1,0 +1,60 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 6,
+  "header": "double",
+  "page_layout": [
+    {
+      "name": "Title Area",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.1
+      ],
+      "template": "blank"
+    },
+    {
+      "name": "Cue Column (Dot Grid)",
+      "region_rect": [
+        0,
+        0.1,
+        0.3,
+        0.75
+      ],
+      "template": "dotgrid",
+      "spacing_mm": 6,
+      "kwargs": {
+        "dot_radius_px": 1.5
+      }
+    },
+    {
+      "name": "Notes Column",
+      "region_rect": [
+        0.3,
+        0.1,
+        0.7,
+        0.75
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Summary Area",
+      "region_rect": [
+        0,
+        0.85,
+        1.0,
+        0.15
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

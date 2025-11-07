@@ -1,0 +1,80 @@
+{
+  "device": "manta",
+  "margin_mm": 12,
+  "master_spacing_mm": 7,
+  "header": "double",
+  "footer": "double",
+  "page_layout": [
+    {
+      "name": "Experiment Title",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.1
+      ],
+      "template": "lined",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 1.2
+      }
+    },
+    {
+      "name": "Hypothesis & Method",
+      "region_rect": [
+        0,
+        0.1,
+        0.5,
+        0.4
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Data Table",
+      "region_rect": [
+        0.5,
+        0.1,
+        0.5,
+        0.4
+      ],
+      "template": "grid",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Observations",
+      "region_rect": [
+        0,
+        0.5,
+        0.6,
+        0.5
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Diagram/Graph",
+      "region_rect": [
+        0.6,
+        0.5,
+        0.4,
+        0.5
+      ],
+      "template": "grid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5,
+        "major_every": 5
+      }
+    }
+  ]
+}

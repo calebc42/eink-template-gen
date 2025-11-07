@@ -1,0 +1,64 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 7,
+  "header": "bold",
+  "page_layout": [
+    {
+      "name": "Session Info",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.1
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.8
+      }
+    },
+    {
+      "name": "Story Events",
+      "region_rect": [
+        0,
+        0.1,
+        0.65,
+        0.9
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Quick Map/Sketches",
+      "region_rect": [
+        0.65,
+        0.1,
+        0.35,
+        0.45
+      ],
+      "template": "grid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "NPCs & Loot",
+      "region_rect": [
+        0.65,
+        0.55,
+        0.35,
+        0.45
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

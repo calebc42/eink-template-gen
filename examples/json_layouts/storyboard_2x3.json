@@ -1,0 +1,91 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 10,
+  "page_layout": [
+    {
+      "name": "Frame 1",
+      "region_rect": [
+        0,
+        0,
+        0.5,
+        0.33
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    },
+    {
+      "name": "Frame 2",
+      "region_rect": [
+        0.5,
+        0,
+        0.5,
+        0.33
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    },
+    {
+      "name": "Frame 3",
+      "region_rect": [
+        0,
+        0.33,
+        0.5,
+        0.34
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    },
+    {
+      "name": "Frame 4",
+      "region_rect": [
+        0.5,
+        0.33,
+        0.5,
+        0.34
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    },
+    {
+      "name": "Frame 5",
+      "region_rect": [
+        0,
+        0.67,
+        0.5,
+        0.33
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    },
+    {
+      "name": "Frame 6",
+      "region_rect": [
+        0.5,
+        0.67,
+        0.5,
+        0.33
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    }
+  ]
+}

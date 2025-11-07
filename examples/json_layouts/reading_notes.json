@@ -1,0 +1,64 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 7,
+  "header": "bold",
+  "page_layout": [
+    {
+      "name": "Book Title & Info",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.12
+      ],
+      "template": "lined",
+      "spacing_mm": 9,
+      "kwargs": {
+        "line_width_px": 0.8
+      }
+    },
+    {
+      "name": "Chapter/Page Notes",
+      "region_rect": [
+        0,
+        0.12,
+        0.7,
+        0.88
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Key Quotes",
+      "region_rect": [
+        0.7,
+        0.12,
+        0.3,
+        0.44
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Mind Map/Connections",
+      "region_rect": [
+        0.7,
+        0.56,
+        0.3,
+        0.44
+      ],
+      "template": "dotgrid",
+      "spacing_mm": 5,
+      "kwargs": {
+        "dot_radius_px": 1.5
+      }
+    }
+  ]
+}

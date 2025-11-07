@@ -1,0 +1,50 @@
+{
+  "device": "manta",
+  "margin_mm": 8,
+  "master_spacing_mm": 5,
+  "header": "bold",
+  "page_layout": [
+    {
+      "name": "Title",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.08
+      ],
+      "template": "lined",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 1.0
+      }
+    },
+    {
+      "name": "Isometric Drawing",
+      "region_rect": [
+        0,
+        0.08,
+        0.75,
+        0.92
+      ],
+      "template": "isometric",
+      "spacing_mm": 5,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Dimensions",
+      "region_rect": [
+        0.75,
+        0.08,
+        0.25,
+        0.92
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

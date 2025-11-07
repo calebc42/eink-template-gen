@@ -1,0 +1,64 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 7,
+  "header": "bold",
+  "page_layout": [
+    {
+      "name": "Goal Title",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.12
+      ],
+      "template": "lined",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 1.5
+      }
+    },
+    {
+      "name": "Action Steps",
+      "region_rect": [
+        0,
+        0.12,
+        0.6,
+        0.5
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Progress Grid",
+      "region_rect": [
+        0.6,
+        0.12,
+        0.4,
+        0.5
+      ],
+      "template": "grid",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Notes & Reflections",
+      "region_rect": [
+        0,
+        0.62,
+        1.0,
+        0.38
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

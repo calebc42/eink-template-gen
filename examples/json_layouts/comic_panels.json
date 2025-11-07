@@ -1,0 +1,73 @@
+{
+  "device": "manta",
+  "margin_mm": 8,
+  "master_spacing_mm": 8,
+  "page_layout": [
+    {
+      "name": "Title Panel",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.15
+      ],
+      "template": "blank"
+    },
+    {
+      "name": "Large Panel",
+      "region_rect": [
+        0,
+        0.15,
+        0.65,
+        0.5
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    },
+    {
+      "name": "Small Panel 1",
+      "region_rect": [
+        0.65,
+        0.15,
+        0.35,
+        0.25
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    },
+    {
+      "name": "Small Panel 2",
+      "region_rect": [
+        0.65,
+        0.4,
+        0.35,
+        0.25
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    },
+    {
+      "name": "Bottom Panel",
+      "region_rect": [
+        0,
+        0.65,
+        1.0,
+        0.35
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    }
+  ]
+}

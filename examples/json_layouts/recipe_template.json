@@ -1,0 +1,78 @@
+{
+  "device": "manta",
+  "margin_mm": 10,
+  "master_spacing_mm": 7,
+  "header": "bold",
+  "page_layout": [
+    {
+      "name": "Recipe Name",
+      "region_rect": [
+        0,
+        0,
+        1.0,
+        0.12
+      ],
+      "template": "lined",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 1.2
+      }
+    },
+    {
+      "name": "Ingredients",
+      "region_rect": [
+        0,
+        0.12,
+        0.35,
+        0.5
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Photo/Sketch",
+      "region_rect": [
+        0.35,
+        0.12,
+        0.65,
+        0.5
+      ],
+      "template": "grid",
+      "spacing_mm": 10,
+      "kwargs": {
+        "line_width_px": 0.25
+      }
+    },
+    {
+      "name": "Instructions",
+      "region_rect": [
+        0,
+        0.62,
+        1.0,
+        0.28
+      ],
+      "template": "lined",
+      "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Notes/Variations",
+      "region_rect": [
+        0,
+        0.9,
+        1.0,
+        0.1
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    }
+  ]
+}

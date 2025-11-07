@@ -86,12 +86,12 @@ Example JSON structure for Cornell Notes with a Title:
         }
       ],
       "title_element": {
-        "text": "Lecture Notes",
+        "title_text": "Lecture Notes",
         "region_rect": [0, 0, 1.0, 0.1],
-        "font_size": 32,
-        "font_weight": "bold",
-        "v_align": "center",
-        "show_frame": false
+        "title_font_size": 32,
+        "title_font_weight": "bold",
+        "title_v_align": "center",
+        "title_no_frame": true
       }
     }
 

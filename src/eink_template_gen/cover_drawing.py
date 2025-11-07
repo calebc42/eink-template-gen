@@ -25,7 +25,7 @@ def draw_truchet_tiles(
     rotation_seed=None,
     fill_grey=None,
     variant="classic",
-):  # <-- ADD THIS PARAMETER
+):
     """
     Draw Truchet tile pattern with quarter-circle arcs
 

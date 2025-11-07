@@ -76,9 +76,8 @@ def set_default_device(device_id):
 
 
 def get_default_margin():
-    """Get the default margin from local config file, or 10.0 if not set"""
-    # Use 10.0 as the default, matching the CLI's original default
-    return get_config_value("default_margin", default=10.0)
+    """Get the default margin from local config file, or 0.0 if not set"""
+    return get_config_value("default_margin", default=0.0)
 
 
 def set_default_margin(margin_mm):

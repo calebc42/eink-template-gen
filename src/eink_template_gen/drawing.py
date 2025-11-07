@@ -565,12 +565,9 @@ def draw_isometric_grid(
     cx = x_start + width / 2
     cy = y_start + height / 2
 
-    # We need to draw lines on a "virtual" canvas that is large
-    # enough to cover the real canvas when rotated.
-    # The diagonal of the drawing area is a safe bet.
     diag = sqrt(width**2 + height**2)
 
-    # Calculate how many lines we need to draw to cover the diagonal
+    # Calculate how many lines are needed to draw to cover the diagonal
     num_lines = int(diag / spacing_px) + 2
     if num_lines % 2 == 0:
         num_lines += 1  # Ensure odd number for symmetry around center
@@ -588,7 +585,6 @@ def draw_isometric_grid(
                 ctx.set_line_width(line_width)
 
             # Draw a line 'diag' long, centered at the offset
-            # We use 1.2 * diag just to be extra safe
             ctx.move_to(offset, -diag * 0.6)
             ctx.line_to(offset, diag * 0.6)
             ctx.stroke()

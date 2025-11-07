@@ -12,7 +12,7 @@ from .templates import (
     create_cell_grid_template,
     create_column_template,
     create_json_layout_template,
-    create_template_surface,  # The new factory
+    create_template_surface,
 )
 from .utils import (
     calculate_adjusted_margins,
@@ -42,7 +42,7 @@ def _setup_generation_context(args):
     Returns a 'context' dictionary with all calculated values.
     """
     context = {}
-    cli_args = vars(args)
+    # cli_args = vars(args)
 
     # 1. Device Setup
     device_id = args.device
@@ -85,6 +85,8 @@ def _setup_generation_context(args):
 
         context["margin_mm"] = margin_mm
         margin_px = round(margin_mm * mm2px)
+
+        enforce_exact = getattr(args, "enforce_margins", False)
 
         v_spacing_px = None
         v_is_fractional = False
@@ -152,13 +154,13 @@ def _setup_generation_context(args):
             args.spacing, device_config["dpi"], auto_adjust=not args.true_scale
         )
 
-        context["spacing_str"] = args.spacing  # Pass the original string to the factory
+        context["spacing_str"] = args.spacing
         context["spacing_px"] = spacing_px
         context["original_mm"] = original_mm
         context["adjusted_mm"] = adjusted_mm
         context["was_adjusted"] = was_adjusted
         context["spacing_mode"] = spacing_mode
-        context["spacing_mm_to_use"] = adjusted_mm  # For complex templates
+        context["spacing_mm_to_use"] = adjusted_mm
 
     return context
 
@@ -169,9 +171,6 @@ def _build_template_kwargs(template_type, args):
     """
     kwargs = {}
     cli_args = vars(args)
-
-    # This logic is simplified by our new TEMPLATE_REGISTRY.
-    # We just grab all known args.
 
     # Common
     if cli_args.get("line_width_px") is not None:
@@ -249,8 +248,6 @@ def _build_template_kwargs(template_type, args):
 
 
 # --- Generation Helper: 3. Save & Summarize ---
-
-
 def _save_and_print_summary(surface, context, args):
     """
     Handles all file saving and summary printing.
@@ -267,15 +264,9 @@ def _save_and_print_summary(surface, context, args):
     else:
         device_dir = base_device_dir
 
-    # NOTE: We no longer create the directory here.
-    # The new generate_filename creates subdirectories (e.g., "lined/"),
-    # so we must create the *full path* *after* the filename is generated.
-
     # 2. Determine Filename
     if args.filename:
         filename = args.filename if args.filename.endswith(".png") else f"{args.filename}.png"
-        # Manually specified filename, put it in the base device_dir
-        # We will *not* add the template_type directory here
         output_dir = device_dir
 
     elif args.command == "layout":
@@ -334,7 +325,6 @@ def _save_and_print_summary(surface, context, args):
 
     # 4. Print Summary
     print(f"\nSuccess: Template written to {filepath}")
-    # ... (rest of the function is unchanged) ...
     print(
         f"  - Device: {device_config['name']} ({device_config['width']}×{device_config['height']}px @ {device_config['dpi']}dpi)"
     )
@@ -384,17 +374,18 @@ def _save_and_print_summary(surface, context, args):
         mm2px = device_config["dpi"] / 25.4
         base_margin_px = round(margin_mm * mm2px)
 
-        # Check if true_scale (formerly no_auto_adjust) is active.
-        # If it is, just print the simple margin and skip all adjustment logic.
-        if cli_args.get("true_scale", False):
+        # Check if true_scale OR enforce_margins is active
+        # If either is true, just print the simple margin and skip all adjustment logic
+        if cli_args.get("true_scale", False) or cli_args.get("enforce_margins", False):
             print(f"  - Margin: {margin_mm}mm")
         else:
-
             content_height = device_config["height"] - (2 * base_margin_px)
             content_width = device_config["width"] - (2 * base_margin_px)
             # We can't show adjusted margins for complex layouts
             is_complex_layout = args.command in ["multi", "hybrid_lined_dotgrid"]
-            force_align = cli_args.get("force_major_alignment", False) and cli_args.get("major_every")
+            force_align = cli_args.get("force_major_alignment", False) and cli_args.get(
+                "major_every"
+            )
 
             if not is_complex_layout:
                 # Recalculate margins just for display
@@ -413,10 +404,10 @@ def _save_and_print_summary(surface, context, args):
 
                 if force_align:
                     m_top, m_bottom, _ = calculate_major_aligned_margins(
-                        content_height, v_align_unit, base_margin_px, cli_args.get("major_every", 0) # Use .get for safety
+                        content_height, v_align_unit, base_margin_px, cli_args.get("major_every", 0)
                     )
                     m_left, m_right, _ = calculate_major_aligned_margins_x(
-                        content_width, h_align_unit, base_margin_px, cli_args.get("major_every", 0) # Use .get for safety
+                        content_width, h_align_unit, base_margin_px, cli_args.get("major_every", 0)
                     )
                 else:
                     m_top, m_bottom = calculate_adjusted_margins(
@@ -445,7 +436,9 @@ def _save_and_print_summary(surface, context, args):
             else:
                 print(f"  - Margin: {margin_mm}mm")
 
+
 # --- Action 1: Utility Commands ---
+
 
 def handle_list_devices(args=None):
     print("Available devices:")

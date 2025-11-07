@@ -20,9 +20,6 @@ from .utils import (
 )
 
 # --- Dispatcher Helper for Dotgrid ---
-# This helper encapsulates the one tricky bit of logic from the old
-# create_dotgrid_template: choosing which draw function to use.
-
 
 def _draw_dotgrid_dispatcher(
     ctx,
@@ -155,15 +152,9 @@ TEMPLATE_REGISTRY = {
         },
     },
     "hybrid_lined_dotgrid": {
-        # Hybrid is a special case and doesn't fit the simple factory.
-        # We will keep its original function.
         "draw_func": "hybrid_special_case",
     },
 }
-
-
-# --- The New Template Factory ---
-
 
 def create_template_surface(
     template_type,
@@ -181,9 +172,7 @@ def create_template_surface(
     Reads from TEMPLATE_REGISTRY to configure and draw the template.
     """
 
-    # --- Special Case: Hybrid Template ---
-    # The hybrid template is a complex layout, not a simple repeating
-    # pattern. We call its original function directly.
+    # --- Legacy: Hybrid Template ---
     if template_type == "hybrid_lined_dotgrid":
         # NOTE: We need to parse spacing_str to mm for the hybrid func
         # This is a safe assumption for this special case.
@@ -384,11 +373,7 @@ def create_template_surface(
     return surface
 
 
-# --- COMPLEX LAYOUT FACTORIES ---
-# These functions are called by `handle_multi_template_generation`
-# and `handle_json_generation`. They are already factories,
-# so they remain.
-
+# --- COMPLEX LAYOUT ---
 
 def create_hybrid_template(
     width,
@@ -404,7 +389,7 @@ def create_hybrid_template(
     split_ratio=0.6,
     auto_adjust_spacing=True,
     force_major_alignment=None,
-):  # <-- FIX
+):
     """
     Create a hybrid template with lined section (left) and dot grid (right)
     """
@@ -511,7 +496,7 @@ def create_column_template(
     footer=None,
     auto_adjust_spacing=True,
     force_major_alignment=None,
-):  # <-- FIX (though not used)
+):
     """
     Create a multi-column, multi-row template with any base template type
     """
@@ -778,14 +763,14 @@ def create_cell_grid_template(
     dpi,
     spacing_mm,
     margin_mm,
-    cell_definitions,  # <-- NEW
+    cell_definitions,
     column_gap_mm,
     row_gap_mm,
     header=None,
     footer=None,
     auto_adjust_spacing=True,
     force_major_alignment=None,
-):  # <-- FIX (though not used)
+):
     """
     Create a multi-column, multi-row template where each cell can be
     a different template type.

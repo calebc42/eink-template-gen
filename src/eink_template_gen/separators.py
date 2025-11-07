@@ -130,7 +130,6 @@ def _draw_castellated(ctx, x_start, x_end, y, line_width=4.0, height=10.0, segme
 
         if x < x_end:
             # Move vertically
-            # ** FIX: Use half_height for correct amplitude
             current_y = y + half_height if current_y < y else y - half_height
             ctx.line_to(x, current_y)
     ctx.stroke()
@@ -274,7 +273,7 @@ def draw_separator_line(ctx, x_start, x_end, y, style="bold", **kwargs):
 
     # 6. Call the function
     try:
-        draw_func(**final_kwargs)  # <-- This will no longer pass 'color' unexpectedly
+        draw_func(**final_kwargs)
     except Exception as e:
         print(f"Error drawing separator style '{style}': {e}")
 

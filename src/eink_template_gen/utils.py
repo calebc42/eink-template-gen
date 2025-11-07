@@ -252,9 +252,6 @@ def px_to_mm(px, dpi):
     return (px * 25.4) / dpi
 
 
-# In utils.py
-
-
 def snap_spacing_to_clean_pixels(spacing_mm, dpi, tolerance_mm=0.5):
     """
     Adjust spacing to nearest value that produces integer pixels

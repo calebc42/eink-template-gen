@@ -34,17 +34,7 @@ from .config import get_default_device, get_default_margin, set_default_device, 
 # --- Device Functions (from .devices) ---
 from .devices import DEVICES, get_device, list_devices
 
-# --- Drawing Primitives (from .drawing) ---
-# (Usually you don't export these, but you could)
-from .drawing import (
-    draw_dot_grid,
-    draw_grid,
-    # ... and so on
-    draw_lined_section,
-)
-
 # --- Template Functions (from .templates) ---
-# These are the new/remaining factory functions
 from .templates import (
     TEMPLATE_REGISTRY,
     create_cell_grid_template,

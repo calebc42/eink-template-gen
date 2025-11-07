@@ -1,24 +1,24 @@
 
 # Table of Contents
 
-1.  [Badges](#orgc7668f1)
-2.  [About](#org8a84f8c)
-3.  [Why This Tool?](#org7542582)
-4.  [What this tool is NOT](#org7b8c04b)
-5.  [Features](#org7d7564f)
-6.  [Installation](#org60649ec)
-7.  [Full Documentation](#orgef8568e)
-8.  [Supported Devices](#org7b0391b)
-9.  [Configuration](#org903aec4)
-10. [Usage Examples](#org143a4bd)
-    1.  [Basic Templates](#org3bc17d2)
-11. [Output](#orge2322c2)
-12. [Contributing](#org4014ee9)
-13. [License](#orgb4043b6)
-14. [Credits](#org7a5487a)
+1.  [Badges](#org37405d4)
+2.  [About](#org2b76d4d)
+3.  [Why This Tool?](#org6f234bd)
+4.  [What this tool is NOT](#org4a3c0fd)
+5.  [Features](#org8af5fdd)
+6.  [Installation](#org77d0ee2)
+7.  [Full Documentation](#org0b2119c)
+8.  [Supported Devices](#org53fb608)
+9.  [Configuration](#org66ce3cf)
+10. [Usage Examples](#org066fe7c)
+    1.  [Basic Templates](#org834e3b7)
+11. [Output](#orgcb2dc66)
+12. [Contributing](#org57ba5e5)
+13. [License](#orgb76b0c4)
+14. [Credits](#orgf3d23af)
 
 
-<a id="orgc7668f1"></a>
+<a id="org37405d4"></a>
 
 # Badges
 
@@ -27,21 +27,21 @@
 ![License](https://img.shields.io/badge/license-GPLv3-green)
 
 
-<a id="org8a84f8c"></a>
+<a id="org2b76d4d"></a>
 
 # About
 
 A device-agnostic command-line tool for generating mathematically balanced, pixel-perfect page templates for e-ink devices. Developed with the Supernote Manta, this tool supports millimeter or pixel specifications for human-readable, technically-precise, or true-scale template configurations.
 
 
-<a id="org7542582"></a>
+<a id="org6f234bd"></a>
 
 # Why This Tool?
 
 This tool was born from the frustration of online generators that fail to handle "half-lines" or pixel alignment, resulting in uneven, blurry, or aliased lines on high-DPI e-ink screens. This generator calculates exact pixel-perfect margins and spacing based on your device's specific resolution and DPI, ensuring every line is crisp and uniform.
 
 **Problem: Blurry Lines (Fractional Pixels)**
-The image on the left (`--no-auto-adjust`) shows blurry, anti-aliased lines. The image on the right (default) shows the pixel-perfect, crisp lines this tool creates.
+"The image on the left (using `--true-scale`) shows blurry, aliased lines caused by fractional pixels. The image on the right (default) shows the tool's pixel-perfect rounding, which ensures every line is crisp."
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -65,8 +65,8 @@ The image on the left (`--no-auto-adjust`) shows blurry, anti-aliased lines. The
 </tbody>
 </table>
 
-**Problem: Margin Respect**
-The image on the left (built-in template) shows the margins displaying over the template. The image on the right shows the lines being automatically adjusted to render within the margins.
+**Problem: Toolbar/Overlay**
+The image on the left (built-in template) shows the file name and page count overlays displaying over the template. The image on the right shows the lines being automatically adjusted to render within the margins.
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -86,6 +86,31 @@ The image on the left (built-in template) shows the margins displaying over the 
 <tr>
 <td class="org-left"><img src="src/assets/screenshots/before/manta/built-in_9mm.png" alt="built-in_9mm.png" /></td>
 <td class="org-left"><img src="src/assets/screenshots/manta/pixel_perfect_9mm.png" alt="pixel_perfect_9mm.png" /></td>
+</tr>
+</tbody>
+</table>
+
+**Problem: Half-Spaced Lines and Cells**
+The image on the left (using `--enforce-margins`) shows lines and cells being cut off abruptly at the exact margin. The image on the right (default) shows the tool's smart grid-centering, which automatically pads the margins to prevent 'half-cells' and create a cleaner, more balanced page.
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">"Before" (cut-off cells)</th>
+<th scope="col" class="org-left">"After" (Pixel-Perfect)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><img src="src/assets/screenshots/before/manta/before_half_cells.png" alt="before_half_cells.png" /></td>
+<td class="org-left"><img src="src/assets/screenshots/manta/after_adjusted_margins.png" alt="after_adjusted_margins.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -116,7 +141,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 </table>
 
 
-<a id="org7b8c04b"></a>
+<a id="org4a3c0fd"></a>
 
 # What this tool is NOT
 
@@ -127,7 +152,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   Monetized or Paywalled Tool
 
 
-<a id="org7d7564f"></a>
+<a id="org8af5fdd"></a>
 
 # Features
 
@@ -139,14 +164,14 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   **Flexible Spacing:** Define layouts using millimeters (default), exact pixels, or by fitting an exact line count.
 
 
-<a id="org60649ec"></a>
+<a id="org77d0ee2"></a>
 
 # Installation
 
     pip install eink-template-gen
 
 
-<a id="orgef8568e"></a>
+<a id="org0b2119c"></a>
 
 # Full Documentation
 
@@ -166,7 +191,7 @@ For detailed guides, feature deep-dives, and advanced examples, please see the `
     -   [Technical Details (Algorithm, Palette)](docs/reference/technical-details.md)
 
 
-<a id="org7b0391b"></a>
+<a id="org53fb608"></a>
 
 # Supported Devices
 
@@ -178,7 +203,7 @@ Built-in device profiles:
 -   Supernote Nomad (7.8", 1404x1872, 300 DPI)
 
 
-<a id="org903aec4"></a>
+<a id="org66ce3cf"></a>
 
 # Configuration
 
@@ -190,12 +215,12 @@ Set a default device to avoid specifying `--device` every time:
 Configuration is stored locally in `config.json`.
 
 
-<a id="org143a4bd"></a>
+<a id="org066fe7c"></a>
 
 # Usage Examples
 
 
-<a id="org3bc17d2"></a>
+<a id="org834e3b7"></a>
 
 ## Basic Templates
 
@@ -214,7 +239,7 @@ Configuration is stored locally in `config.json`.
 For more complex examples, including `multi`, `layout`, and `title` commands, see the [Advanced Usage Examples](docs/advanced-examples.md) documentation.
 
 
-<a id="orge2322c2"></a>
+<a id="orgcb2dc66"></a>
 
 # Output
 
@@ -231,7 +256,7 @@ Templates are saved to `out/<device_id>/` by default:
 Use `--output-dir` and `--filename` to customize output location.
 
 
-<a id="org4014ee9"></a>
+<a id="org57ba5e5"></a>
 
 # Contributing
 
@@ -242,14 +267,14 @@ Contributions are welcome! This project uses:
 -   Pure Python implementation (no external dependencies for noise/fractals)
 
 
-<a id="orgb4043b6"></a>
+<a id="orgb76b0c4"></a>
 
 # License
 
 This project is licensed under the **GNU General Public License v3.0**. See the `LICENSE` file for details.
 
 
-<a id="org7a5487a"></a>
+<a id="orgf3d23af"></a>
 
 # Credits
 

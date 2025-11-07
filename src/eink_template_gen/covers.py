@@ -481,7 +481,7 @@ def create_lsystem_title(
     footer=None,
     auto_adjust_spacing=True,
     cover_config=None,
-    decorative_border=None,  # <-- ADD THIS
+    decorative_border=None,
     # L-System specific params:
     lsystem_config=None,
     lsystem_iterations=4,
@@ -551,7 +551,7 @@ def create_lsystem_title(
     lsystem_config["step_length"] = step_length_px
 
     # Set a smart start position based on the config
-    start_pos_key = lsystem_config.get("start_pos", "center")  # <-- CHANGED DEFAULT TO "center"
+    start_pos_key = lsystem_config.get("start_pos", "center")
 
     # Calculate padding to center the drawing
     box_steps = estimator_func(lsystem_iterations) if estimator_func else 0
@@ -566,7 +566,6 @@ def create_lsystem_title(
     padding_x = max(padding_x, content_width * 0.05)
     padding_y = max(padding_y, content_height * 0.05)
 
-    # IMPROVED POSITIONING:
     if start_pos_key == "bottom_left":
         x_start = m_left + padding_x
         y_start = height - m_bottom - padding_y
@@ -928,8 +927,6 @@ def create_noise_field_title(
 
     return surface
 
-
-# Update COVER_REGISTRY at the bottom of titles.py
 COVER_REGISTRY = {
     "truchet": create_truchet_title,
     "diagonal_truchet": create_diagonal_truchet_title,

@@ -56,8 +56,8 @@ def sample_json_layout():
         "margin_mm": 10,
         "master_spacing_mm": 6,
         "output_filename": "test_layout.png",
-        "header_separator": "bold",
-        "footer_separator": "bold",
+        "header": "bold",
+        "footer": "bold",
         "page_layout": [
             {
                 "name": "Title",
@@ -168,8 +168,8 @@ class TestUtilityFunctions:
             line_width_px=0.5,
             columns=2,
             rows=3,
-            header_separator="bold",
-            footer_separator="wavy",
+            header="bold",
+            footer="wavy",
         )
         assert "grid" in filename
         assert "6mm" in filename
@@ -281,8 +281,8 @@ class TestTemplateGeneration:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -299,8 +299,8 @@ class TestTemplateGeneration:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"dot_radius_px": 1.5},
         )
 
@@ -317,8 +317,8 @@ class TestTemplateGeneration:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -345,8 +345,8 @@ class TestTemplateGeneration:
                 margin_mm=10,
                 auto_adjust_spacing=True,
                 force_major_alignment=False,
-                header_separator=None,
-                footer_separator=None,
+                header=None,
+                footer=None,
                 template_kwargs=kwargs,
             )
 
@@ -363,8 +363,8 @@ class TestTemplateGeneration:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator="bold",
-            footer_separator="wavy",
+            header="bold",
+            footer="wavy",
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -379,8 +379,8 @@ class TestTemplateGeneration:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5, "major_every": 5, "major_width_add_px": 1.5},
         )
 
@@ -395,8 +395,8 @@ class TestTemplateGeneration:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -411,8 +411,8 @@ class TestTemplateGeneration:
             margin_mm=10,
             auto_adjust_spacing=False,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -598,8 +598,8 @@ class TestSeparators:
                 margin_mm=10,
                 auto_adjust_spacing=True,
                 force_major_alignment=False,
-                header_separator=style,
-                footer_separator=style,
+                header=style,
+                footer=style,
                 template_kwargs={"line_width_px": 0.5},
             )
 
@@ -623,8 +623,8 @@ class TestEdgeCases:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -639,8 +639,8 @@ class TestEdgeCases:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -655,8 +655,8 @@ class TestEdgeCases:
             margin_mm=0,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -671,8 +671,8 @@ class TestEdgeCases:
             margin_mm=100,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -687,8 +687,8 @@ class TestEdgeCases:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 10.0},
         )
 
@@ -716,8 +716,8 @@ class TestPerformance:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
         duration = time.time() - start
@@ -740,8 +740,8 @@ class TestPerformance:
                 margin_mm=10,
                 auto_adjust_spacing=True,
                 force_major_alignment=False,
-                header_separator=None,
-                footer_separator=None,
+                header=None,
+                footer=None,
                 template_kwargs={"line_width_px": 0.5},
             )
             del surface
@@ -769,8 +769,8 @@ class TestFileOutput:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -790,8 +790,8 @@ class TestFileOutput:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 
@@ -802,8 +802,8 @@ class TestFileOutput:
             margin_mm=10,
             auto_adjust_spacing=True,
             force_major_alignment=False,
-            header_separator=None,
-            footer_separator=None,
+            header=None,
+            footer=None,
             template_kwargs={"line_width_px": 0.5},
         )
 

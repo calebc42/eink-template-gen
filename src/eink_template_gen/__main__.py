@@ -81,13 +81,13 @@ def create_common_parser():
     style_group = parent_parser.add_argument_group("Global Styling")
     valid_sep_styles = [s for s in SEPARATOR_STYLES if s is not None]
     style_group.add_argument(
-        "--header-sep",
+        "--header",
         choices=valid_sep_styles,
         help=f'Header separator style (options: {", ".join(valid_sep_styles)})',
     )
 
     style_group.add_argument(
-        "--footer-sep",
+        "--footer",
         choices=valid_sep_styles,
         help=f'Footer separator style (options: {", ".join(valid_sep_styles)})',
     )

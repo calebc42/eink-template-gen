@@ -29,8 +29,8 @@ def create_truchet_title(
     spacing_mm,
     margin_mm,
     line_width_px,
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     rotation_seed=None,
     auto_adjust_spacing=True,
     truchet_fill_grey=None,
@@ -82,14 +82,14 @@ def create_truchet_title(
     m_left, m_right = calculate_adjusted_margins_x(content_width, spacing_px, base_margin)
 
     # Parse header separator
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs
         )
 
     # Parse footer separator
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs
@@ -200,8 +200,8 @@ def create_diagonal_truchet_title(
     spacing_mm,
     margin_mm,
     line_width_px,  # Not used by this, but kept for consistency
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     rotation_seed=None,
     auto_adjust_spacing=True,
     diagonal_fill_grey_1=0,
@@ -252,14 +252,14 @@ def create_diagonal_truchet_title(
     m_left, m_right = calculate_adjusted_margins_x(content_width, spacing_px, base_margin)
 
     # Parse header separator
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs
         )
 
     # Parse footer separator
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs
@@ -295,8 +295,8 @@ def create_hexagonal_truchet_title(
     spacing_mm,
     margin_mm,
     line_width_px,
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     rotation_seed=None,
     auto_adjust_spacing=True,
     cover_config=None,
@@ -351,14 +351,14 @@ def create_hexagonal_truchet_title(
     m_left, m_right = calculate_adjusted_margins_x(content_width, h_dist, base_margin)
 
     # Parse header separator
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs
         )
 
     # Parse footer separator
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs
@@ -390,8 +390,8 @@ def create_10_print_title(
     spacing_mm,
     margin_mm,
     line_width_px,
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     rotation_seed=None,
     auto_adjust_spacing=True,
     cover_config=None,
@@ -438,14 +438,14 @@ def create_10_print_title(
     m_left, m_right = calculate_adjusted_margins_x(content_width, spacing_px, base_margin)
 
     # Parse header separator
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs
         )
 
     # Parse footer separator
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs
@@ -477,8 +477,8 @@ def create_lsystem_title(
     spacing_mm,
     margin_mm,
     line_width_px,
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     auto_adjust_spacing=True,
     cover_config=None,
     decorative_border=None,  # <-- ADD THIS
@@ -509,14 +509,14 @@ def create_lsystem_title(
     m_right = base_margin
 
     # Parse header separator
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs
         )
 
     # Parse footer separator
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs
@@ -737,8 +737,8 @@ def create_contour_lines_title(
     spacing_mm,
     margin_mm,
     line_width_px,
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     auto_adjust_spacing=True,
     cover_config=None,
     decorative_border=None,
@@ -782,14 +782,14 @@ def create_contour_lines_title(
     m_right = base_margin
 
     # Parse header separator
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs
         )
 
     # Parse footer separator
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs
@@ -837,8 +837,8 @@ def create_noise_field_title(
     spacing_mm,
     margin_mm,
     line_width_px,  # Not used but kept for consistency
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     auto_adjust_spacing=True,
     cover_config=None,
     decorative_border=None,
@@ -882,14 +882,14 @@ def create_noise_field_title(
     m_right = base_margin
 
     # Parse header separator
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs
         )
 
     # Parse footer separator
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs

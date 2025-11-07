@@ -172,8 +172,8 @@ def create_template_surface(
     margin_mm,
     auto_adjust_spacing,
     force_major_alignment,
-    header_separator,
-    footer_separator,
+    header,
+    footer,
     template_kwargs,
 ):
     """
@@ -201,8 +201,8 @@ def create_template_surface(
             section_gap_mm=template_kwargs.get("section_gap_mm", spacing_mm_val),
             line_width_px=template_kwargs.get("line_width_px", 0.5),
             dot_radius_px=template_kwargs.get("dot_radius_px", 1.5),
-            header_separator=header_separator,
-            footer_separator=footer_separator,
+            header=header,
+            footer=footer,
             split_ratio=template_kwargs.get("split_ratio", 0.6),
             auto_adjust_spacing=auto_adjust_spacing,
             force_major_alignment=force_major_alignment,
@@ -278,13 +278,13 @@ def create_template_surface(
         m_left, m_right = calculate_adjusted_margins_x(content_width, h_align_unit_px, base_margin)
 
     # --- 5. Draw Separators ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs
         )
 
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs
@@ -391,8 +391,8 @@ def create_hybrid_template(
     section_gap_mm,
     line_width_px,
     dot_radius_px,
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     split_ratio=0.6,
     auto_adjust_spacing=True,
     force_major_alignment=None,
@@ -438,14 +438,14 @@ def create_hybrid_template(
     half_gap = gap_px // 2
 
     # --- Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left, width - m_right, m_top, style=header_style, **header_kwargs
         )
 
     # --- Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx, m_left, width - m_right, height - m_bottom, style=footer_style, **footer_kwargs
@@ -499,8 +499,8 @@ def create_column_template(
     row_gap_mm,
     base_template,
     template_kwargs,
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     auto_adjust_spacing=True,
     force_major_alignment=None,
 ):  # <-- FIX (though not used)
@@ -564,14 +564,14 @@ def create_column_template(
     )
 
     # --- Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left_page, width - m_right_page, m_top_page, style=header_style, **header_kwargs
         )
 
     # --- Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx,
@@ -773,8 +773,8 @@ def create_cell_grid_template(
     cell_definitions,  # <-- NEW
     column_gap_mm,
     row_gap_mm,
-    header_separator=None,
-    footer_separator=None,
+    header=None,
+    footer=None,
     auto_adjust_spacing=True,
     force_major_alignment=None,
 ):  # <-- FIX (though not used)
@@ -836,14 +836,14 @@ def create_cell_grid_template(
     )
 
     # --- Parse header separator ---
-    header_style, header_kwargs = parse_separator_config(header_separator)
+    header_style, header_kwargs = parse_separator_config(header)
     if header_style:
         draw_separator_line(
             ctx, m_left_page, width - m_right_page, m_top_page, style=header_style, **header_kwargs
         )
 
     # --- Parse footer separator ---
-    footer_style, footer_kwargs = parse_separator_config(footer_separator)
+    footer_style, footer_kwargs = parse_separator_config(footer)
     if footer_style:
         draw_separator_line(
             ctx,
@@ -1120,14 +1120,14 @@ def create_json_layout_template(
 
     print(f"Note: Page content area is {content_width}px × {content_height}px")
 
-    # 3. Draw Page-Level Separators (MODIFIED)
-    header_style, header_kwargs = parse_separator_config(config.get("header_separator"))
+    # 3. Draw Page-Level Separators
+    header_style, header_kwargs = parse_separator_config(config.get("header"))
     if header_style:
         draw_separator_line(
             ctx, m_left_page, width - m_right_page, m_top_page, style=header_style, **header_kwargs
         )
 
-    footer_style, footer_kwargs = parse_separator_config(config.get("footer_separator"))
+    footer_style, footer_kwargs = parse_separator_config(config.get("footer"))
     if footer_style:
         draw_separator_line(
             ctx,
@@ -1231,11 +1231,20 @@ def create_json_layout_template(
             )
 
             # Check for line numbering config in the region
-            if "line_number_config" in region:
+            cfg = None
+            if region.get("line_numbers") is True:
+                # User just put "line_numbers": true
+                # Create a default config
+                print(f"  Note: Drawing default line numbers for region '{name}'")
+                cfg = {"side": "left", "interval": 5, "margin_px": 40, "font_size": 18, "grey": 8}
+            elif "line_number_config" in region:
+                # User provided the "power user" config
+                print(f"  Note: Drawing custom line numbers for region '{name}'")
+                cfg = region["line_number_config"]
+
+            if cfg:
                 from .drawing import draw_line_numbering  # Local import
 
-                cfg = region["line_number_config"]
-                print(f"  Note: Drawing line numbers for region '{name}'")
                 draw_line_numbering(ctx, draw_y_start, draw_y_end, region_spacing_px, cfg)
 
         elif template_type == "dotgrid":

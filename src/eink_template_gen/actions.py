@@ -611,8 +611,8 @@ def handle_cover_generation(args):
         "margin_mm": context["margin_mm"],
         "line_width_px": args.line_width_px,
         "auto_adjust_spacing": not args.no_auto_adjust,
-        "header_separator": args.header_sep,
-        "footer_separator": args.footer_sep,
+        "header": args.header,
+        "footer": args.footer,
     }
 
     # Add title-specific parameters from args
@@ -725,8 +725,8 @@ def handle_single_template_generation(args):
         margin_mm=context["margin_mm"],
         auto_adjust_spacing=not args.no_auto_adjust,
         force_major_alignment=getattr(args, "force_major_alignment", False),
-        header_separator=args.header_sep,
-        footer_separator=args.footer_sep,
+        header=args.header,
+        footer=args.footer,
         template_kwargs=template_kwargs,
     )
 
@@ -756,8 +756,8 @@ def handle_multi_template_generation(args):
         "spacing_mm": spacing_mm,
         "margin_mm": context["margin_mm"],
         "auto_adjust_spacing": not args.no_auto_adjust,
-        "header_separator": args.header_sep,
-        "footer_separator": args.footer_sep,
+        "header": args.header,
+        "footer": args.footer,
         "force_major_alignment": getattr(args, "force_major_alignment", False),
         "column_gap_mm": args.section_gap_cols if args.section_gap_cols is not None else spacing_mm,
         "row_gap_mm": args.section_gap_rows if args.section_gap_rows is not None else spacing_mm,

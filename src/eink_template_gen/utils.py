@@ -186,17 +186,17 @@ def generate_filename(template_type, **kwargs):
         parts.append("dotted_mid")
 
     # --- 7. Separators ---
-    header_sep = kwargs.get("header_separator")  # from --header-sep
-    if header_sep:
-        parts.append(f"h-{header_sep}")
+    header = kwargs.get("header")  # from --header
+    if header:
+        parts.append(f"h-{header}")
 
-    footer_sep = kwargs.get("footer_separator")  # from --footer-sep
-    if footer_sep:
-        parts.append(f"f-{footer_sep}")
+    footer = kwargs.get("footer")  # from --footer
+    if footer:
+        parts.append(f"f-{footer}")
 
     # --- 8. Assemble Path ---
 
-    # Handle 'title' command, which has a sub-type
+    # Handle 'Title' command, which has a sub-type
     if template_type == "title":
         # The actual cover type is in kwargs['title'] (e.g., 'truchet')
         cover_type = kwargs.get("title", "unknown_cover")

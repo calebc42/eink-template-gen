@@ -46,8 +46,8 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 12,
                 "master_spacing_mm": 7,
-                "header_separator": "bold",
-                "footer_separator": "bold",
+                "header": "bold",
+                "footer": "bold",
                 "page_layout": [
                     {
                         "name": "Header/Title",
@@ -90,7 +90,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 6,
-                "header_separator": "double",
+                "header": "double",
                 "page_layout": [
                     {"name": "Title Area", "region_rect": [0, 0, 1.0, 0.10], "template": "blank"},
                     {
@@ -155,7 +155,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 8,
                 "master_spacing_mm": 6,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {
                         "name": "Left Column",
@@ -196,8 +196,8 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 6,
-                "header_separator": "double",
-                "footer_separator": "bold",
+                "header": "double",
+                "footer": "bold",
                 "page_layout": [
                     {"name": "Date & Title", "region_rect": [0, 0, 1.0, 0.08], "template": "blank"},
                     {
@@ -234,7 +234,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 8,
                 "master_spacing_mm": 5,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {"name": "Week Header", "region_rect": [0, 0, 1.0, 0.10], "template": "blank"},
                     {
@@ -292,7 +292,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 7,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {
                         "name": "Goal Title",
@@ -335,7 +335,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 8,
                 "master_spacing_mm": 5,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {"name": "Month Header", "region_rect": [0, 0, 1.0, 0.08], "template": "blank"},
                     {
@@ -530,8 +530,8 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 5,
-                "header_separator": "double",
-                "footer_separator": "bold",
+                "header": "double",
+                "footer": "bold",
                 "page_layout": [
                     {
                         "name": "Title & Date",
@@ -574,7 +574,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 8,
                 "master_spacing_mm": 5,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {
                         "name": "Title",
@@ -645,8 +645,8 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 12,
                 "master_spacing_mm": 7,
-                "header_separator": "double",
-                "footer_separator": "double",
+                "header": "double",
+                "footer": "double",
                 "page_layout": [
                     {
                         "name": "Experiment Title",
@@ -701,7 +701,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 2,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {"name": "Title", "region_rect": [0, 0, 1.0, 0.08], "template": "blank"},
                     {
@@ -731,7 +731,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 7,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {"name": "Song Title", "region_rect": [0, 0, 1.0, 0.10], "template": "blank"},
                     {
@@ -768,7 +768,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 2,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {"name": "Week Header", "region_rect": [0, 0, 1.0, 0.08], "template": "blank"},
                     {
@@ -810,7 +810,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 8,
                 "master_spacing_mm": 6,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {
                         "name": "Character Name",
@@ -858,8 +858,8 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 8,
                 "master_spacing_mm": 8,
-                "header_separator": "double",
-                "footer_separator": "double",
+                "header": "double",
+                "footer": "double",
                 "page_layout": [
                     {"name": "Map Title", "region_rect": [0, 0, 1.0, 0.08], "template": "blank"},
                     {
@@ -896,7 +896,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 7,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {
                         "name": "Session Info",
@@ -970,7 +970,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 8,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {
                         "name": "Vocabulary Header",
@@ -1013,7 +1013,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 5,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {
                         "name": "Topic Header",
@@ -1049,7 +1049,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 7,
-                "header_separator": "double",
+                "header": "double",
                 "page_layout": [
                     {
                         "name": "Topic Title",
@@ -1167,8 +1167,8 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 7,
-                "header_separator": "double",
-                "footer_separator": "bold",
+                "header": "double",
+                "footer": "bold",
                 "page_layout": [
                     {
                         "name": "Meeting Info",
@@ -1218,7 +1218,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 7,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {
                         "name": "Recipe Name",
@@ -1268,7 +1268,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 6,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {"name": "Week Header", "region_rect": [0, 0, 1.0, 0.08], "template": "blank"},
                     {
@@ -1305,7 +1305,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 7,
-                "header_separator": "bold",
+                "header": "bold",
                 "page_layout": [
                     {
                         "name": "Book Title & Info",
@@ -1348,7 +1348,7 @@ class JSONExampleLibrary:
                 "device": "manta",
                 "margin_mm": 10,
                 "master_spacing_mm": 6,
-                "header_separator": "double",
+                "header": "double",
                 "page_layout": [
                     {
                         "name": "Date & Location",

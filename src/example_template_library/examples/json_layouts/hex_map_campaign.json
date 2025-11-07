@@ -1,40 +1,41 @@
 {
   "device": "manta",
-  "margin_mm": 10,
-  "master_spacing_mm": 6,
-  "header_separator": "double",
+  "margin_mm": 8,
+  "master_spacing_mm": 8,
+  "header": "double",
+  "footer": "double",
   "page_layout": [
     {
-      "name": "Title Area",
+      "name": "Map Title",
       "region_rect": [
         0,
         0,
         1.0,
-        0.1
+        0.08
       ],
       "template": "blank"
     },
     {
-      "name": "Cue Column (Dot Grid)",
+      "name": "Hex Map",
       "region_rect": [
         0,
-        0.1,
-        0.3,
-        0.75
+        0.08,
+        0.65,
+        0.7
       ],
-      "template": "dotgrid",
-      "spacing_mm": 6,
+      "template": "hexgrid",
+      "spacing_mm": 8,
       "kwargs": {
-        "dot_radius_px": 1.5
+        "line_width_px": 0.5
       }
     },
     {
-      "name": "Notes Column",
+      "name": "Location Key",
       "region_rect": [
-        0.3,
-        0.1,
-        0.7,
-        0.75
+        0.65,
+        0.08,
+        0.35,
+        0.7
       ],
       "template": "lined",
       "spacing_mm": 6,
@@ -43,12 +44,12 @@
       }
     },
     {
-      "name": "Summary Area",
+      "name": "Campaign Notes",
       "region_rect": [
         0,
-        0.85,
+        0.78,
         1.0,
-        0.15
+        0.22
       ],
       "template": "lined",
       "spacing_mm": 6,

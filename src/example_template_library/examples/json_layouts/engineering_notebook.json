@@ -1,68 +1,60 @@
 {
   "device": "manta",
-  "margin_mm": 8,
-  "master_spacing_mm": 6,
-  "header_separator": "bold",
+  "margin_mm": 10,
+  "master_spacing_mm": 5,
+  "header": "double",
+  "footer": "bold",
   "page_layout": [
     {
-      "name": "Character Name",
+      "name": "Title & Date",
       "region_rect": [
         0,
         0,
         1.0,
         0.08
       ],
-      "template": "blank"
-    },
-    {
-      "name": "Stats & Info",
-      "region_rect": [
-        0,
-        0.08,
-        0.3,
-        0.4
-      ],
       "template": "lined",
-      "spacing_mm": 7,
+      "spacing_mm": 8,
       "kwargs": {
-        "line_width_px": 0.5
+        "line_width_px": 1.0
       }
     },
     {
-      "name": "Character Portrait",
+      "name": "Diagram Area",
       "region_rect": [
-        0.3,
+        0,
         0.08,
-        0.35,
-        0.4
+        0.5,
+        0.6
       ],
       "template": "grid",
       "spacing_mm": 5,
       "kwargs": {
-        "line_width_px": 0.25
+        "line_width_px": 0.5,
+        "major_every": 5
       }
     },
     {
-      "name": "Equipment",
+      "name": "Calculations",
       "region_rect": [
-        0.65,
+        0.5,
         0.08,
-        0.35,
-        0.4
+        0.5,
+        0.6
       ],
-      "template": "lined",
-      "spacing_mm": 6,
+      "template": "grid",
+      "spacing_mm": 5,
       "kwargs": {
         "line_width_px": 0.5
       }
     },
     {
-      "name": "Notes & Background",
+      "name": "Notes",
       "region_rect": [
         0,
-        0.48,
+        0.68,
         1.0,
-        0.52
+        0.32
       ],
       "template": "lined",
       "spacing_mm": 6,

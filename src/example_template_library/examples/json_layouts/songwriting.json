@@ -1,26 +1,40 @@
 {
   "device": "manta",
   "margin_mm": 10,
-  "master_spacing_mm": 6,
-  "header_separator": "double",
-  "footer_separator": "bold",
+  "master_spacing_mm": 7,
+  "header": "bold",
   "page_layout": [
     {
-      "name": "Date & Title",
+      "name": "Song Title",
       "region_rect": [
         0,
         0,
         1.0,
-        0.08
+        0.1
       ],
       "template": "blank"
     },
     {
-      "name": "Time Schedule",
+      "name": "Lyrics Left",
       "region_rect": [
         0,
-        0.08,
-        0.25,
+        0.1,
+        0.5,
+        0.6
+      ],
+      "template": "lined",
+      "spacing_mm": 8,
+      "kwargs": {
+        "line_width_px": 0.5,
+        "major_every": 4
+      }
+    },
+    {
+      "name": "Chords/Structure",
+      "region_rect": [
+        0.5,
+        0.1,
+        0.5,
         0.6
       ],
       "template": "lined",
@@ -30,26 +44,12 @@
       }
     },
     {
-      "name": "Tasks & Notes",
-      "region_rect": [
-        0.25,
-        0.08,
-        0.75,
-        0.6
-      ],
-      "template": "lined",
-      "spacing_mm": 6,
-      "kwargs": {
-        "line_width_px": 0.5
-      }
-    },
-    {
-      "name": "Notes/Reflections",
+      "name": "Notes & Ideas",
       "region_rect": [
         0,
-        0.68,
+        0.7,
         1.0,
-        0.32
+        0.3
       ],
       "template": "dotgrid",
       "spacing_mm": 5,

@@ -2,10 +2,11 @@
   "device": "manta",
   "margin_mm": 10,
   "master_spacing_mm": 7,
-  "header_separator": "bold",
+  "header": "double",
+  "footer": "bold",
   "page_layout": [
     {
-      "name": "Session Info",
+      "name": "Meeting Info",
       "region_rect": [
         0,
         0,
@@ -19,12 +20,40 @@
       }
     },
     {
-      "name": "Story Events",
+      "name": "Attendees",
       "region_rect": [
         0,
         0.1,
-        0.65,
-        0.9
+        0.25,
+        0.2
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Agenda",
+      "region_rect": [
+        0.25,
+        0.1,
+        0.75,
+        0.2
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Discussion Notes",
+      "region_rect": [
+        0,
+        0.3,
+        1.0,
+        0.45
       ],
       "template": "lined",
       "spacing_mm": 7,
@@ -33,31 +62,18 @@
       }
     },
     {
-      "name": "Quick Map/Sketches",
+      "name": "Action Items",
       "region_rect": [
-        0.65,
-        0.1,
-        0.35,
-        0.45
-      ],
-      "template": "grid",
-      "spacing_mm": 5,
-      "kwargs": {
-        "line_width_px": 0.5
-      }
-    },
-    {
-      "name": "NPCs & Loot",
-      "region_rect": [
-        0.65,
-        0.55,
-        0.35,
-        0.45
+        0,
+        0.75,
+        1.0,
+        0.25
       ],
       "template": "lined",
-      "spacing_mm": 6,
+      "spacing_mm": 7,
       "kwargs": {
-        "line_width_px": 0.5
+        "line_width_px": 0.5,
+        "major_every": 3
       }
     }
   ]

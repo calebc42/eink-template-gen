@@ -2,7 +2,7 @@
   "device": "manta",
   "margin_mm": 10,
   "master_spacing_mm": 6,
-  "header_separator": "double",
+  "header": "double",
   "page_layout": [
     {
       "name": "Date & Location",

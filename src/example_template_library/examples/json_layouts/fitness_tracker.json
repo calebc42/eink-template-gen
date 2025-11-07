@@ -1,30 +1,26 @@
 {
   "device": "manta",
   "margin_mm": 10,
-  "master_spacing_mm": 7,
-  "header_separator": "bold",
+  "master_spacing_mm": 6,
+  "header": "bold",
   "page_layout": [
     {
-      "name": "Goal Title",
+      "name": "Week Header",
       "region_rect": [
         0,
         0,
         1.0,
-        0.12
+        0.08
       ],
-      "template": "lined",
-      "spacing_mm": 10,
-      "kwargs": {
-        "line_width_px": 1.5
-      }
+      "template": "blank"
     },
     {
-      "name": "Action Steps",
+      "name": "Workout Log",
       "region_rect": [
         0,
-        0.12,
+        0.08,
         0.6,
-        0.5
+        0.7
       ],
       "template": "lined",
       "spacing_mm": 7,
@@ -33,29 +29,29 @@
       }
     },
     {
-      "name": "Progress Grid",
+      "name": "Tracking Grid",
       "region_rect": [
         0.6,
-        0.12,
+        0.08,
         0.4,
-        0.5
+        0.7
       ],
       "template": "grid",
-      "spacing_mm": 7,
+      "spacing_mm": 6,
       "kwargs": {
         "line_width_px": 0.5
       }
     },
     {
-      "name": "Notes & Reflections",
+      "name": "Notes/Goals",
       "region_rect": [
         0,
-        0.62,
+        0.78,
         1.0,
-        0.38
+        0.22
       ],
       "template": "lined",
-      "spacing_mm": 7,
+      "spacing_mm": 6,
       "kwargs": {
         "line_width_px": 0.5
       }

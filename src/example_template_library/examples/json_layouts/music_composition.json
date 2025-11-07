@@ -2,7 +2,7 @@
   "device": "manta",
   "margin_mm": 10,
   "master_spacing_mm": 2,
-  "header_separator": "bold",
+  "header": "bold",
   "page_layout": [
     {
       "name": "Title",

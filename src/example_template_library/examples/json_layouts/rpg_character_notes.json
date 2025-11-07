@@ -1,30 +1,26 @@
 {
   "device": "manta",
-  "margin_mm": 10,
-  "master_spacing_mm": 7,
-  "header_separator": "bold",
+  "margin_mm": 8,
+  "master_spacing_mm": 6,
+  "header": "bold",
   "page_layout": [
     {
-      "name": "Recipe Name",
+      "name": "Character Name",
       "region_rect": [
         0,
         0,
         1.0,
-        0.12
+        0.08
       ],
-      "template": "lined",
-      "spacing_mm": 10,
-      "kwargs": {
-        "line_width_px": 1.2
-      }
+      "template": "blank"
     },
     {
-      "name": "Ingredients",
+      "name": "Stats & Info",
       "region_rect": [
         0,
-        0.12,
-        0.35,
-        0.5
+        0.08,
+        0.3,
+        0.4
       ],
       "template": "lined",
       "spacing_mm": 7,
@@ -33,40 +29,40 @@
       }
     },
     {
-      "name": "Photo/Sketch",
+      "name": "Character Portrait",
       "region_rect": [
+        0.3,
+        0.08,
         0.35,
-        0.12,
-        0.65,
-        0.5
+        0.4
       ],
       "template": "grid",
-      "spacing_mm": 10,
+      "spacing_mm": 5,
       "kwargs": {
         "line_width_px": 0.25
       }
     },
     {
-      "name": "Instructions",
+      "name": "Equipment",
       "region_rect": [
-        0,
-        0.62,
-        1.0,
-        0.28
+        0.65,
+        0.08,
+        0.35,
+        0.4
       ],
       "template": "lined",
-      "spacing_mm": 7,
+      "spacing_mm": 6,
       "kwargs": {
         "line_width_px": 0.5
       }
     },
     {
-      "name": "Notes/Variations",
+      "name": "Notes & Background",
       "region_rect": [
         0,
-        0.9,
+        0.48,
         1.0,
-        0.1
+        0.52
       ],
       "template": "lined",
       "spacing_mm": 6,

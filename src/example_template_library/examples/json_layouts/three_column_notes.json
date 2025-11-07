@@ -1,44 +1,44 @@
 {
   "device": "manta",
   "margin_mm": 8,
-  "master_spacing_mm": 5,
-  "header_separator": "bold",
+  "master_spacing_mm": 6,
+  "header": "bold",
   "page_layout": [
     {
-      "name": "Title",
+      "name": "Left Column",
       "region_rect": [
         0,
         0,
-        1.0,
-        0.08
+        0.33,
+        1.0
       ],
       "template": "lined",
-      "spacing_mm": 10,
-      "kwargs": {
-        "line_width_px": 1.0
-      }
-    },
-    {
-      "name": "Isometric Drawing",
-      "region_rect": [
-        0,
-        0.08,
-        0.75,
-        0.92
-      ],
-      "template": "isometric",
-      "spacing_mm": 5,
+      "spacing_mm": 6,
       "kwargs": {
         "line_width_px": 0.5
       }
     },
     {
-      "name": "Dimensions",
+      "name": "Middle Column",
       "region_rect": [
-        0.75,
-        0.08,
-        0.25,
-        0.92
+        0.33,
+        0,
+        0.34,
+        1.0
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Right Column",
+      "region_rect": [
+        0.67,
+        0,
+        0.33,
+        1.0
       ],
       "template": "lined",
       "spacing_mm": 6,

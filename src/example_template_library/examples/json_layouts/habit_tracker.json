@@ -2,7 +2,7 @@
   "device": "manta",
   "margin_mm": 8,
   "master_spacing_mm": 5,
-  "header_separator": "bold",
+  "header": "bold",
   "page_layout": [
     {
       "name": "Month Header",

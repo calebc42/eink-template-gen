@@ -2,8 +2,8 @@
   "device": "manta",
   "margin_mm": 12,
   "master_spacing_mm": 7,
-  "header_separator": "double",
-  "footer_separator": "double",
+  "header": "double",
+  "footer": "double",
   "page_layout": [
     {
       "name": "Experiment Title",

@@ -1,12 +1,11 @@
 {
   "device": "manta",
-  "margin_mm": 12,
+  "margin_mm": 10,
   "master_spacing_mm": 7,
-  "header_separator": "bold",
-  "footer_separator": "bold",
+  "header": "bold",
   "page_layout": [
     {
-      "name": "Header/Title",
+      "name": "Goal Title",
       "region_rect": [
         0,
         0,
@@ -16,16 +15,16 @@
       "template": "lined",
       "spacing_mm": 10,
       "kwargs": {
-        "line_width_px": 1.2
+        "line_width_px": 1.5
       }
     },
     {
-      "name": "Cue Column",
+      "name": "Action Steps",
       "region_rect": [
         0,
         0.12,
-        0.25,
-        0.68
+        0.6,
+        0.5
       ],
       "template": "lined",
       "spacing_mm": 7,
@@ -34,26 +33,26 @@
       }
     },
     {
-      "name": "Notes Column",
+      "name": "Progress Grid",
       "region_rect": [
-        0.25,
+        0.6,
         0.12,
-        0.75,
-        0.68
+        0.4,
+        0.5
       ],
-      "template": "lined",
+      "template": "grid",
       "spacing_mm": 7,
       "kwargs": {
         "line_width_px": 0.5
       }
     },
     {
-      "name": "Summary",
+      "name": "Notes & Reflections",
       "region_rect": [
         0,
-        0.8,
+        0.62,
         1.0,
-        0.2
+        0.38
       ],
       "template": "lined",
       "spacing_mm": 7,

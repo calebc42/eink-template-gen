@@ -2,10 +2,11 @@
   "device": "manta",
   "margin_mm": 10,
   "master_spacing_mm": 6,
-  "header_separator": "bold",
+  "header": "double",
+  "footer": "bold",
   "page_layout": [
     {
-      "name": "Week Header",
+      "name": "Date & Title",
       "region_rect": [
         0,
         0,
@@ -15,45 +16,45 @@
       "template": "blank"
     },
     {
-      "name": "Workout Log",
+      "name": "Time Schedule",
       "region_rect": [
         0,
         0.08,
-        0.6,
-        0.7
+        0.25,
+        0.6
       ],
       "template": "lined",
-      "spacing_mm": 7,
+      "spacing_mm": 8,
       "kwargs": {
         "line_width_px": 0.5
       }
     },
     {
-      "name": "Tracking Grid",
+      "name": "Tasks & Notes",
       "region_rect": [
-        0.6,
+        0.25,
         0.08,
-        0.4,
-        0.7
+        0.75,
+        0.6
       ],
-      "template": "grid",
+      "template": "lined",
       "spacing_mm": 6,
       "kwargs": {
         "line_width_px": 0.5
       }
     },
     {
-      "name": "Notes/Goals",
+      "name": "Notes/Reflections",
       "region_rect": [
         0,
-        0.78,
+        0.68,
         1.0,
-        0.22
+        0.32
       ],
-      "template": "lined",
-      "spacing_mm": 6,
+      "template": "dotgrid",
+      "spacing_mm": 5,
       "kwargs": {
-        "line_width_px": 0.5
+        "dot_radius_px": 1.5
       }
     }
   ]

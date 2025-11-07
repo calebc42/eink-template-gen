@@ -2,15 +2,15 @@
   "device": "manta",
   "margin_mm": 10,
   "master_spacing_mm": 7,
-  "header_separator": "double",
+  "header": "bold",
   "page_layout": [
     {
-      "name": "Topic Title",
+      "name": "Recipe Name",
       "region_rect": [
         0,
         0,
         1.0,
-        0.08
+        0.12
       ],
       "template": "lined",
       "spacing_mm": 10,
@@ -19,12 +19,12 @@
       }
     },
     {
-      "name": "Key Concepts",
+      "name": "Ingredients",
       "region_rect": [
         0,
-        0.08,
-        0.5,
-        0.45
+        0.12,
+        0.35,
+        0.5
       ],
       "template": "lined",
       "spacing_mm": 7,
@@ -33,29 +33,43 @@
       }
     },
     {
-      "name": "Diagrams",
+      "name": "Photo/Sketch",
       "region_rect": [
-        0.5,
-        0.08,
-        0.5,
-        0.45
+        0.35,
+        0.12,
+        0.65,
+        0.5
       ],
-      "template": "dotgrid",
-      "spacing_mm": 5,
+      "template": "grid",
+      "spacing_mm": 10,
       "kwargs": {
-        "dot_radius_px": 1.5
+        "line_width_px": 0.25
       }
     },
     {
-      "name": "Summary Notes",
+      "name": "Instructions",
       "region_rect": [
         0,
-        0.53,
+        0.62,
         1.0,
-        0.47
+        0.28
       ],
       "template": "lined",
       "spacing_mm": 7,
+      "kwargs": {
+        "line_width_px": 0.5
+      }
+    },
+    {
+      "name": "Notes/Variations",
+      "region_rect": [
+        0,
+        0.9,
+        1.0,
+        0.1
+      ],
+      "template": "lined",
+      "spacing_mm": 6,
       "kwargs": {
         "line_width_px": 0.5
       }

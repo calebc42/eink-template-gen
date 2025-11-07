@@ -54,14 +54,14 @@ def draw_title_element(
         # --- 2. CLI Alignment/Pixel Mode ---
 
         # Get frame dimensions (default relative to page)
-        frame_width = config.get("frame_width", page_width * 0.6)
-        frame_height = config.get("frame_height", page_height * 0.2)
+        frame_width = config.get("title_frame_width", page_width * 0.6)
+        frame_height = config.get("title_frame_height", page_height * 0.2)
 
         # --- Horizontal Alignment ---
         # Priority: 1. explicit pixels, 2. h_align, 3. default
-        x_center = config.get("x_center")
+        x_center = config.get("title_x_center")
         if x_center is None:
-            h_align = config.get("h_align", "center")
+            h_align = config.get("title_h_align", "center")
             if h_align == "left":
                 x_center = page_width / 3
             elif h_align == "right":
@@ -71,9 +71,9 @@ def draw_title_element(
 
         # --- Vertical Alignment ---
         # Priority: 1. explicit pixels, 2. v_align, 3. default
-        y_center = config.get("y_center")
+        y_center = config.get("title_y_center")
         if y_center is None:
-            v_align = config.get("v_align", "top")
+            v_align = config.get("title_v_align", "top")
             if v_align == "center":
                 y_center = page_height / 2
             elif v_align == "bottom":
@@ -84,35 +84,35 @@ def draw_title_element(
     # --- Draw Frame and Text (Same as before) ---
 
     # Draw frame (always draw unless explicitly disabled)
-    if config.get("show_frame", True):
+    if not config.get("title_no_frame", False):
         draw_title_frame(
             ctx,
             x_center,
             y_center,
             frame_width,
             frame_height,
-            shape=config.get("frame_shape", "rounded-rectangle"),
-            border_style=config.get("border_style", "solid"),
-            border_width=config.get("border_width", 2.0),
-            border_grey=config.get("border_grey", 0),
-            fill_grey=config.get("fill_grey", 15),
-            corner_radius=config.get("corner_radius", 10),
+            shape=config.get("title_frame_shape", "rounded-rectangle"),
+            border_style=config.get("title_border_style", "solid"),
+            border_width=config.get("title_border_width", 2.0),
+            border_grey=config.get("title_border_grey", 0),
+            fill_grey=config.get("title_fill_grey", 15),
+            corner_radius=config.get("title_corner_radius", 10),
         )
 
     # Draw text only if provided and non-empty
-    text = config.get("text", "").strip()
+    text = config.get("title_text", "").strip()
     if text:
         draw_title_text(
             ctx,
             text,
             x_center,
             y_center,
-            font_family=config.get("font_family", "Serif"),
-            font_size=config.get("font_size", 48),
-            font_weight=config.get("font_weight", "bold"),
-            font_slant=config.get("font_slant", "normal"),
-            text_grey=config.get("text_grey", 0),
-            letter_spacing=config.get("letter_spacing", 0),
+            font_family=config.get("title_font_family", "Serif"),
+            font_size=config.get("title_font_size", 48),
+            font_weight=config.get("title_font_weight", "bold"),
+            font_slant=config.get("title_font_slant", "normal"),
+            text_grey=config.get("title_text_grey", 0),
+            letter_spacing=config.get("title_letter_spacing", 0),
         )
 
 

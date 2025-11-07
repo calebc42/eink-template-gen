@@ -80,7 +80,7 @@ def generate_filename(template_type, **kwargs):
         # Line count mode (e.g., --lines 40x30)
         lines_str = str(kwargs["lines"])  # This will be "40x30"
         parts.append(lines_str)
-        if kwargs.get("enforce_exact_spacing"):
+        if kwargs.get("enforce_margins"):
             parts.append("exact")
     else:
         # Spacing mode (e.g., --spacing 7)

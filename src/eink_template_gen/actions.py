@@ -86,9 +86,6 @@ def _setup_generation_context(args):
         context["margin_mm"] = margin_mm
         margin_px = round(margin_mm * mm2px)
 
-        # Calculate spacing based on whether margins are used
-        enforce_exact = cli_args.get("enforce_exact_spacing", False)
-
         v_spacing_px = None
         v_is_fractional = False
 
@@ -152,7 +149,7 @@ def _setup_generation_context(args):
 
         # Spacing setup
         spacing_px, original_mm, adjusted_mm, was_adjusted, spacing_mode = parse_spacing(
-            args.spacing, device_config["dpi"], auto_adjust=not args.no_auto_adjust
+            args.spacing, device_config["dpi"], auto_adjust=not args.true_scale
         )
 
         context["spacing_str"] = args.spacing  # Pass the original string to the factory
@@ -181,6 +178,8 @@ def _build_template_kwargs(template_type, args):
         kwargs["line_width_px"] = cli_args["line_width_px"]
     if cli_args.get("dot_radius_px") is not None:
         kwargs["dot_radius_px"] = cli_args["dot_radius_px"]
+    if cli_args.get("enforce_margins"):
+        kwargs["enforce_margins"] = True
 
     # Grid/Lined features
     if cli_args.get("major_every") is not None:
@@ -262,9 +261,9 @@ def _save_and_print_summary(surface, context, args):
 
     # 1. Determine Output Directory
     base_device_dir = os.path.join(args.output_dir, device_id)
-    if args.no_auto_adjust:
+    if args.true_scale:
         device_dir = os.path.join(base_device_dir, "true-scale")
-        print("Note: Saving to 'true-scale' directory as --no-auto-adjust was specified.")
+        print("Note: Saving to 'true-scale' directory as --true-scale was specified.")
     else:
         device_dir = base_device_dir
 
@@ -384,65 +383,69 @@ def _save_and_print_summary(surface, context, args):
         margin_mm = context["margin_mm"]
         mm2px = device_config["dpi"] / 25.4
         base_margin_px = round(margin_mm * mm2px)
-        content_height = device_config["height"] - (2 * base_margin_px)
-        content_width = device_config["width"] - (2 * base_margin_px)
 
-        # We can't show adjusted margins for complex layouts
-        is_complex_layout = args.command in ["multi", "hybrid_lined_dotgrid"]
-        force_align = cli_args.get("force_major_alignment", False) and cli_args.get("major_every")
+        # Check if true_scale (formerly no_auto_adjust) is active.
+        # If it is, just print the simple margin and skip all adjustment logic.
+        if cli_args.get("true_scale", False):
+            print(f"  - Margin: {margin_mm}mm")
+        else:
 
-        if not is_complex_layout:
-            # Recalculate margins just for display
-            v_align_unit = context["spacing_px"]
+            content_height = device_config["height"] - (2 * base_margin_px)
+            content_width = device_config["width"] - (2 * base_margin_px)
+            # We can't show adjusted margins for complex layouts
+            is_complex_layout = args.command in ["multi", "hybrid_lined_dotgrid"]
+            force_align = cli_args.get("force_major_alignment", False) and cli_args.get("major_every")
 
-            template_type = args.command  # e.g., 'lined', 'grid'
-            config = TEMPLATE_REGISTRY.get(template_type, {})
-            h_align_setting = config.get("horizontal_align_unit")
+            if not is_complex_layout:
+                # Recalculate margins just for display
+                v_align_unit = context["spacing_px"]
 
-            h_align_unit = context["spacing_px"]  # Default for 'grid', 'dotgrid', etc.
+                template_type = args.command  # e.g., 'lined', 'grid'
+                config = TEMPLATE_REGISTRY.get(template_type, {})
+                h_align_setting = config.get("horizontal_align_unit")
 
-            if h_align_setting == "none":
-                h_align_unit = 1  # For 'lined', 'manuscript'
-            elif h_align_setting == "french_ruled":
-                h_align_unit = context["spacing_px"] * 4
+                h_align_unit = context["spacing_px"]  # Default for 'grid', 'dotgrid', etc.
 
-            if force_align:
-                m_top, m_bottom, _ = calculate_major_aligned_margins(
-                    content_height, v_align_unit, base_margin_px, cli_args["major_every"]
+                if h_align_setting == "none":
+                    h_align_unit = 1  # For 'lined', 'manuscript'
+                elif h_align_setting == "french_ruled":
+                    h_align_unit = context["spacing_px"] * 4
+
+                if force_align:
+                    m_top, m_bottom, _ = calculate_major_aligned_margins(
+                        content_height, v_align_unit, base_margin_px, cli_args.get("major_every", 0) # Use .get for safety
+                    )
+                    m_left, m_right, _ = calculate_major_aligned_margins_x(
+                        content_width, h_align_unit, base_margin_px, cli_args.get("major_every", 0) # Use .get for safety
+                    )
+                else:
+                    m_top, m_bottom = calculate_adjusted_margins(
+                        content_height, v_align_unit, base_margin_px
+                    )
+                    m_left, m_right = calculate_adjusted_margins_x(
+                        content_width, h_align_unit, base_margin_px
+                    )
+
+                margin_adjusted = (
+                    abs(m_top - base_margin_px) > 0.5 or abs(m_left - base_margin_px) > 0.5
                 )
-                m_left, m_right, _ = calculate_major_aligned_margins_x(
-                    content_width, h_align_unit, base_margin_px, cli_args["major_every"]
-                )
-            else:
-                m_top, m_bottom = calculate_adjusted_margins(
-                    content_height, v_align_unit, base_margin_px
-                )
-                m_left, m_right = calculate_adjusted_margins_x(
-                    content_width, h_align_unit, base_margin_px
-                )
 
-            margin_adjusted = (
-                abs(m_top - base_margin_px) > 0.5 or abs(m_left - base_margin_px) > 0.5
-            )
-
-            if force_align:
-                print(
-                    f"  - Margin: {margin_mm}mm (adjusted for major alignment: "
-                    f"T:{m_top/mm2px:.2f}, B:{m_bottom/mm2px:.2f}, L:{m_left/mm2px:.2f}, R:{m_right/mm2px:.2f}mm)"
-                )
-            elif margin_adjusted:
-                print(
-                    f"  - Margin: {margin_mm}mm (adjusted for pixel-perfect: "
-                    f"T:{m_top/mm2px:.2f}, B:{m_bottom/mm2px:.2f}, L:{m_left/mm2px:.2f}, R:{m_right/mm2px:.2f}mm)"
-                )
+                if force_align:
+                    print(
+                        f"  - Margin: {margin_mm}mm (adjusted for major alignment: "
+                        f"T:{m_top/mm2px:.2f}, B:{m_bottom/mm2px:.2f}, L:{m_left/mm2px:.2f}, R:{m_right/mm2px:.2f}mm)"
+                    )
+                elif margin_adjusted:
+                    print(
+                        f"  - Margin: {margin_mm}mm (adjusted for pixel-perfect: "
+                        f"T:{m_top/mm2px:.2f}, B:{m_bottom/mm2px:.2f}, L:{m_left/mm2px:.2f}, R:{m_right/mm2px:.2f}mm)"
+                    )
+                else:
+                    print(f"  - Margin: {margin_mm}mm")
             else:
                 print(f"  - Margin: {margin_mm}mm")
-        else:
-            print(f"  - Margin: {margin_mm}mm")
-
 
 # --- Action 1: Utility Commands ---
-
 
 def handle_list_devices(args=None):
     print("Available devices:")
@@ -561,9 +564,9 @@ def handle_json_generation(args):
 
     # 4. Auto-Adjust
     json_auto_adjust = config.get("auto_adjust_spacing", True)
-    if args.no_auto_adjust:
+    if args.true_scale:
         final_auto_adjust = False
-        print("Note: Using --no-auto-adjust from CLI flag.")
+        print("Note: Using --true-scale from CLI flag.")
     else:
         final_auto_adjust = json_auto_adjust
 
@@ -610,7 +613,7 @@ def handle_cover_generation(args):
         "spacing_mm": context["spacing_mm_to_use"],  # from context
         "margin_mm": context["margin_mm"],
         "line_width_px": args.line_width_px,
-        "auto_adjust_spacing": not args.no_auto_adjust,
+        "auto_adjust_spacing": not args.true_scale,
         "header": args.header,
         "footer": args.footer,
     }
@@ -723,7 +726,7 @@ def handle_single_template_generation(args):
         device_config=context["device_config"],
         spacing_str=context["spacing_str"],
         margin_mm=context["margin_mm"],
-        auto_adjust_spacing=not args.no_auto_adjust,
+        auto_adjust_spacing=not args.true_scale,
         force_major_alignment=getattr(args, "force_major_alignment", False),
         header=args.header,
         footer=args.footer,
@@ -755,7 +758,7 @@ def handle_multi_template_generation(args):
         "dpi": context["device_config"]["dpi"],
         "spacing_mm": spacing_mm,
         "margin_mm": context["margin_mm"],
-        "auto_adjust_spacing": not args.no_auto_adjust,
+        "auto_adjust_spacing": not args.true_scale,
         "header": args.header,
         "footer": args.footer,
         "force_major_alignment": getattr(args, "force_major_alignment", False),

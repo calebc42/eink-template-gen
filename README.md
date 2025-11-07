@@ -1,40 +1,40 @@
 
 # Table of Contents
 
-1.  [Badges](#orgd423e8d)
-2.  [About](#org3fc80c6)
-3.  [Why This Tool?](#org06c68ea)
-4.  [What this tool is NOT](#org167ac6c)
-5.  [Features](#orgb00f2af)
-6.  [Installation](#org60ef345)
-    1.  [Development Version](#orgc316ee3)
-7.  [Full Documentation](#orgcd6ce53)
-8.  [Supported Devices](#orgda41109)
-9.  [Configuration](#orga180554)
-10. [Usage Examples](#org59f367a)
-    1.  [Basic Templates](#org8ec067d)
-11. [Output](#org5155af7)
-12. [Contributing](#orgf931f62)
-13. [License](#orgf7567a3)
-14. [Credits](#orgbdfc3ec)
+1.  [Badges](#orgc7668f1)
+2.  [About](#org8a84f8c)
+3.  [Why This Tool?](#org7542582)
+4.  [What this tool is NOT](#org7b8c04b)
+5.  [Features](#org7d7564f)
+6.  [Installation](#org60649ec)
+7.  [Full Documentation](#orgef8568e)
+8.  [Supported Devices](#org7b0391b)
+9.  [Configuration](#org903aec4)
+10. [Usage Examples](#org143a4bd)
+    1.  [Basic Templates](#org3bc17d2)
+11. [Output](#orge2322c2)
+12. [Contributing](#org4014ee9)
+13. [License](#orgb4043b6)
+14. [Credits](#org7a5487a)
 
 
-<a id="orgd423e8d"></a>
+<a id="orgc7668f1"></a>
 
 # Badges
 
-  ![Python CI](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml/badge.svg)
-  ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
-  ![License](https://img.shields.io/badge/license-GPLv3-green)
+![Python CI](https://github.com/calebc42/eink-template-gen/actions/workflows/ci.yml/badge.svg)
+![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
+![License](https://img.shields.io/badge/license-GPLv3-green)
 
-<a id="org3fc80c6"></a>
+
+<a id="org8a84f8c"></a>
 
 # About
 
 A device-agnostic command-line tool for generating mathematically balanced, pixel-perfect page templates for e-ink devices. Developed with the Supernote Manta, this tool supports millimeter or pixel specifications for human-readable, technically-precise, or true-scale template configurations.
 
 
-<a id="org06c68ea"></a>
+<a id="org7542582"></a>
 
 # Why This Tool?
 
@@ -116,7 +116,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 </table>
 
 
-<a id="org167ac6c"></a>
+<a id="org7b8c04b"></a>
 
 # What this tool is NOT
 
@@ -127,7 +127,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   Monetized or Paywalled Tool
 
 
-<a id="orgb00f2af"></a>
+<a id="org7d7564f"></a>
 
 # Features
 
@@ -139,40 +139,14 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   **Flexible Spacing:** Define layouts using millimeters (default), exact pixels, or by fitting an exact line count.
 
 
-<a id="org60ef345"></a>
+<a id="org60649ec"></a>
 
 # Installation
 
     pip install eink-template-gen
 
 
-<a id="orgc316ee3"></a>
-
-## Development Version
-
-If you want the latest unreleased features or want to contribute to development, you can install the package directly from this repository.
-
-Clone the repository:
-
-    git clone [https://github.com/calebc42/eink-template-gen.git](https://github.com/calebc42/eink-template-gen.git)
-    cd eink-template-gen
-
-Create and activate a virtual environment:
-
-    # On macOS/Linux
-    python3 -m venv .venv
-    source .venv/bin/activate
-    
-    # On Windows
-    python -m venv .venv
-    .\.venv\Scripts\activate
-
-Install in editable mode: This links the command eink-template-gen to your local source code, so any changes you make are immediately reflected.
-
-    pip install -e .
-
-
-<a id="orgcd6ce53"></a>
+<a id="orgef8568e"></a>
 
 # Full Documentation
 
@@ -192,7 +166,7 @@ For detailed guides, feature deep-dives, and advanced examples, please see the `
     -   [Technical Details (Algorithm, Palette)](docs/reference/technical-details.md)
 
 
-<a id="orgda41109"></a>
+<a id="org7b0391b"></a>
 
 # Supported Devices
 
@@ -204,7 +178,7 @@ Built-in device profiles:
 -   Supernote Nomad (7.8", 1404x1872, 300 DPI)
 
 
-<a id="orga180554"></a>
+<a id="org903aec4"></a>
 
 # Configuration
 
@@ -216,12 +190,12 @@ Set a default device to avoid specifying `--device` every time:
 Configuration is stored locally in `config.json`.
 
 
-<a id="org59f367a"></a>
+<a id="org143a4bd"></a>
 
 # Usage Examples
 
 
-<a id="org8ec067d"></a>
+<a id="org3bc17d2"></a>
 
 ## Basic Templates
 
@@ -240,7 +214,7 @@ Configuration is stored locally in `config.json`.
 For more complex examples, including `multi`, `layout`, and `title` commands, see the [Advanced Usage Examples](docs/advanced-examples.md) documentation.
 
 
-<a id="org5155af7"></a>
+<a id="orge2322c2"></a>
 
 # Output
 
@@ -257,7 +231,7 @@ Templates are saved to `out/<device_id>/` by default:
 Use `--output-dir` and `--filename` to customize output location.
 
 
-<a id="orgf931f62"></a>
+<a id="org4014ee9"></a>
 
 # Contributing
 
@@ -268,14 +242,14 @@ Contributions are welcome! This project uses:
 -   Pure Python implementation (no external dependencies for noise/fractals)
 
 
-<a id="orgf7567a3"></a>
+<a id="orgb4043b6"></a>
 
 # License
 
 This project is licensed under the **GNU General Public License v3.0**. See the `LICENSE` file for details.
 
 
-<a id="orgbdfc3ec"></a>
+<a id="org7a5487a"></a>
 
 # Credits
 

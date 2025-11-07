@@ -265,7 +265,14 @@ def create_template_surface(
 
     # Calculate final margins
     major_every = template_kwargs.get("major_every")
-    if force_major_alignment and major_every and template_type in ["grid", "dotgrid"]:
+    if template_kwargs.get("enforce_margins", False):
+        # User wants exact margins, NO adjustment.
+        print("Note: --enforce-margins enabled. Using exact margins, partial cells may be drawn.")
+        m_top, m_bottom = base_margin, base_margin
+        m_left, m_right = base_margin, base_margin
+
+    elif force_major_alignment and major_every and template_type in ["grid", "dotgrid"]:
+        # Default behavior: Force-align to major grid lines
         m_top, m_bottom, _ = calculate_major_aligned_margins(
             content_height, v_align_unit_px, base_margin, major_every
         )
@@ -274,6 +281,7 @@ def create_template_surface(
         )
         print("Note: Force-aligned grid to major lines.")
     else:
+        # Default behavior: Adjust margins to center the grid (no half-cells)
         m_top, m_bottom = calculate_adjusted_margins(content_height, v_align_unit_px, base_margin)
         m_left, m_right = calculate_adjusted_margins_x(content_width, h_align_unit_px, base_margin)
 

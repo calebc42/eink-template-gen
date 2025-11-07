@@ -49,9 +49,9 @@ def create_common_parser():
     )
 
     config_group.add_argument(
-        "--no-auto-adjust",
+        "--true-scale",
         action="store_true",
-        help="Disable automatic spacing adjustment (only affects mm mode)",
+        help="Use true-scale mm spacing. Disables pixel-perfect rounding (may cause blur).",
     )
 
     config_group.add_argument(
@@ -63,18 +63,18 @@ def create_common_parser():
         f"(Global fallback is {global_default_margin}mm)",
     )
 
+    config_group.add_argument(
+        "--enforce-margins",
+        action="store_true",
+        help="Allow fractional pixel spacing when using --lines (may cause slight blur)",
+    )
+
     # --- Line Count Mode ---
     config_group.add_argument(
         "--lines",
         type=str,
         help='Exact number of lines to fit (e.g., "40" or "40x30" for grids). '
         "Overrides --spacing. By default uses 0 margins; use --margin to specify margins.",
-    )
-
-    config_group.add_argument(
-        "--enforce-exact-spacing",
-        action="store_true",
-        help="Allow fractional pixel spacing when using --lines (may cause slight blur)",
     )
 
     # --- Styling Kwargs ---

@@ -334,7 +334,7 @@ def _save_and_print_summary(surface, context, args):
     surface.write_to_png(filepath)
 
     # 4. Print Summary
-    print(f"\n✓ Template written to {filepath}")
+    print(f"\nSuccess: Template written to {filepath}")
     # ... (rest of the function is unchanged) ...
     print(
         f"  - Device: {device_config['name']} ({device_config['width']}×{device_config['height']}px @ {device_config['dpi']}dpi)"
@@ -459,17 +459,17 @@ def handle_set_default_device(args):
     device_id = args.device if hasattr(args, "device") else args
     if set_default_device(device_id):
         device_config = get_device(device_id)
-        print(f"✓ Default device set to: {device_config['name']}")
+        print(f"Success: Default device set to: {device_config['name']}")
     else:
-        print("✗ Failed to set default device")
+        print("Error: Failed to set default device")
 
 
 def handle_set_default_margin(args):
     margin_mm = args.margin_mm if hasattr(args, "margin_mm") else args
     if set_default_margin(margin_mm):
-        print(f"✓ Default margin set to: {margin_mm}mm")
+        print(f"Success: Default margin set to: {margin_mm}mm")
     else:
-        print("✗ Failed to set default margin")
+        print("Error: Failed to set default margin")
 
 
 def handle_list_templates(args=None):

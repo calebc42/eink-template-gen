@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eink-template-gen"
-version = "0.1.0"
+version = "0.1.2"
 description = "Pixel-perfect template generator for e-ink devices like Supernote, reMarkable, and Boox"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -30,6 +30,7 @@ classifiers = [
 
 dependencies = [
     "pycairo>=1.20.0",
+    "platformdirs",
     # Add importlib-resources for Python 3.8 support
     "importlib-resources; python_version < '3.9'"
 ]

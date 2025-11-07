@@ -21,6 +21,7 @@ from .utils import (
 
 # --- Dispatcher Helper for Dotgrid ---
 
+
 def _draw_dotgrid_dispatcher(
     ctx,
     x_start,
@@ -155,6 +156,7 @@ TEMPLATE_REGISTRY = {
         "draw_func": "hybrid_special_case",
     },
 }
+
 
 def create_template_surface(
     template_type,
@@ -374,6 +376,7 @@ def create_template_surface(
 
 
 # --- COMPLEX LAYOUT ---
+
 
 def create_hybrid_template(
     width,

@@ -927,6 +927,7 @@ def create_noise_field_title(
 
     return surface
 
+
 COVER_REGISTRY = {
     "truchet": create_truchet_title,
     "diagonal_truchet": create_diagonal_truchet_title,

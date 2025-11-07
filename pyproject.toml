@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eink-template-gen"
-version = "0.1.2"
+version = "0.2.0"
 description = "Pixel-perfect template generator for e-ink devices like Supernote, reMarkable, and Boox"
 readme = "README.md"
 requires-python = ">=3.8"

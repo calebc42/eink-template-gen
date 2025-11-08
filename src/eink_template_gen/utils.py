@@ -243,6 +243,28 @@ def calculate_major_aligned_margins_x(content_width, spacing_px, base_margin, ma
     return calculate_major_aligned_margins(content_width, spacing_px, base_margin, major_every)
 
 
+def get_clean_spacing_options(dpi, min_mm=4, max_mm=12, step_mm=0.5):
+    """
+    Generates a list of pixel-perfect spacing options for the wizard.
+    """
+    options = []
+    current_mm = min_mm
+    while current_mm <= max_mm:
+        # Find the nearest pixel-perfect spacing for this mm value
+        adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(
+            current_mm, dpi, tolerance_mm=step_mm
+        )
+
+        # Format for display: (e.g., 6.01, 71)
+        option_tuple = (round(adjusted_mm, 2), int(spacing_px))
+
+        if option_tuple not in options:
+            options.append(option_tuple)
+
+        current_mm += step_mm
+    return options
+
+
 # --- Old Spacing & Filename Functions (Still needed by actions.py) ---
 
 

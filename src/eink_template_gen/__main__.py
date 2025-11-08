@@ -5,8 +5,6 @@ Supernote Template Generator - CLI Entry Point
 import argparse
 import sys
 
-# Import the new action handlers
-# Note: We are assuming these handlers will be refactored to accept a single `args` object
 from eink_template_gen.actions import (
     handle_cover_generation,
     handle_json_generation,
@@ -16,7 +14,6 @@ from eink_template_gen.actions import (
     handle_set_default_device,
     handle_set_default_margin,
     handle_show_spacing_info,
-    # These are the new handlers we will create by splitting handle_cli_generation
     handle_single_template_generation,
 )
 from eink_template_gen.config import get_default_margin
@@ -884,6 +881,10 @@ Examples:
         """,
     )
 
+    parser.add_argument(
+        "--wizard", action="store_true", help="Launch interactive wizard for template creation"
+    )
+
     # --- Create the common parser ---
     common_parser = create_common_parser()
 
@@ -903,6 +904,13 @@ Examples:
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
+
+    # Check for wizard flag before subcommand parsing
+    if "--wizard" in sys.argv:
+        from .wizard import run_wizard_and_generate
+
+        run_wizard_and_generate()
+        sys.exit(0)
 
     args = parser.parse_args()
 

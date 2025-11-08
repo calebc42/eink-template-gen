@@ -10,10 +10,14 @@ This module uses a registry pattern for extensibility. To add a new style:
 
 import inspect
 from math import pi, radians, sin
+from typing import Tuple
 
 import cairo
 
 from .devices import snap_to_eink_greyscale
+from .separator_config import parse_separator_config
+from .utils import PageMargins
+
 
 # --- Internal Helper Functions for Each Style ---
 
@@ -279,6 +283,55 @@ def draw_separator_line(ctx, x_start, x_end, y, style="bold", **kwargs):
 
     # Restore context to its original state
     ctx.restore()
+
+
+# --- NEW REFACTORED FUNCTION ---
+
+
+def draw_page_separators(
+    ctx: cairo.Context,
+    margins: PageMargins,
+    page_width: int,
+    page_height: int,
+    header: str = None,
+    footer: str = None,
+) -> Tuple[bool, bool]:
+    """
+    Draw header and footer separators if configured.
+
+    Returns:
+        Tuple of (has_header, has_footer) for skip logic
+    """
+    has_header = False
+    has_footer = False
+
+    if header:
+        header_style, header_kwargs = parse_separator_config(header)
+        if header_style:
+            draw_separator_line(
+                ctx,
+                margins.left,
+                page_width - margins.right,
+                margins.top,
+                style=header_style,
+                **header_kwargs,
+            )
+            has_header = True
+
+    if footer:
+        footer_style, footer_kwargs = parse_separator_config(footer)
+        if footer_style:
+            draw_separator_line(
+                ctx,
+                margins.left,
+                page_width - margins.right,
+                page_height - margins.bottom,
+                style=footer_style,
+                **footer_kwargs,
+            )
+            has_footer = True
+
+    return has_header, has_footer
 
 
 def draw_separator(ctx, x, y_start, y_end, line_width=1.0, grey=5):

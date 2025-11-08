@@ -347,20 +347,21 @@ def create_template_surface(
 
     # --- Legacy: Hybrid Template ---
     if template_type == "hybrid_lined_dotgrid":
-        # NOTE: We need to parse spacing_str to mm for the hybrid func
-        # This is a safe assumption for this special case.
         try:
-            spacing_mm_val = float(str(spacing_str).lower().replace("mm", "").replace("px", ""))
+            # We must parse spacing_str to mm for the hybrid func
+            spacing_px_val, original_mm_val, _, _, _ = parse_spacing(
+                 spacing_str, device_config["dpi"], auto_adjust=auto_adjust_spacing
+            )
         except ValueError:
-            spacing_mm_val = 6.0  # Fallback
+            original_mm_val = 6.0  # Fallback
 
         return create_hybrid_template(
             width=device_config["width"],
             height=device_config["height"],
             dpi=device_config["dpi"],
-            spacing_mm=spacing_mm_val,
+            spacing_mm=original_mm_val,
             margin_mm=margin_mm,
-            section_gap_mm=template_kwargs.get("section_gap_mm", spacing_mm_val),
+            section_gap_mm=template_kwargs.get("section_gap_mm", original_mm_val),
             line_width_px=template_kwargs.get("line_width_px", 0.5),
             dot_radius_px=template_kwargs.get("dot_radius_px", 1.5),
             header=header,
@@ -428,13 +429,10 @@ def create_template_surface(
     # Calculate final margins
     major_every = template_kwargs.get("major_every")
     if template_kwargs.get("enforce_margins", False):
-        # User wants exact margins, NO adjustment.
-        print("Note: --enforce-margins enabled. Using exact margins, partial cells may be drawn.")
         m_top, m_bottom = base_margin, base_margin
         m_left, m_right = base_margin, base_margin
 
     elif force_major_alignment and major_every and template_type in ["grid", "dotgrid"]:
-        # Default behavior: Force-align to major grid lines
         m_top, m_bottom, _ = calculate_major_aligned_margins(
             content_height, v_align_unit_px, base_margin, major_every
         )

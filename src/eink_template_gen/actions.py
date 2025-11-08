@@ -3,6 +3,7 @@
 import json
 import os
 from pathlib import Path
+from math import cos, radians, sqrt, tan
 
 from .config import get_default_device, get_default_margin, set_default_device, set_default_margin
 from .covers import COVER_REGISTRY, create_cover_surface
@@ -165,6 +166,95 @@ def _setup_generation_context(args):
     return context
 
 
+def _calculate_final_margins(context, args, template_kwargs):
+    """
+    Calculates the final, pixel-perfect margins and enriches the context object.
+    This is the "Single Source of Truth" for margin calculations.
+    """
+    device_config = context["device_config"]
+    spacing_px = context["spacing_px"]
+    margin_mm = context["margin_mm"]
+    mm2px = device_config["dpi"] / 25.4
+    base_margin_px = round(margin_mm * mm2px)
+
+    # Get template type from args
+    template_type = getattr(args, "template_type", None) # For single handlers
+    if not template_type:
+        template_type = getattr(args, "command", None) # For preview
+    if args.command == "title":
+        template_type = args.title # For title handler
+
+    # Default values
+    m_top = m_bottom = m_left = m_right = base_margin_px
+    margin_adjustment_type = "none" # default
+    content_height = device_config["height"] - (2 * base_margin_px)
+    content_width = device_config["width"] - (2 * base_margin_px)
+    v_align_unit_px = spacing_px
+    h_align_unit_px = spacing_px
+
+    # Don't run this logic for complex commands that do their own internal calcs
+    if args.command in ["layout", "multi"]:
+        margin_adjustment_type = "complex"
+
+    elif template_type and template_type in TEMPLATE_REGISTRY:
+        config = TEMPLATE_REGISTRY.get(template_type, {})
+
+        # Get alignment units based on template type
+        if config.get("vertical_align_unit") == "music_staff":
+            staff_gap_mm = template_kwargs.get("staff_gap_mm", 10)
+            staff_gap_px = round(staff_gap_mm * mm2px)
+            v_align_unit_px = (spacing_px * 4) + staff_gap_px
+        elif config.get("vertical_align_unit") == "isometric":
+            v_align_unit_px = spacing_px * tan(radians(60))
+        elif config.get("vertical_align_unit") == "hexgrid":
+            v_align_unit_px = sqrt(3) * spacing_px
+
+        if config.get("horizontal_align_unit") == "none":
+            h_align_unit_px = 1  # No adjustment
+        elif config.get("horizontal_align_unit") == "french_ruled":
+            h_align_unit_px = spacing_px * 4
+        elif config.get("horizontal_align_unit") == "isometric":
+            h_align_unit_px = spacing_px / cos(radians(30))
+        elif config.get("horizontal_align_unit") == "hexgrid":
+            h_align_unit_px = 1.5 * spacing_px
+
+        # Calculate final margins
+        major_every = template_kwargs.get("major_every")
+
+        if template_kwargs.get("enforce_margins", False):
+            margin_adjustment_type = "enforced"
+
+        elif getattr(args, "force_major_alignment", False) and major_every and template_type in ["grid", "dotgrid"]:
+            m_top, m_bottom, _ = calculate_major_aligned_margins(
+                content_height, v_align_unit_px, base_margin_px, major_every
+            )
+            m_left, m_right, _ = calculate_major_aligned_margins_x(
+                content_width, h_align_unit_px, base_margin_px, major_every
+            )
+            margin_adjustment_type = "major-aligned"
+        else:
+            # Default behavior: Adjust margins to center the grid (no half-cells)
+            m_top, m_bottom = calculate_adjusted_margins(content_height, v_align_unit_px, base_margin_px)
+            m_left, m_right = calculate_adjusted_margins_x(content_width, h_align_unit_px, base_margin_px)
+
+            if abs(m_top - base_margin_px) > 0.5 or abs(m_left - base_margin_px) > 0.5:
+                margin_adjustment_type = "pixel-perfect"
+
+    # Save all calculated values to the context
+    context["base_margin_px"] = base_margin_px
+    context["m_top"] = m_top
+    context["m_bottom"] = m_bottom
+    context["m_left"] = m_left
+    context["m_right"] = m_right
+    context["margin_adjustment_type"] = margin_adjustment_type
+    context["v_align_unit_px"] = v_align_unit_px
+    context["h_align_unit_px"] = h_align_unit_px
+    context["content_width"] = device_config["width"] - m_left - m_right
+    context["content_height"] = device_config["height"] - m_top - m_bottom
+
+    return context
+
+
 def _build_template_kwargs(template_type, args):
     """
     Builds the template-specific kwargs dict from the full args.
@@ -248,6 +338,189 @@ def _build_template_kwargs(template_type, args):
     return kwargs
 
 
+def _build_preview_summary(context, args, template_kwargs=None):
+    """
+    Build a detailed text preview of what will be generated.
+    Returns a formatted string.
+    """
+    device_config = context["device_config"]
+    template_kwargs = template_kwargs or {}
+    mm2px = device_config["dpi"] / 25.4
+
+    lines = []
+    lines.append("\n" + "="*70)
+    lines.append("TEMPLATE PREVIEW (Dry-Run)")
+    lines.append("="*70)
+
+    # Device info
+    lines.append(f"\n Device: {device_config['name']}")
+    lines.append(f"   Resolution: {device_config['width']}×{device_config['height']}px")
+    lines.append(f"   DPI: {device_config['dpi']}")
+    lines.append(f"   Physical size: {device_config['diagonal_inches']}\" diagonal")
+
+    # Template type
+    if args.command == "layout":
+        lines.append("\n Template: JSON Layout")
+        lines.append(f"   File: {args.layout}")
+    elif args.command == "title":
+        lines.append("\n Template: Title Page")
+        lines.append(f"   Pattern: {args.title}")
+    elif args.command == "multi":
+        if args.template:
+            lines.append("\n Template: Multi-Cell Grid (Uniform)")
+            lines.append(f"   Type: {args.template}")
+        else:
+            lines.append("\n Template: Multi-Cell Grid (Mixed)")
+        lines.append(f"   Layout: {args.columns} column(s) × {args.rows} row(s)")
+    else:
+        lines.append(f"\n Template: {args.command}")
+
+    # Spacing
+    lines.append("\n Spacing:")
+    if context["using_line_count_mode"]:
+        spacing_display = format_line_count_summary(
+            context["h_lines"],
+            context["v_lines"],
+            context["h_spacing_px"],
+            context["v_spacing_px"],
+            context["is_fractional"],
+        )
+        lines.append(f"   {spacing_display}")
+        lines.append("   Mode: Line Count (fitted)")
+    else:
+        spacing_display = format_spacing_summary(
+            context["spacing_px"],
+            context["original_mm"],
+            context["adjusted_mm"],
+            context["was_adjusted"],
+            context["spacing_mode"],
+        )
+        lines.append(f"   {spacing_display}")
+
+    # Margins
+    lines.append("\n Margins:")
+    margin_mm = context["margin_mm"]
+    m_top = context["m_top"]
+    m_bottom = context["m_bottom"]
+    m_left = context["m_left"]
+    m_right = context["m_right"]
+
+    # Read the adjustment type from the rich context
+    adjustment_type = context.get("margin_adjustment_type", "none")
+
+    if adjustment_type == "complex" or adjustment_type == "enforced":
+        # For layout/multi, or if user enforced margins
+        lines.append(f"    {margin_mm}mm")
+        if adjustment_type == "enforced":
+            lines.append("    (Margins enforced, no pixel-perfect adjustment)")
+    elif adjustment_type == "major-aligned":
+        lines.append(f"    Base: {margin_mm}mm")
+        lines.append("    Adjusted (major-aligned):")
+        lines.append(f"      Top: {m_top/mm2px:.2f}mm ({m_top}px)")
+        lines.append(f"      Bottom: {m_bottom/mm2px:.2f}mm ({m_bottom}px)")
+        lines.append(f"      Left: {m_left/mm2px:.2f}mm ({m_left}px)")
+        lines.append(f"      Right: {m_right/mm2px:.2f}mm ({m_right}px)")
+    elif adjustment_type == "pixel-perfect":
+        lines.append(f"    Base: {margin_mm}mm")
+        lines.append("    Adjusted (pixel-perfect):")
+        lines.append(f"      Top: {m_top/mm2px:.2f}mm ({m_top}px)")
+        lines.append(f"      Bottom: {m_bottom/mm2px:.2f}mm ({m_bottom}px)")
+        lines.append(f"      Left: {m_left/mm2px:.2f}mm ({m_left}px)")
+        lines.append(f"      Right: {m_right/mm2px:.2f}mm ({m_right}px)")
+    else: # "none"
+        lines.append(f"    {margin_mm}mm (no adjustment needed)")
+
+    # Content area
+    lines.append("\n Content Area:")
+    lines.append(f"    {context['content_width']}×{context['content_height']}px")
+    lines.append(f"    ({context['content_width']/mm2px:.1f}×{context['content_height']/mm2px:.1f}mm)")
+
+    if args.command not in ["layout", "multi", "title"] and not context["using_line_count_mode"]:
+        num_h_lines = int(context['content_height'] / context["spacing_px"])
+        lines.append(f"    Fits ~{num_h_lines} horizontal lines")
+
+        if args.command in ["grid", "dotgrid"]:
+            num_v_lines = int(context['content_width'] / context["spacing_px"])
+            lines.append(f"    Fits ~{num_v_lines} vertical lines")
+
+    # Features
+    lines.append("\n Features:")
+    features = []
+
+    if template_kwargs:
+        if template_kwargs.get("major_every"):
+            features.append(f"Major lines every {template_kwargs['major_every']}")
+        if template_kwargs.get("line_number_config"):
+            cfg = template_kwargs["line_number_config"]
+            features.append(f"Line numbers (every {cfg['interval']}, {cfg['side']} side)")
+        if template_kwargs.get("cell_label_config"):
+            features.append("Cell labels (A, B, C... / 1, 2, 3...)")
+        if template_kwargs.get("axis_label_config"):
+            cfg = template_kwargs["axis_label_config"]
+            features.append(f"Axis labels (origin: {cfg['origin']})")
+        if template_kwargs.get("no_crosshairs"):
+            features.append("Crosshairs disabled")
+        elif template_kwargs.get("crosshair_size"):
+            features.append(f"Crosshairs ({template_kwargs['crosshair_size']}px)")
+
+    if args.header:
+        features.append(f"Header separator: {args.header}")
+    if args.footer:
+        features.append(f"Footer separator: {args.footer}")
+
+    if features:
+        for feature in features:
+            lines.append(f"   • {feature}")
+    else:
+        lines.append("   (none)")
+
+    # Output
+    lines.append("\n Output:")
+    if args.filename:
+        filename = args.filename if args.filename.endswith(".png") else f"{args.filename}.png"
+    else:
+        filename_kwargs = vars(args).copy()
+        filename_kwargs["spacing_mode"] = context["spacing_mode"]
+        if context["using_line_count_mode"]:
+            filename_kwargs["spacing"] = context["h_spacing_px"]
+            filename_kwargs["spacing_mode"] = "px"
+
+        if args.command == "layout":
+            filename = Path(args.layout).stem + ".png"
+        elif args.command == "title":
+            filename = generate_filename("title", **filename_kwargs)
+        elif args.command == "multi":
+            filename = generate_filename("multi", **filename_kwargs)
+        else:
+            filename_kwargs.pop("template_type", None)
+            filename = generate_filename(args.command, **filename_kwargs)
+
+    output_dir = args.output_dir
+    device_id = context["device_id"]
+    if args.true_scale:
+        output_path = os.path.join(output_dir, device_id, "true-scale", filename)
+    else:
+        output_path = os.path.join(output_dir, device_id, filename)
+
+    lines.append(f"   {output_path}")
+
+    # Warnings
+    warnings = []
+    if context.get("is_fractional"):
+        warnings.append("⚠️  Fractional pixel spacing may cause slight blur or alignment drift")
+    if args.true_scale:
+        warnings.append("ℹ: True-scale mode: may not align perfectly to pixel grid")
+
+    if warnings:
+        lines.append("\n⚠️  Warnings:")
+        for warning in warnings:
+            lines.append(f"   {warning}")
+
+    lines.append("\n" + "=" * 70)
+
+    return "\n".join(lines)
+
+
 # --- Generation Helper: 3. Save & Summarize ---
 def _save_and_print_summary(surface, context, args):
     """
@@ -256,6 +529,7 @@ def _save_and_print_summary(surface, context, args):
     cli_args = vars(args)
     device_id = context["device_id"]
     device_config = context["device_config"]
+    mm2px = device_config["dpi"] / 25.4
 
     # 1. Determine Output Directory
     base_device_dir = os.path.join(args.output_dir, device_id)
@@ -370,72 +644,31 @@ def _save_and_print_summary(surface, context, args):
         )
         print(f"  - Spacing: {spacing_display}")
 
-        # Detailed margin summary for non-line-count mode
+        # Margin Summary
         margin_mm = context["margin_mm"]
-        mm2px = device_config["dpi"] / 25.4
-        base_margin_px = round(margin_mm * mm2px)
+        m_top = context["m_top"]
+        m_bottom = context["m_bottom"]
+        m_left = context["m_left"]
+        m_right = context["m_right"]
 
-        # Check if true_scale OR enforce_margins is active
-        # If either is true, just print the simple margin and skip all adjustment logic
-        if cli_args.get("true_scale", False) or cli_args.get("enforce_margins", False):
+        # Read the adjustment type from the rich context
+        adjustment_type = context.get("margin_adjustment_type", "none")
+
+        if adjustment_type == "complex" or adjustment_type == "enforced":
+            # For layout/multi, or if user enforced margins
             print(f"  - Margin: {margin_mm}mm")
-        else:
-            content_height = device_config["height"] - (2 * base_margin_px)
-            content_width = device_config["width"] - (2 * base_margin_px)
-            # We can't show adjusted margins for complex layouts
-            is_complex_layout = args.command in ["multi", "hybrid_lined_dotgrid"]
-            force_align = cli_args.get("force_major_alignment", False) and cli_args.get(
-                "major_every"
+        elif adjustment_type == "major-aligned":
+            print(
+                f"  - Margin: {margin_mm}mm (adjusted for major alignment: "
+                f"T:{m_top/mm2px:.2f}, B:{m_bottom/mm2px:.2f}, L:{m_left/mm2px:.2f}, R:{m_right/mm2px:.2f}mm)"
             )
-
-            if not is_complex_layout:
-                # Recalculate margins just for display
-                v_align_unit = context["spacing_px"]
-
-                template_type = args.command  # e.g., 'lined', 'grid'
-                config = TEMPLATE_REGISTRY.get(template_type, {})
-                h_align_setting = config.get("horizontal_align_unit")
-
-                h_align_unit = context["spacing_px"]  # Default for 'grid', 'dotgrid', etc.
-
-                if h_align_setting == "none":
-                    h_align_unit = 1  # For 'lined', 'manuscript'
-                elif h_align_setting == "french_ruled":
-                    h_align_unit = context["spacing_px"] * 4
-
-                if force_align:
-                    m_top, m_bottom, _ = calculate_major_aligned_margins(
-                        content_height, v_align_unit, base_margin_px, cli_args.get("major_every", 0)
-                    )
-                    m_left, m_right, _ = calculate_major_aligned_margins_x(
-                        content_width, h_align_unit, base_margin_px, cli_args.get("major_every", 0)
-                    )
-                else:
-                    m_top, m_bottom = calculate_adjusted_margins(
-                        content_height, v_align_unit, base_margin_px
-                    )
-                    m_left, m_right = calculate_adjusted_margins_x(
-                        content_width, h_align_unit, base_margin_px
-                    )
-
-                margin_adjusted = (
-                    abs(m_top - base_margin_px) > 0.5 or abs(m_left - base_margin_px) > 0.5
-                )
-
-                if force_align:
-                    print(
-                        f"  - Margin: {margin_mm}mm (adjusted for major alignment: "
-                        f"T:{m_top/mm2px:.2f}, B:{m_bottom/mm2px:.2f}, L:{m_left/mm2px:.2f}, R:{m_right/mm2px:.2f}mm)"
-                    )
-                elif margin_adjusted:
-                    print(
-                        f"  - Margin: {margin_mm}mm (adjusted for pixel-perfect: "
-                        f"T:{m_top/mm2px:.2f}, B:{m_bottom/mm2px:.2f}, L:{m_left/mm2px:.2f}, R:{m_right/mm2px:.2f}mm)"
-                    )
-                else:
-                    print(f"  - Margin: {margin_mm}mm")
-            else:
-                print(f"  - Margin: {margin_mm}mm")
+        elif adjustment_type == "pixel-perfect":
+            print(
+                f"  - Margin: {margin_mm}mm (adjusted for pixel-perfect: "
+                f"T:{m_top/mm2px:.2f}, B:{m_bottom/mm2px:.2f}, L:{m_left/mm2px:.2f}, R:{m_right/mm2px:.2f}mm)"
+            )
+        else: # "none"
+            print(f"  - Margin: {margin_mm}mm")
 
 
 # --- Action 1: Utility Commands ---
@@ -573,18 +806,41 @@ def handle_json_generation(args):
     else:
         final_force_align = json_force_align
 
-    # 6. Call the Generator
-    surface = create_json_layout_template(
-        config, device_config, margin_mm, final_auto_adjust, final_force_align
-    )
-
-    # 7. Save File and Print Summary
-    # We pass 'args' and a 'context' dict to the summary helper
+    # 6. Create Context for Preview AND Summary
+    master_spacing_mm = config.get("master_spacing_mm", 6)
     context = {
         "device_id": config["device"],
         "device_config": device_config,
         "margin_mm": margin_mm,
+        "using_line_count_mode": False,  # JSON layouts don't use this CLI mode
+        # Add spacing info for the previewer
+        "spacing_mode": "mm",
+        "original_mm": master_spacing_mm,
+        "adjusted_mm": master_spacing_mm,  # Preview doesn't show adjustment for layout
+        "was_adjusted": False,
+        "spacing_px": (master_spacing_mm * (device_config["dpi"] / 25.4)),
     }
+
+    # 7. *** PREVIEW MODE CHECK ***
+    if getattr(args, "preview", False):
+        preview = _build_preview_summary(context, args, template_kwargs={})
+        print(preview)
+
+        # Add JSON-specific preview details
+        print("  Layout Regions:")
+        for i, region in enumerate(config.get("page_layout", [])):
+            print(f"    {i+1}. {region.get('name', 'Unnamed')} ({region.get('template', 'blank')})")
+
+        print("\n Preview complete. No files were created.")
+        print("  Remove --preview to generate the template.")
+        return
+
+    # 8. Call the Generator
+    surface = create_json_layout_template(
+        config, device_config, margin_mm, final_auto_adjust, final_force_align
+    )
+
+    # 9. Save File and Print Summary
     print(f"  - Margin: {margin_source}")
     print(f"  - Master Spacing: {config.get('master_spacing_mm', 'N/A')}mm")
     _save_and_print_summary(surface, context, args)
@@ -605,7 +861,7 @@ def handle_cover_generation(args):
         "width": context["device_config"]["width"],
         "height": context["device_config"]["height"],
         "dpi": context["device_config"]["dpi"],
-        "spacing_mm": context["spacing_mm_to_use"],  # from context
+        "spacing_mm": context["spacing_mm_to_use"],
         "margin_mm": context["margin_mm"],
         "line_width_px": args.line_width_px,
         "auto_adjust_spacing": not args.true_scale,
@@ -632,8 +888,8 @@ def handle_cover_generation(args):
         "koch_snowflake",
         "plant_fractal",
         "sierpinski_triangle",
-        "gosper_curve",  # Added missing L-systems
-        "levy_c_curve",  # Added missing L-systems
+        "gosper_curve",
+        "levy_c_curve",
     ]:
         title_kwargs["lsystem_iterations"] = args.lsystem_iterations
 
@@ -659,7 +915,7 @@ def handle_cover_generation(args):
 
     # Build cover_config
     cover_config = {
-        "title_no_frame": args.title_no_frame,  # Use new name
+        "title_no_frame": args.title_no_frame,
         "title_frame_shape": args.title_frame_shape,
         "title_border_style": args.title_border_style,
         "title_border_width": args.title_border_width,
@@ -676,7 +932,7 @@ def handle_cover_generation(args):
         "title_v_align": args.title_v_align,
     }
     if args.title_text and args.title_text.strip():
-        cover_config["title_text"] = args.title_text  # Use new name
+        cover_config["title_text"] = args.title_text
     if args.title_x_center is not None:
         cover_config["title_x_center"] = args.title_x_center
     if args.title_y_center is not None:
@@ -688,11 +944,27 @@ def handle_cover_generation(args):
 
     title_kwargs["cover_config"] = cover_config
 
-    # 3. Generate Surface
+    # 3. *** PREVIEW MODE CHECK ***
+    if getattr(args, "preview", False):
+        # The preview summary needs the kwargs to report on features
+        preview = _build_preview_summary(context, args, template_kwargs=title_kwargs)
+        print(preview)
+
+        # Add title-specific preview details
+        print("  Title Element:")
+        if cover_config.get("title_text"):
+            print(f"    • Text: \"{cover_config['title_text']}\"")
+        print(f"    • Frame: {'Enabled' if not cover_config.get('title_no_frame') else 'Disabled'}")
+
+        print("\n Preview complete. No files were created.")
+        print("  Remove --preview to generate the template.")
+        return
+
+    # 4. Generate Surface
     print(f"Generating '{args.title}' title page for {context['device_config']['name']}...")
     surface = create_cover_surface(args.title, **title_kwargs)
 
-    # 4. Save and Summarize
+    # 5. Save and Summarize
     _save_and_print_summary(surface, context, args)
 
 
@@ -710,9 +982,20 @@ def handle_single_template_generation(args):
     template_type = args.template_type
     template_kwargs = _build_template_kwargs(template_type, args)
 
+    # 3. Calculate final margins (for preview/summary *only*)
+    context = _calculate_final_margins(context, args, template_kwargs)
+
+    # 4. PREVIEW MODE
+    if getattr(args, "preview", False):
+        preview = _build_preview_summary(context, args, template_kwargs)
+        print(preview)
+        print("\n Preview complete. No files were created.")
+        print("  Remove --preview to generate the template.")
+        return
+
     print(f"Generating single '{template_type}' template for {context['device_config']['name']}...")
 
-    # 3. Call the factory
+    # 5. Call the factory (with the *original* signature)
     surface = create_template_surface(
         template_type=template_type,
         device_config=context["device_config"],
@@ -725,7 +1008,7 @@ def handle_single_template_generation(args):
         template_kwargs=template_kwargs,
     )
 
-    # 4. Save and Summarize
+    # 6. Save and Summarize
     _save_and_print_summary(surface, context, args)
 
 
@@ -758,6 +1041,9 @@ def handle_multi_template_generation(args):
         "row_gap_mm": args.section_gap_rows if args.section_gap_rows is not None else spacing_mm,
     }
 
+    # Create a variable to hold the template_kwargs for the previewer
+    preview_template_kwargs = {}
+
     if args.cell_types:
         # --- Mixed-Type Grid ---
         print(
@@ -780,7 +1066,11 @@ def handle_multi_template_generation(args):
                 if cell_type not in TEMPLATE_REGISTRY:
                     raise ValueError(f"Unknown template type in --cell_types: '{cell_type}'")
 
-                cell_kwargs = _build_template_kwargs(cell_type, args)
+                # We only need to build kwargs for the *first* cell for the preview
+                if idx == 0:
+                    preview_template_kwargs = _build_template_kwargs(cell_type, args)
+
+                cell_kwargs = _build_template_kwargs(cell_type, args)  # Build for real
                 row_defs.append({"type": cell_type, "kwargs": cell_kwargs})
                 idx += 1
             cell_definitions.append(row_defs)
@@ -798,10 +1088,39 @@ def handle_multi_template_generation(args):
         base_kwargs["num_columns"] = num_columns
         base_kwargs["num_rows"] = num_rows
         base_kwargs["base_template"] = template_type
-        base_kwargs["template_kwargs"] = _build_template_kwargs(template_type, args)
 
-    # 3. Generate Surface
+        # Build kwargs for preview AND for real
+        template_kwargs = _build_template_kwargs(template_type, args)
+        preview_template_kwargs = template_kwargs  # Save for preview
+        base_kwargs["template_kwargs"] = template_kwargs
+
+    # 3. *** PREVIEW MODE CHECK ***
+    if getattr(args, "preview", False):
+        # Pass the kwargs from the (first) cell to the previewer
+        preview = _build_preview_summary(context, args, template_kwargs=preview_template_kwargs)
+        print(preview)
+
+        # Add multi-specific preview details
+        print("  Cell Details:")
+        if args.cell_types:
+            lines = args.cell_types.split(",")
+            max_len = max(len(l.strip()) for line in lines) + 2  # Get max len for padding
+            if max_len < 10:
+                max_len = 10
+
+            for r in range(num_rows):
+                row_str = "    "
+                for c in range(num_columns):
+                    cell_name = lines[r * num_columns + c].strip()
+                    row_str += f"[{cell_name:^{max_len}}] "
+                print(row_str)
+
+        print("\n Preview complete. No files were created.")
+        print("  Remove --preview to generate the template.")
+        return
+
+    # 4. Generate Surface
     surface = template_func(**base_kwargs)
 
-    # 4. Save and Summarize
+    # 5. Save and Summarize
     _save_and_print_summary(surface, context, args)

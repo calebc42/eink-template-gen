@@ -69,6 +69,11 @@ def create_common_parser():
         help="Allow fractional pixel spacing when using --lines (may cause slight blur)",
     )
 
+    # Add dry-run mode
+    config_group.add_argument(
+        "--preview", action="store_true", help="Preview settings without generating files"
+    )
+
     # --- Line Count Mode ---
     config_group.add_argument(
         "--lines",
@@ -138,9 +143,8 @@ def _add_line_numbering_args(parser_group):
 
 def _add_cell_label_args(parser_group):
     """Adds all cell-labeling arguments to a given parser group."""
-    parser_group.add_argument(
-        "--cell-labels", action="store_true", help="Enable 'A, B, C...' style labeling."
-    )
+    # The main "--cell-labels" flag is defined in the parser itself.
+    # This function just adds the configuration options.
     parser_group.add_argument(
         "--cell-labels-y-side",
         choices=["left", "right"],
@@ -178,9 +182,8 @@ def _add_cell_label_args(parser_group):
 
 def _add_axis_label_args(parser_group):
     """Adds all axis-labeling arguments to a given parser group."""
-    parser_group.add_argument(
-        "--axis-labels", action="store_true", help="Enable '0, 5, 10...' style axis plot numbering."
-    )
+    # The main "--axis-labels" flag is defined in the parser itself.
+    # This function just adds the configuration options.
     parser_group.add_argument(
         "--axis-labels-origin",
         choices=["topLeft", "bottomLeft"],

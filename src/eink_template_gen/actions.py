@@ -3,34 +3,28 @@ import os
 from pathlib import Path
 
 from .config import get_default_device, get_default_margin, set_default_device, set_default_margin
-from .covers import COVER_REGISTRY, create_cover_surface, L_SYSTEM_DEFINITIONS
+from .covers import COVER_REGISTRY, create_cover_surface
 from .devices import get_device, list_devices
 from .templates import (
     TEMPLATE_REGISTRY,
+    AlignmentUnits,
     create_cell_grid_template,
     create_column_template,
     create_json_layout_template,
     create_template_surface,
-    AlignmentUnits,
 )
-
 from .utils import (
+    SpacingResult,
     calculate_page_margins,
+    calculate_spacing,
     calculate_spacing_from_line_count,
     calculate_spacing_from_line_count_with_margins,
     format_line_count_summary,
     format_spacing_summary,
     generate_filename,
     parse_line_count_spec,
-    parse_spacing,
     print_spacing_info,
-    PageMargins,
-    calculate_spacing,
-    SpacingResult,
-    create_canvas,
 )
-from .separators import draw_page_separators
-
 
 # --- Generation Helper: 1. Setup ---
 

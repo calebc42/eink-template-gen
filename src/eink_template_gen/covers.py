@@ -2,7 +2,7 @@
 Title page pattern generators for decorative covers
 """
 
-from math import cos, pow, radians, sqrt, tan
+from math import pow
 
 import cairo
 
@@ -17,14 +17,12 @@ from .cover_drawing import (
     draw_truchet_tiles,
 )
 from .cover_elements import draw_title_element
-from .separator_config import parse_separator_config
 from .separators import draw_page_separators
 from .utils import (
-    create_canvas,
     PageMargins,
     SpacingResult,
+    create_canvas,
 )
-from .templates import AlignmentUnits
 
 # --- L-System Definitions ---
 # (Unchanged)

@@ -534,7 +534,7 @@ class TestJSONLayouts:
         config = sample_json_layout.copy()
         config["page_layout"][0]["region_rect"] = [0, 0, 1.0]  # Missing height
 
-        with pytest.raises(ValueError, match="invalid or missing 'region_rect'"):
+        with pytest.raises(ValueError, match="missing 'region_rect'"):
             create_json_layout_template(
                 config, standard_device, margin_mm=10, auto_adjust=True, force_major_alignment=False
             )

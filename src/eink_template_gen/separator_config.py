@@ -2,8 +2,6 @@
 Separator configuration parser and preset manager
 """
 
-from .separators import STYLE_REGISTRY
-
 
 def parse_separator_config(config):
     """
@@ -33,6 +31,8 @@ def parse_separator_config(config):
         parse_separator_config({"style": "wavy", "amplitude": 15})
         → ("wavy", {"amplitude": 15})
     """
+    from .separators import STYLE_REGISTRY
+
     if config is None:
         return None, {}
 

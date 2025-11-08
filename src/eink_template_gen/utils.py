@@ -3,9 +3,10 @@ Utility functions for template generation
 """
 
 import os
-import cairo
 from dataclasses import dataclass
 from typing import Tuple
+
+import cairo
 
 # --- Canvas Helper ---
 
@@ -122,6 +123,16 @@ class PageMargins:
     def vertical_bounds(self) -> Tuple[int, int]:
         """Returns (y_start, y_end)"""
         return self.content_y_start, self.content_y_start + self.content_height
+
+    @property
+    def bounds(self) -> Tuple[int, int, int, int]:
+        """Returns (x_start, x_end, y_start, y_end)"""
+        return (
+            self.content_x_start,
+            self.content_x_start + self.content_width,
+            self.content_y_start,
+            self.content_y_start + self.content_height,
+        )
 
 
 def calculate_page_margins(

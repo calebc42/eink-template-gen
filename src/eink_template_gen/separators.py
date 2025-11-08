@@ -15,9 +15,7 @@ from typing import Tuple
 import cairo
 
 from .devices import snap_to_eink_greyscale
-from .separator_config import parse_separator_config
 from .utils import PageMargins
-
 
 # --- Internal Helper Functions for Each Style ---
 
@@ -285,9 +283,6 @@ def draw_separator_line(ctx, x_start, x_end, y, style="bold", **kwargs):
     ctx.restore()
 
 
-# --- NEW REFACTORED FUNCTION ---
-
-
 def draw_page_separators(
     ctx: cairo.Context,
     margins: PageMargins,
@@ -302,6 +297,8 @@ def draw_page_separators(
     Returns:
         Tuple of (has_header, has_footer) for skip logic
     """
+    from .separator_config import parse_separator_config
+
     has_header = False
     has_footer = False
 

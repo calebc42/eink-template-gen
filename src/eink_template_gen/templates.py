@@ -2,26 +2,22 @@
 Template creation functions and the new Template Factory
 """
 
-from math import cos, radians, sqrt, tan
-from typing import Tuple, dict
 from dataclasses import dataclass
+from math import cos, radians, sqrt, tan
+from typing import Tuple
 
 import cairo
 
 from . import drawing
 from .cover_elements import draw_title_element
 from .devices import snap_to_eink_greyscale
-from .separator_config import parse_separator_config
-from .separators import draw_separator, draw_separator_line, draw_page_separators
+from .separators import draw_page_separators, draw_separator
 from .utils import (
-    calculate_adjusted_margins,
-    calculate_adjusted_margins_x,
-    calculate_page_margins,
-    parse_spacing,
-    create_canvas,
     PageMargins,
-    SpacingResult,
+    calculate_page_margins,
     calculate_spacing,
+    create_canvas,
+    parse_spacing,
 )
 
 # --- Dispatcher Helper for Dotgrid ---
@@ -340,7 +336,7 @@ class TemplateRenderer:
         if template_kwargs.get("no_crosshairs"):
             kwargs["crosshair_size"] = 0
 
-        if "staff_spacing_mm" in str(config.get("draw_func")):  # Check if it's music_staff
+        if config.get("draw_func") == drawing.draw_music_staff:  # Check if it's music_staff
             kwargs["staff_spacing_mm"] = spacing_mm
             kwargs["dpi"] = self.dpi
             kwargs.pop("spacing_px", None)
@@ -828,10 +824,8 @@ def create_json_layout_template(
     width = device_config["width"]
     height = device_config["height"]
     dpi = device_config["dpi"]
-    mm2px = dpi / 25.4
 
     master_spacing_mm = config.get("master_spacing_mm", 6)
-    master_spacing = calculate_spacing(master_spacing_mm, dpi, auto_adjust)
 
     # 2. Canvas
     surface, ctx = create_canvas(width, height)

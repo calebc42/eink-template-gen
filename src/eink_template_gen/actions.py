@@ -211,10 +211,11 @@ def _build_template_kwargs(template_type, args):
         kwargs["section_gap_mm"] = cli_args["section_gap_mm"]
 
     # --- Line Numbering Config ---
-    if cli_args.get("line_numbers"):
+    interval_val = cli_args.get("line_numbers_interval")
+    if interval_val is not None:  # This is the new check
         kwargs["line_number_config"] = {
             "side": cli_args["line_numbers_side"],
-            "interval": cli_args["line_numbers_interval_val"],
+            "interval": interval_val,  # Use the value from the new arg
             "margin_px": cli_args["line_numbers_margin_px"],
             "font_size": cli_args["line_numbers_font_size"],
             "grey": cli_args["line_numbers_grey"],

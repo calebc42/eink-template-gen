@@ -487,19 +487,21 @@ def configure_multi_parser(subparsers, common_parser):
 
     # --- Line Numbering Group (for child 'lined') ---
     num_group = multi_parser.add_argument_group('Line Numbering (for child "lined" cells)')
-    num_group.add_argument("--line-numbers", action="store_true", help="Enable line numbering.")
+    num_group.add_argument(
+        "--line-numbers",
+        nargs="?",
+        type=int,
+        const=5,  # Default interval
+        default=None, # Not present
+        dest="line_numbers_interval",
+        metavar="INTERVAL",
+        help="Enable line numbering for 'lined' cells. Optionally provide an interval (default: 5, e.g., '--line-numbers 10').",
+    )
     num_group.add_argument(
         "--line-numbers-side",
         choices=["left", "right"],
         default="left",
         help="Side (default: left)",
-    )
-    num_group.add_argument(
-        "--line-numbers-interval",
-        type=int,
-        default=5,
-        dest="line_numbers_interval_val",
-        help="Number every Nth line (default: 5)",
     )
     num_group.add_argument(
         "--line-numbers-margin-px",
@@ -632,19 +634,21 @@ def configure_template_parsers(subparsers, common_parser):
     )
 
     num_group = lined_parser.add_argument_group("Line Numbering Options")
-    num_group.add_argument("--line-numbers", action="store_true", help="Enable line numbering.")
+    num_group.add_argument(
+        "--line-numbers",
+        nargs="?",
+        type=int,
+        const=5,
+        default=None,
+        dest="line_numbers_interval",
+        metavar="INTERVAL",
+        help="Enable line numbering. Optionally provide an interval (e.g., '--line-numbers' for default 5, '--line-numbers 10' for 10).",
+    )
     num_group.add_argument(
         "--line-numbers-side",
         choices=["left", "right"],
         default="left",
         help="Side (default: left)",
-    )
-    num_group.add_argument(
-        "--line-numbers-interval",
-        type=int,
-        default=5,
-        dest="line_numbers_interval_val",
-        help="Number every Nth line (default: 5)",
     )
     num_group.add_argument(
         "--line-numbers-margin-px",

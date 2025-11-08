@@ -36,29 +36,8 @@ def calculate_adjusted_margins(content_height, spacing_px, base_margin):
 def calculate_adjusted_margins_x(content_width, spacing_px, base_margin):
     """
     Calculate adjusted left/right margins to eliminate leftover space
-
-    Args:
-        content_width: Total width available for content
-        spacing_px: Spacing between vertical lines in pixels
-        base_margin: Original margin size
-
-    Returns:
-        Tuple of (left_margin, right_margin)
     """
-    # Calculate how many complete lines fit
-    num_lines = int(content_width / spacing_px)
-
-    # Calculate total space used by lines
-    total_line_space = num_lines * spacing_px
-
-    # Calculate remaining space
-    remaining_space = content_width - total_line_space
-
-    # Split remaining space and add to margins
-    left_addition = int(remaining_space // 2)
-    right_addition = int(remaining_space - left_addition)  # handles odd pixels
-
-    return base_margin + left_addition, base_margin + right_addition
+    return calculate_adjusted_margins(content_width, spacing_px, base_margin)
 
 
 def generate_filename(template_type, **kwargs):
@@ -456,7 +435,9 @@ def calculate_major_aligned_margins(content_dimension, spacing_px, base_margin, 
     """
     if not major_every or major_every <= 0:
         # Fall back to normal behavior if major_every not specified
-        return calculate_adjusted_margins(content_dimension, spacing_px, base_margin)
+        # Return a 3-tuple to match signature
+        m_start, m_end = calculate_adjusted_margins(content_dimension, spacing_px, base_margin)
+        return m_start, m_end, 0
 
     # Size of one complete major unit in pixels
     major_unit_px = major_every * spacing_px
@@ -487,7 +468,6 @@ def calculate_major_aligned_margins(content_dimension, spacing_px, base_margin, 
 def calculate_major_aligned_margins_x(content_width, spacing_px, base_margin, major_every):
     """
     Calculate left/right margins that force grid to end on major lines
-    (Same logic as calculate_major_aligned_margins but for horizontal axis)
     """
     return calculate_major_aligned_margins(content_width, spacing_px, base_margin, major_every)
 

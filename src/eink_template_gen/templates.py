@@ -30,8 +30,8 @@ def _draw_dotgrid_dispatcher(
     y_end,
     spacing_px,
     dot_radius,
-    skip_first_row,
-    skip_last_row,
+    skip_first_row=False,
+    skip_last_row=False,
     major_every=None,
     crosshair_size=4,
     **kwargs,
@@ -156,6 +156,177 @@ TEMPLATE_REGISTRY = {
         "draw_func": "hybrid_special_case",
     },
 }
+
+
+def _draw_cell_template(
+    ctx,
+    template_type,
+    spacing_px,
+    spacing_mm,
+    dpi,
+    draw_x_start,
+    draw_x_end,
+    draw_y_start,
+    draw_y_end,
+    skip_first,
+    skip_last,
+    template_kwargs,
+):
+    """
+    Internal helper to draw any template type within a bounded region.
+    This consolidates the logic from create_column_template and create_cell_grid_template.
+    """
+    if template_type == "lined":
+        drawing.draw_lined_section(
+            ctx,
+            draw_x_start,
+            draw_x_end,
+            draw_y_start,
+            draw_y_end,
+            spacing_px,
+            template_kwargs.get("line_width_px", 0.5),
+            skip_first=skip_first,
+            skip_last=skip_last,
+            major_every=template_kwargs.get("major_every"),
+            major_width_add_px=template_kwargs.get("major_width_add_px", 1.5),
+        )
+
+        # Check for line numbering (from previous step)
+        if "line_number_config" in template_kwargs:
+            from .drawing import draw_line_numbering
+
+            draw_line_numbering(
+                ctx,
+                draw_y_start,
+                draw_y_end,
+                spacing_px,
+                template_kwargs["line_number_config"],
+            )
+
+    elif template_type == "dotgrid":
+        # Use the dispatcher to handle major_every
+        _draw_dotgrid_dispatcher(
+            ctx,
+            draw_x_start,
+            draw_x_end,
+            draw_y_start,
+            draw_y_end,
+            spacing_px,
+            dot_radius=template_kwargs.get("dot_radius_px", 1.5),
+            skip_first_row=skip_first,
+            skip_last_row=skip_last,
+            major_every=template_kwargs.get("major_every"),
+            crosshair_size=template_kwargs.get("crosshair_size", 4),
+        )
+
+    elif template_type == "grid":
+        drawing.draw_grid(
+            ctx,
+            draw_x_start,
+            draw_x_end,
+            draw_y_start,
+            draw_y_end,
+            spacing_px,
+            template_kwargs.get("line_width_px", 0.5),
+            skip_first_row=skip_first,
+            skip_last_row=skip_last,
+            major_every=template_kwargs.get("major_every"),
+            major_width_add_px=template_kwargs.get("major_width_add_px", 1.5),
+            crosshair_size=(
+                0
+                if template_kwargs.get("no_crosshairs")
+                else template_kwargs.get("crosshair_size", 4)
+            ),
+        )
+
+        # --- Check for cell labeling ---
+        if "cell_label_config" in template_kwargs:
+            from .drawing import draw_cell_labeling
+
+            draw_cell_labeling(
+                ctx,
+                draw_x_start,
+                draw_x_end,
+                draw_y_start,
+                draw_y_end,
+                spacing_px,
+                template_kwargs["cell_label_config"],
+            )
+
+        # --- Check for axis labeling ---
+        if "axis_label_config" in template_kwargs:
+            from .drawing import draw_axis_labeling
+
+            draw_axis_labeling(
+                ctx,
+                draw_x_start,
+                draw_x_end,
+                draw_y_start,
+                draw_y_end,
+                spacing_px,
+                template_kwargs["axis_label_config"],
+            )
+
+    elif template_type == "manuscript":
+        drawing.draw_manuscript_lines(
+            ctx,
+            draw_x_start,
+            draw_x_end,
+            draw_y_start,
+            draw_y_end,
+            spacing_px,
+            template_kwargs.get("line_width_px", 0.5),
+            template_kwargs.get("midline_style", "dashed"),
+            template_kwargs.get("ascender_opacity", 0.3),
+        )
+
+    elif template_type == "french_ruled":
+        drawing.draw_french_ruled(
+            ctx,
+            draw_x_start,
+            draw_x_end,
+            draw_y_start,
+            draw_y_end,
+            spacing_px,
+            template_kwargs.get("line_width_px", 0.5),
+            margin_line_offset_px=None,
+            show_vertical_lines=True,
+        )
+
+    elif template_type == "music_staff":
+        drawing.draw_music_staff(
+            ctx,
+            draw_x_start,
+            draw_x_end,
+            draw_y_start,
+            draw_y_end,
+            spacing_mm,
+            dpi,
+            template_kwargs.get("line_width_px", 0.5),
+            template_kwargs.get("staff_gap_mm", 10),
+        )
+
+    elif template_type == "isometric":
+        drawing.draw_isometric_grid(
+            ctx,
+            draw_x_start,
+            draw_x_end,
+            draw_y_start,
+            draw_y_end,
+            spacing_px,
+            template_kwargs.get("line_width_px", 0.5),
+        )
+
+    elif template_type == "hexgrid":
+        drawing.draw_hex_grid(
+            ctx,
+            draw_x_start,
+            draw_x_end,
+            draw_y_start,
+            draw_y_end,
+            spacing_px,
+            template_kwargs.get("line_width_px", 0.5),
+        )
 
 
 def create_template_surface(
@@ -302,7 +473,6 @@ def create_template_surface(
         "spacing_px": spacing_px,
     }
 
-    # *** START FIX ***
     # Add skip args *only if* they are relevant
     if template_type in ["lined", "manuscript", "french_ruled"]:
         draw_kwargs["skip_first"] = header_style is not None
@@ -310,7 +480,6 @@ def create_template_surface(
     elif template_type in ["grid", "dotgrid"]:
         draw_kwargs["skip_first_row"] = header_style is not None
         draw_kwargs["skip_last_row"] = footer_style is not None
-    # *** END FIX ***
 
     # Translate and filter template_kwargs
     arg_map = config.get("specific_args_map", {})
@@ -623,119 +792,20 @@ def create_column_template(
             skip_first = (r == 0) and (header_style is not None)
             skip_last = (r == num_rows - 1) and (footer_style is not None)
 
-            # --- Draw content in the cell ---
-            if base_template == "lined":
-                drawing.draw_lined_section(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                    skip_first=skip_first,
-                    skip_last=skip_last,
-                    major_every=template_kwargs.get("major_every"),
-                    major_width_add_px=template_kwargs.get("major_width_add_px", 1.5),
-                )
-
-            elif base_template == "dotgrid":
-                # Use the dispatcher to handle major_every
-                _draw_dotgrid_dispatcher(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    dot_radius=template_kwargs.get("dot_radius_px", 1.5),
-                    skip_first_row=skip_first,
-                    skip_last_row=skip_last,
-                    major_every=template_kwargs.get("major_every"),
-                    crosshair_size=template_kwargs.get("crosshair_size", 4),
-                )
-
-            elif base_template == "grid":
-                drawing.draw_grid(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                    skip_first_row=skip_first,
-                    skip_last_row=skip_last,
-                    major_every=template_kwargs.get("major_every"),
-                    major_width_add_px=template_kwargs.get("major_width_add_px", 1.5),
-                    crosshair_size=(
-                        0
-                        if template_kwargs.get("no_crosshairs")
-                        else template_kwargs.get("crosshair_size", 3)
-                    ),
-                )
-
-            elif base_template == "manuscript":
-                drawing.draw_manuscript_lines(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                    template_kwargs.get("midline_style", "dashed"),
-                    template_kwargs.get("ascender_opacity", 0.3),
-                )
-
-            elif base_template == "french_ruled":
-                # Note: French ruled margin line probably won't work well in columns
-                drawing.draw_french_ruled(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                    margin_line_offset_px=None,  # Disable margin line in columns
-                    show_vertical_lines=True,
-                )
-
-            elif base_template == "music_staff":
-                drawing.draw_music_staff(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_mm,
-                    dpi,
-                    template_kwargs.get("line_width_px", 0.5),
-                    template_kwargs.get("staff_gap_mm", 10),
-                )
-
-            elif base_template == "isometric":
-                drawing.draw_isometric_grid(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                )
-
-            elif base_template == "hexgrid":
-                drawing.draw_hex_grid(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                )
+            _draw_cell_template(
+                ctx,
+                base_template,
+                spacing_px,
+                spacing_mm,
+                dpi,
+                draw_x_start,
+                draw_x_end,
+                draw_y_start,
+                draw_y_end,
+                skip_first,
+                skip_last,
+                template_kwargs,
+            )
 
             # --- Draw Column Separator with grey ---
             if c < num_columns - 1:
@@ -895,160 +965,21 @@ def create_cell_grid_template(
             skip_first = (r == 0) and (header_style is not None)
             skip_last = (r == num_rows - 1) and (footer_style is not None)
 
-            # --- BIG DISPATCH BLOCK ---
             # This calls the correct draw function based on the cell's type
-
-            if template_type == "lined":
-                drawing.draw_lined_section(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                    skip_first=skip_first,
-                    skip_last=skip_last,
-                    major_every=template_kwargs.get("major_every"),
-                    major_width_add_px=template_kwargs.get("major_width_add_px", 1.5),
-                )
-
-                # Check for line numbering (from previous step)
-                if "line_number_config" in template_kwargs:
-                    from .drawing import draw_line_numbering
-
-                    draw_line_numbering(
-                        ctx,
-                        draw_y_start,
-                        draw_y_end,
-                        spacing_px,
-                        template_kwargs["line_number_config"],
-                    )
-
-            elif template_type == "dotgrid":
-                # Use the dispatcher to handle major_every
-                _draw_dotgrid_dispatcher(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    dot_radius=template_kwargs.get("dot_radius_px", 1.5),
-                    skip_first_row=skip_first,
-                    skip_last_row=skip_last,
-                    major_every=template_kwargs.get("major_every"),
-                    crosshair_size=template_kwargs.get("crosshair_size", 4),
-                )
-
-            elif template_type == "grid":
-                drawing.draw_grid(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                    skip_first_row=skip_first,
-                    skip_last_row=skip_last,
-                    major_every=template_kwargs.get("major_every"),
-                    major_width_add_px=template_kwargs.get("major_width_add_px", 1.5),
-                    crosshair_size=(
-                        0
-                        if template_kwargs.get("no_crosshairs")
-                        else template_kwargs.get("crosshair_size", 4)
-                    ),
-                )
-
-                # --- Check for cell labeling ---
-                if "cell_label_config" in template_kwargs:
-                    from .drawing import draw_cell_labeling
-
-                    draw_cell_labeling(
-                        ctx,
-                        draw_x_start,
-                        draw_x_end,
-                        draw_y_start,
-                        draw_y_end,
-                        spacing_px,
-                        template_kwargs["cell_label_config"],
-                    )
-
-                # --- Check for axis labeling ---
-                if "axis_label_config" in template_kwargs:
-                    from .drawing import draw_axis_labeling
-
-                    draw_axis_labeling(
-                        ctx,
-                        draw_x_start,
-                        draw_x_end,
-                        draw_y_start,
-                        draw_y_end,
-                        spacing_px,
-                        template_kwargs["axis_label_config"],
-                    )
-
-            elif template_type == "manuscript":
-                drawing.draw_manuscript_lines(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                    template_kwargs.get("midline_style", "dashed"),
-                    template_kwargs.get("ascender_opacity", 0.3),
-                )
-
-            elif template_type == "french_ruled":
-                drawing.draw_french_ruled(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                    margin_line_offset_px=None,
-                    show_vertical_lines=True,
-                )
-
-            elif template_type == "music_staff":
-                drawing.draw_music_staff(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_mm,
-                    dpi,
-                    template_kwargs.get("line_width_px", 0.5),
-                    template_kwargs.get("staff_gap_mm", 10),
-                )
-
-            elif template_type == "isometric":
-                drawing.draw_isometric_grid(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                )
-
-            elif template_type == "hexgrid":
-                drawing.draw_hex_grid(
-                    ctx,
-                    draw_x_start,
-                    draw_x_end,
-                    draw_y_start,
-                    draw_y_end,
-                    spacing_px,
-                    template_kwargs.get("line_width_px", 0.5),
-                )
+            _draw_cell_template(
+                ctx,
+                template_type,
+                spacing_px,
+                spacing_mm,
+                dpi,
+                draw_x_start,
+                draw_x_end,
+                draw_y_start,
+                draw_y_end,
+                skip_first,
+                skip_last,
+                template_kwargs,
+            )
 
             # --- Draw Separators with grey ---
             if c < num_columns - 1:
@@ -1077,6 +1008,8 @@ def create_json_layout_template(
     Create a complex, ratio-based template from a JSON config object.
     This is the main "layout engine".
     """
+
+    from .drawing import draw_axis_labeling, draw_cell_labeling, draw_line_numbering
 
     # 1. Setup Canvas and Device
     width = device_config["width"]
@@ -1226,23 +1159,6 @@ def create_json_layout_template(
                 **draw_kwargs,
             )
 
-            # Check for line numbering config in the region
-            cfg = None
-            if region.get("line_numbers") is True:
-                # User just put "line_numbers": true
-                # Create a default config
-                print(f"  Note: Drawing default line numbers for region '{name}'")
-                cfg = {"side": "left", "interval": 5, "margin_px": 40, "font_size": 18, "grey": 8}
-            elif "line_number_config" in region:
-                # User provided the "power user" config
-                print(f"  Note: Drawing custom line numbers for region '{name}'")
-                cfg = region["line_number_config"]
-
-            if cfg:
-                from .drawing import draw_line_numbering  # Local import
-
-                draw_line_numbering(ctx, draw_y_start, draw_y_end, region_spacing_px, cfg)
-
         elif template_type == "dotgrid":
             # Use the dispatcher to handle major_every
             _draw_dotgrid_dispatcher(
@@ -1278,26 +1194,6 @@ def create_json_layout_template(
                 region_spacing_px,
                 **draw_kwargs,
             )
-
-            if "cell_label_config" in region:
-                from .drawing import draw_cell_labeling  # Local import
-
-                cfg = region["cell_label_config"]
-                print(f"  Note: Drawing cell labels for region '{name}'")
-                # We pass the full page height/width to the drawing function
-                # so it can correctly place labels at the 'bottom' or 'right'
-                draw_cell_labeling(
-                    ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end, region_spacing_px, cfg
-                )
-
-            if "axis_label_config" in region:
-                from .drawing import draw_axis_labeling  # Local import
-
-                cfg = region["axis_label_config"]
-                print(f"  Note: Drawing axis labels for region '{name}'")
-                draw_axis_labeling(
-                    ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end, region_spacing_px, cfg
-                )
 
         elif template_type == "manuscript":
             # Build clean kwargs
@@ -1368,7 +1264,7 @@ def create_json_layout_template(
             # Build clean kwargs
             draw_kwargs = {
                 "line_width": json_kwargs.get("line_width_px", 0.5)
-                # other hex kwargs like major_every could go here
+                # other hex kwargs like major_every would go here
             }
             drawing.draw_hex_grid(
                 ctx,
@@ -1382,6 +1278,37 @@ def create_json_layout_template(
 
         elif template_type:
             print(f"Warning: Unknown template type '{template_type}' in region '{name}'. Skipping.")
+
+        # Check for line numbering config in the region
+        cfg = None
+        if region.get("line_numbers") is True:
+            # User just put "line_numbers": true
+            # Create a default config
+            print(f"  Note: Drawing default line numbers for region '{name}'")
+            cfg = {"side": "left", "interval": 5, "margin_px": 40, "font_size": 18, "grey": 8}
+        elif "line_number_config" in region:
+            # User provided the "power user" config
+            print(f"  Note: Drawing custom line numbers for region '{name}'")
+            cfg = region["line_number_config"]
+
+        if cfg:
+            draw_line_numbering(ctx, draw_y_start, draw_y_end, region_spacing_px, cfg)
+
+        if "cell_label_config" in region:
+            cfg = region["cell_label_config"]
+            print(f"  Note: Drawing cell labels for region '{name}'")
+            # We pass the full page height/width to the drawing function
+            # so it can correctly place labels at the 'bottom' or 'right'
+            draw_cell_labeling(
+                ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end, region_spacing_px, cfg
+            )
+
+        if "axis_label_config" in region:
+            cfg = region["axis_label_config"]
+            print(f"  Note: Drawing axis labels for region '{name}'")
+            draw_axis_labeling(
+                ctx, draw_x_start, draw_x_end, draw_y_start, draw_y_end, region_spacing_px, cfg
+            )
 
     # 5. Draw Title Element (if specified)
     # This draws *after* all other regions, so it appears on top.

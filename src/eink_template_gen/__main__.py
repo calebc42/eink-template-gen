@@ -101,6 +101,133 @@ def create_common_parser():
     return parent_parser
 
 
+def _add_line_numbering_args(parser_group):
+    """Adds all line-numbering arguments to a given parser group."""
+    parser_group.add_argument(
+        "--line-numbers",
+        nargs="?",
+        type=int,
+        const=5,  # Default interval if flag is present without a value
+        default=None,  # Value if flag is not present
+        dest="line_numbers_interval",  # Use this new destination
+        metavar="INTERVAL",
+        help="Enable line numbering. Optionally provide an interval (e.g., '--line-numbers' for default 5, '--line-numbers 10' for 10).",
+    )
+    parser_group.add_argument(
+        "--line-numbers-side",
+        choices=["left", "right"],
+        default="left",
+        help="Side (default: left)",
+    )
+    parser_group.add_argument(
+        "--line-numbers-margin-px",
+        type=int,
+        default=40,
+        help="Distance from page edge in pixels (default: 40)",
+    )
+    parser_group.add_argument(
+        "--line-numbers-font-size", type=int, default=18, help="Font size (default: 18)"
+    )
+    parser_group.add_argument(
+        "--line-numbers-grey",
+        type=int,
+        default=8,
+        help="Greyscale level 0-15 (default: 8 = #808080)",
+    )
+
+
+def _add_cell_label_args(parser_group):
+    """Adds all cell-labeling arguments to a given parser group."""
+    parser_group.add_argument(
+        "--cell-labels", action="store_true", help="Enable 'A, B, C...' style labeling."
+    )
+    parser_group.add_argument(
+        "--cell-labels-y-side",
+        choices=["left", "right"],
+        default="left",
+        help="Side for Y-axis labels ('1, 2, 3...') (default: left)",
+    )
+    parser_group.add_argument(
+        "--cell-labels-y-padding-px",
+        type=int,
+        default=10,
+        help="Padding from left/right grid edge (default: 10)",
+    )
+    parser_group.add_argument(
+        "--cell-labels-x-side",
+        choices=["top", "bottom"],
+        default="bottom",
+        help="Side for X-axis labels ('A, B, C...') (default: bottom)",
+    )
+    parser_group.add_argument(
+        "--cell-labels-x-padding-px",
+        type=int,
+        default=10,
+        help="Padding from top/bottom grid edge (default: 10)",
+    )
+    parser_group.add_argument(
+        "--cell-labels-font-size", type=int, default=16, help="Font size (default: 16)"
+    )
+    parser_group.add_argument(
+        "--cell-labels-grey",
+        type=int,
+        default=10,
+        help="Greyscale level 0-15 (default: 10 = #a0a0a0)",
+    )
+
+
+def _add_axis_label_args(parser_group):
+    """Adds all axis-labeling arguments to a given parser group."""
+    parser_group.add_argument(
+        "--axis-labels", action="store_true", help="Enable '0, 5, 10...' style axis plot numbering."
+    )
+    parser_group.add_argument(
+        "--axis-labels-origin",
+        choices=["topLeft", "bottomLeft"],
+        default="topLeft",
+        help="Set the (0,0) origin (default: topLeft)",
+    )
+    parser_group.add_argument(
+        "--axis-labels-interval",
+        type=int,
+        default=5,
+        help="Number every Nth grid line (default: 5)",
+    )
+    parser_group.add_argument(
+        "--axis-labels-y-side",
+        choices=["left", "right"],
+        default="left",
+        help="Side for Y-axis numbers (default: left)",
+    )
+    parser_group.add_argument(
+        "--axis-labels-y-padding-px",
+        type=int,
+        default=10,
+        help="Padding from left/right grid edge (default: 10)",
+    )
+    parser_group.add_argument(
+        "--axis-labels-x-side",
+        choices=["top", "bottom"],
+        default="bottom",
+        help="Side for X-axis numbers (default: bottom)",
+    )
+    parser_group.add_argument(
+        "--axis-labels-x-padding-px",
+        type=int,
+        default=10,
+        help="Padding from top/bottom grid edge (default: 10)",
+    )
+    parser_group.add_argument(
+        "--axis-labels-font-size", type=int, default=16, help="Font size (default: 16)"
+    )
+    parser_group.add_argument(
+        "--axis-labels-grey",
+        type=int,
+        default=10,
+        help="Greyscale level 0-15 (default: 10 = #a0a0a0)",
+    )
+
+
 def configure_util_parser(subparsers):
     """
     Configures the `util` command and its own sub-commands.
@@ -487,127 +614,15 @@ def configure_multi_parser(subparsers, common_parser):
 
     # --- Line Numbering Group (for child 'lined') ---
     num_group = multi_parser.add_argument_group('Line Numbering (for child "lined" cells)')
-    num_group.add_argument(
-        "--line-numbers",
-        nargs="?",
-        type=int,
-        const=5,  # Default interval
-        default=None, # Not present
-        dest="line_numbers_interval",
-        metavar="INTERVAL",
-        help="Enable line numbering for 'lined' cells. Optionally provide an interval (default: 5, e.g., '--line-numbers 10').",
-    )
-    num_group.add_argument(
-        "--line-numbers-side",
-        choices=["left", "right"],
-        default="left",
-        help="Side (default: left)",
-    )
-    num_group.add_argument(
-        "--line-numbers-margin-px",
-        type=int,
-        default=40,
-        help="Distance from page edge in pixels (default: 40)",
-    )
-    num_group.add_argument(
-        "--line-numbers-font-size", type=int, default=18, help="Font size (default: 18)"
-    )
-    num_group.add_argument(
-        "--line-numbers-grey",
-        type=int,
-        default=8,
-        help="Greyscale level 0-15 (default: 8 = #808080)",
-    )
+    _add_line_numbering_args(num_group)
 
     # --- Cell Labeling Group (for child 'grid') ---
     cell_label_group = multi_parser.add_argument_group('Cell Labeling (for child "grid" cells)')
-    cell_label_group.add_argument(
-        "--cell-labels", action="store_true", help="Enable 'A, B, C...' style labeling."
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-y-side",
-        choices=["left", "right"],
-        default="left",
-        help="Side for Y-axis labels ('1, 2, 3...') (default: left)",
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-y-padding-px",
-        type=int,
-        default=10,
-        help="Padding from left/right grid edge (default: 10)",
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-x-side",
-        choices=["top", "bottom"],
-        default="bottom",
-        help="Side for X-axis labels ('A, B, C...') (default: bottom)",
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-x-padding-px",
-        type=int,
-        default=10,
-        help="Padding from top/bottom grid edge (default: 10)",
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-font-size", type=int, default=16, help="Font size (default: 16)"
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-grey",
-        type=int,
-        default=10,
-        help="Greyscale level 0-15 (default: 10 = #a0a0a0)",
-    )
+    _add_cell_label_args(cell_label_group)
 
     # --- Axis Labeling Group (for child 'grid') ---
     axis_label_group = multi_parser.add_argument_group('Axis Labeling (for child "grid" cells)')
-    axis_label_group.add_argument(
-        "--axis-labels", action="store_true", help="Enable '0, 5, 10...' style axis plot numbering."
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-origin",
-        choices=["topLeft", "bottomLeft"],
-        default="topLeft",
-        help="Set the (0,0) origin (default: topLeft)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-interval",
-        type=int,
-        default=5,
-        help="Number every Nth grid line (default: 5)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-y-side",
-        choices=["left", "right"],
-        default="left",
-        help="Side for Y-axis numbers (default: left)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-y-padding-px",
-        type=int,
-        default=10,
-        help="Padding from left/right grid edge (default: 10)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-x-side",
-        choices=["top", "bottom"],
-        default="bottom",
-        help="Side for X-axis numbers (default: bottom)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-x-padding-px",
-        type=int,
-        default=10,
-        help="Padding from top/bottom grid edge (default: 10)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-font-size", type=int, default=16, help="Font size (default: 16)"
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-grey",
-        type=int,
-        default=10,
-        help="Greyscale level 0-15 (default: 10 = #a0a0a0)",
-    )
+    _add_axis_label_args(axis_label_group)
 
 
 def configure_template_parsers(subparsers, common_parser):
@@ -634,37 +649,7 @@ def configure_template_parsers(subparsers, common_parser):
     )
 
     num_group = lined_parser.add_argument_group("Line Numbering Options")
-    num_group.add_argument(
-        "--line-numbers",
-        nargs="?",
-        type=int,
-        const=5,
-        default=None,
-        dest="line_numbers_interval",
-        metavar="INTERVAL",
-        help="Enable line numbering. Optionally provide an interval (e.g., '--line-numbers' for default 5, '--line-numbers 10' for 10).",
-    )
-    num_group.add_argument(
-        "--line-numbers-side",
-        choices=["left", "right"],
-        default="left",
-        help="Side (default: left)",
-    )
-    num_group.add_argument(
-        "--line-numbers-margin-px",
-        type=int,
-        default=40,
-        help="Distance from page edge in pixels (default: 40)",
-    )
-    num_group.add_argument(
-        "--line-numbers-font-size", type=int, default=18, help="Font size (default: 18)"
-    )
-    num_group.add_argument(
-        "--line-numbers-grey",
-        type=int,
-        default=8,
-        help="Greyscale level 0-15 (default: 8 = #808080)",
-    )
+    _add_line_numbering_args(num_group)
 
     # --- 'dotgrid' Template ---
     dotgrid_parser = subparsers.add_parser(
@@ -736,80 +721,10 @@ def configure_template_parsers(subparsers, common_parser):
     )
 
     cell_label_group = grid_parser.add_argument_group("Cell Labeling (if --cell-labels)")
-    cell_label_group.add_argument(
-        "--cell-labels-y-side",
-        choices=["left", "right"],
-        default="left",
-        help="Side for Y-axis labels ('1, 2, 3...') (default: left)",
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-y-padding-px",
-        type=int,
-        default=10,
-        help="Padding from left/right grid edge (default: 10)",
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-x-side",
-        choices=["top", "bottom"],
-        default="bottom",
-        help="Side for X-axis labels ('A, B, C...') (default: bottom)",
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-x-padding-px",
-        type=int,
-        default=10,
-        help="Padding from top/bottom grid edge (default: 10)",
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-font-size", type=int, default=16, help="Font size (default: 16)"
-    )
-    cell_label_group.add_argument(
-        "--cell-labels-grey", type=int, default=10, help="Greyscale level 0-15 (default: 10)"
-    )
+    _add_cell_label_args(cell_label_group)
 
     axis_label_group = grid_parser.add_argument_group("Axis Labeling (if --axis-labels)")
-    axis_label_group.add_argument(
-        "--axis-labels-origin",
-        choices=["topLeft", "bottomLeft"],
-        default="topLeft",
-        help="Set the (0,0) origin (default: topLeft)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-interval",
-        type=int,
-        default=5,
-        help="Number every Nth grid line (default: 5)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-y-side",
-        choices=["left", "right"],
-        default="left",
-        help="Side for Y-axis numbers (default: left)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-y-padding-px",
-        type=int,
-        default=10,
-        help="Padding from left/right grid edge (default: 10)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-x-side",
-        choices=["top", "bottom"],
-        default="bottom",
-        help="Side for X-axis numbers (default: bottom)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-x-padding-px",
-        type=int,
-        default=10,
-        help="Padding from top/bottom grid edge (default: 10)",
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-font-size", type=int, default=16, help="Font size (default: 16)"
-    )
-    axis_label_group.add_argument(
-        "--axis-labels-grey", type=int, default=10, help="Greyscale level 0-15 (default: 10)"
-    )
+    _add_axis_label_args(axis_label_group)
 
     # --- 'manuscript' Template ---
     manuscript_parser = subparsers.add_parser(

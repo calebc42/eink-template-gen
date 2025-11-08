@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 from .config import get_default_device, get_default_margin, set_default_device, set_default_margin
-from .covers import COVER_REGISTRY
+from .covers import COVER_REGISTRY, create_cover_surface
 from .devices import get_device, list_devices
 from .templates import (
     TEMPLATE_REGISTRY,
@@ -476,7 +476,8 @@ def handle_list_templates(args=None):
 
     print("\nAvailable title patterns:")
     for title_name in COVER_REGISTRY.keys():
-        print(f"  {title_name}")
+        if not title_name.startswith("_"):
+            print(f"  {title_name}")
 
     print("\nComplex layout commands:")
     print("  multi")
@@ -615,12 +616,12 @@ def handle_cover_generation(args):
     # Add title-specific parameters from args
     if args.title in ["truchet", "diagonal_truchet", "hexagonal_truchet", "ten_print"]:
         if args.truchet_seed is not None:
-            title_kwargs["rotation_seed"] = args.truchet_seed
+            title_kwargs["truchet_seed"] = args.truchet_seed
         if args.title == "truchet" and args.truchet_fill_grey is not None:
             title_kwargs["truchet_fill_grey"] = args.truchet_fill_grey
         elif args.title == "diagonal_truchet":
-            title_kwargs["diagonal_fill_grey_1"] = args.diag_fill_grey1
-            title_kwargs["diagonal_fill_grey_2"] = args.diag_fill_grey2
+            title_kwargs["diag_fill_grey1"] = args.diag_fill_grey1
+            title_kwargs["diag_fill_grey2"] = args.diag_fill_grey2
 
     if args.decorative_border is not None:
         title_kwargs["decorative_border"] = args.decorative_border
@@ -631,6 +632,8 @@ def handle_cover_generation(args):
         "koch_snowflake",
         "plant_fractal",
         "sierpinski_triangle",
+        "gosper_curve",  # Added missing L-systems
+        "levy_c_curve",  # Added missing L-systems
     ]:
         title_kwargs["lsystem_iterations"] = args.lsystem_iterations
 
@@ -641,16 +644,12 @@ def handle_cover_generation(args):
 
         # Specific seed/style parameters
         if args.noise_seed is not None:
-            if args.title == "contour_lines":
-                title_kwargs["contour_seed"] = args.noise_seed
-            elif args.title == "noise_field":
-                title_kwargs["noise_seed"] = args.noise_seed
+            # Pass the seed for both, the factory will pick the right one
+            title_kwargs["noise_seed"] = args.noise_seed
 
         if args.noise_style is not None:
-            if args.title == "contour_lines":
-                title_kwargs["contour_style"] = args.noise_style
-            elif args.title == "noise_field":
-                title_kwargs["noise_style"] = args.noise_style
+            # Pass the style for both
+            title_kwargs["noise_style"] = args.noise_style
 
         # Specific parameters
         if args.title == "contour_lines":
@@ -660,39 +659,38 @@ def handle_cover_generation(args):
 
     # Build cover_config
     cover_config = {
-        "show_frame": not args.title_no_frame,
-        "frame_shape": args.title_frame_shape,
-        "border_style": args.title_border_style,
-        "border_width": args.title_border_width,
-        "border_grey": args.title_border_grey,
-        "fill_grey": args.title_fill_grey,
-        "corner_radius": args.title_corner_radius,
-        "font_family": args.title_font_family,
-        "font_size": args.title_font_size,
-        "font_weight": args.title_font_weight,
-        "font_slant": args.title_font_slant,
-        "text_grey": args.title_text_grey,
-        "letter_spacing": args.title_letter_spacing,
-        "h_align": args.title_h_align,
-        "v_align": args.title_v_align,
+        "title_no_frame": args.title_no_frame,  # Use new name
+        "title_frame_shape": args.title_frame_shape,
+        "title_border_style": args.title_border_style,
+        "title_border_width": args.title_border_width,
+        "title_border_grey": args.title_border_grey,
+        "title_fill_grey": args.title_fill_grey,
+        "title_corner_radius": args.title_corner_radius,
+        "title_font_family": args.title_font_family,
+        "title_font_size": args.title_font_size,
+        "title_font_weight": args.title_font_weight,
+        "title_font_slant": args.title_font_slant,
+        "title_text_grey": args.title_text_grey,
+        "title_letter_spacing": args.title_letter_spacing,
+        "title_h_align": args.title_h_align,
+        "title_v_align": args.title_v_align,
     }
     if args.title_text and args.title_text.strip():
-        cover_config["text"] = args.title_text
+        cover_config["title_text"] = args.title_text  # Use new name
     if args.title_x_center is not None:
-        cover_config["x_center"] = args.title_x_center
+        cover_config["title_x_center"] = args.title_x_center
     if args.title_y_center is not None:
-        cover_config["y_center"] = args.title_y_center
+        cover_config["title_y_center"] = args.title_y_center
     if args.title_frame_width is not None:
-        cover_config["frame_width"] = args.title_frame_width
+        cover_config["title_frame_width"] = args.title_frame_width
     if args.title_frame_height is not None:
-        cover_config["frame_height"] = args.title_frame_height
+        cover_config["title_frame_height"] = args.title_frame_height
 
     title_kwargs["cover_config"] = cover_config
 
     # 3. Generate Surface
     print(f"Generating '{args.title}' title page for {context['device_config']['name']}...")
-    title_func = COVER_REGISTRY[args.title]
-    surface = title_func(**title_kwargs)
+    surface = create_cover_surface(args.title, **title_kwargs)
 
     # 4. Save and Summarize
     _save_and_print_summary(surface, context, args)

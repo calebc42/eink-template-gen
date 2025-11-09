@@ -17,6 +17,7 @@ def test_handle_list_devices():
                 break
         assert manta_found, "Manta device details not found in output"
 
+
 def test_handle_set_default_device():
     """Test handle_set_default_device"""
     with patch("eink_template_gen.actions.set_default_device") as mock_set:
@@ -25,6 +26,7 @@ def test_handle_set_default_device():
         actions.handle_set_default_device(args)
         mock_set.assert_called_with("manta")
 
+
 def test_handle_set_default_margin():
     """Test handle_set_default_margin"""
     with patch("eink_template_gen.actions.set_default_margin") as mock_set:
@@ -32,6 +34,7 @@ def test_handle_set_default_margin():
         args.margin_mm = 10
         actions.handle_set_default_margin(args)
         mock_set.assert_called_with(10)
+
 
 def test_handle_list_templates():
     """Test handle_list_templates"""
@@ -49,6 +52,7 @@ def test_handle_list_templates():
         assert "Complex layout commands:" in output
         assert "  multi" in output
         assert "  layout" in output
+
 
 def test_handle_show_spacing_info():
     """Test handle_show_spacing_info"""

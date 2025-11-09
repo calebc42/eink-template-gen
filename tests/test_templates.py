@@ -11,7 +11,9 @@ from eink_template_gen.templates import (
 def standard_device():
     """Standard device config for testing"""
     from eink_template_gen.devices import get_device
+
     return get_device("manta")
+
 
 class TestTemplateGeneration:
     """Test template generation functions"""

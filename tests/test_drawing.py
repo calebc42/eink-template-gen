@@ -23,10 +23,12 @@ def surface():
     """Create a Cairo surface for testing"""
     return cairo.ImageSurface(cairo.FORMAT_A8, 400, 400)
 
+
 @pytest.fixture
 def context(surface):
     """Create a Cairo context for testing"""
     return cairo.Context(surface)
+
 
 class TestDrawingFunctions:
     """Test drawing functions"""
@@ -91,7 +93,9 @@ class TestDrawingFunctions:
 
     def test_draw_dot_grid_with_crosshairs(self, surface, context):
         """Test draw_dot_grid_with_crosshairs"""
-        draw_dot_grid_with_crosshairs(context, 0, 400, 0, 400, 20, 2, major_every=5, crosshair_size=4)
+        draw_dot_grid_with_crosshairs(
+            context, 0, 400, 0, 400, 20, 2, major_every=5, crosshair_size=4
+        )
 
         # Check the output
         buf = surface.get_data()
@@ -103,7 +107,7 @@ class TestDrawingFunctions:
                 y, x = i * 20, j * 20
                 assert data[y, x] > 0
                 if i % 5 == 0 and j % 5 == 0:
-                    assert data[y, x+3] > 0
+                    assert data[y, x + 3] > 0
 
     def test_draw_french_ruled(self, surface, context):
         """Test draw_french_ruled"""
@@ -165,10 +169,12 @@ class TestDrawingFunctions:
 
         draw_cell_labeling(
             context,
-            margin, canvas_size - margin,  # x_start, x_end
-            margin, canvas_size - margin,  # y_start, y_end
+            margin,
+            canvas_size - margin,  # x_start, x_end
+            margin,
+            canvas_size - margin,  # y_start, y_end
             100,  # spacing
-            config
+            config,
         )
         buf = surface.get_data()
         data = np.ndarray(shape=(canvas_size, canvas_size), dtype=np.uint8, buffer=buf)
@@ -192,10 +198,12 @@ class TestDrawingFunctions:
         }
         draw_axis_labeling(
             context,
-            margin, canvas_size - margin,  # x_start, x_end
-            margin, canvas_size - margin,  # y_start, y_end
+            margin,
+            canvas_size - margin,  # x_start, x_end
+            margin,
+            canvas_size - margin,  # y_start, y_end
             100,  # spacing
-            config
+            config,
         )
         buf = surface.get_data()
         data = np.ndarray(shape=(canvas_size, canvas_size), dtype=np.uint8, buffer=buf)

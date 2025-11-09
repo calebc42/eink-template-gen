@@ -59,6 +59,7 @@ def sample_json_layout():
         ],
     }
 
+
 class TestMultiColumnLayouts:
     """Test multi-column and multi-row layouts"""
 

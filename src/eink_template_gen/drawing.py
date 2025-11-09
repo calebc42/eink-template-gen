@@ -927,7 +927,6 @@ def draw_axis_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
         x_axis_side = config.get("x_axis_side", "bottom")  # Default to bottom
 
         # --- 3. Calculate Grid Size ---
-        num_x_lines = int((x_end - x_start) // spacing_px) + 1
         num_y_lines = int((y_end - y_start) // spacing_px) + 1
 
         # --- 4. Draw X-Axis Labels (Top/Bottom Margin) ---

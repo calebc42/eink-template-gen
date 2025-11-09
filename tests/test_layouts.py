@@ -1,5 +1,6 @@
 import os
 import tempfile
+
 import cairo
 import pytest
 
@@ -15,6 +16,7 @@ from eink_template_gen.utils import (
     calculate_adjusted_margins,
     snap_spacing_to_clean_pixels,
 )
+
 
 @pytest.fixture
 def temp_output_dir():

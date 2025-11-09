@@ -1,5 +1,7 @@
 import pytest
+
 from eink_template_gen.devices import get_device, list_devices, snap_to_eink_greyscale
+
 
 class TestDeviceManagement:
     """Test device configuration management"""

@@ -1,6 +1,7 @@
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from eink_template_gen import actions
+
 
 def test_handle_list_devices():
     """Test handle_list_devices"""

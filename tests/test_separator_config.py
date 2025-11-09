@@ -1,5 +1,6 @@
 from eink_template_gen.separator_config import parse_separator_config
 
+
 class TestSeparatorConfig:
     """Test separator configuration parsing"""
 

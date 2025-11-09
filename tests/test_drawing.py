@@ -1,20 +1,22 @@
 import cairo
-import pytest
 import numpy as np
+import pytest
+
 from eink_template_gen.drawing import (
-    draw_lined_section,
+    draw_axis_labeling,
+    draw_cell_labeling,
     draw_dot_grid,
-    draw_grid,
-    draw_manuscript_lines,
     draw_dot_grid_with_crosshairs,
     draw_french_ruled,
-    draw_music_staff,
-    draw_isometric_grid,
+    draw_grid,
     draw_hex_grid,
+    draw_isometric_grid,
     draw_line_numbering,
-    draw_cell_labeling,
-    draw_axis_labeling,
+    draw_lined_section,
+    draw_manuscript_lines,
+    draw_music_staff,
 )
+
 
 @pytest.fixture
 def surface():

@@ -1,5 +1,7 @@
 import os
+
 import pytest
+
 from eink_template_gen.utils import (
     calculate_adjusted_margins,
     generate_filename,
@@ -8,6 +10,7 @@ from eink_template_gen.utils import (
     px_to_mm,
     snap_spacing_to_clean_pixels,
 )
+
 
 class TestUtilityFunctions:
     """Test utility functions for correctness"""

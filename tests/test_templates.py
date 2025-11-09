@@ -1,9 +1,11 @@
 import cairo
 import pytest
+
 from eink_template_gen.templates import (
     TEMPLATE_REGISTRY,
     create_template_surface,
 )
+
 
 @pytest.fixture
 def standard_device():

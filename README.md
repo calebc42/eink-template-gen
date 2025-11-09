@@ -1,24 +1,33 @@
 
 # Table of Contents
 
-1.  [Badges](#org37405d4)
-2.  [About](#org2b76d4d)
-3.  [Why This Tool?](#org6f234bd)
-4.  [What this tool is NOT](#org4a3c0fd)
-5.  [Features](#org8af5fdd)
-6.  [Installation](#org77d0ee2)
-7.  [Full Documentation](#org0b2119c)
-8.  [Supported Devices](#org53fb608)
-9.  [Configuration](#org66ce3cf)
-10. [Usage Examples](#org066fe7c)
-    1.  [Basic Templates](#org834e3b7)
-11. [Output](#orgcb2dc66)
-12. [Contributing](#org57ba5e5)
-13. [License](#orgb76b0c4)
-14. [Credits](#orgf3d23af)
+1.  [Table of Contents](#org88a00db)
+2.  [Badges](#orgbbe7e4a)
+3.  [About](#orgc0cd1a8)
+4.  [Why This Tool?](#org69c405e)
+5.  [What this tool is NOT](#org7fc3e75)
+6.  [Features](#org2b5b705)
+7.  [Installation](#org597bf4d)
+8.  [Quick Start (Wizard)](#org147e5c4)
+9.  [Full Documentation](#org27a38ee)
+10. [Supported Devices](#org3c734ed)
+11. [Configuration](#org217ca64)
+12. [Usage Examples](#org539e9c8)
+    1.  [Basic Templates](#org1db95cb)
+13. [Output](#org9f78a14)
+14. [AI-Assisted Development (ai-wizard-prompt.org)](#org49c4688)
+15. [Contributing](#org6f3df60)
+    1.  [Development Setup](#org26a70a4)
+16. [License](#orge183f49)
+17. [Credits](#org4a90d11)
 
 
-<a id="org37405d4"></a>
+<a id="org88a00db"></a>
+
+# Table of Contents
+
+
+<a id="orgbbe7e4a"></a>
 
 # Badges
 
@@ -27,14 +36,14 @@
 ![License](https://img.shields.io/badge/license-GPLv3-green)
 
 
-<a id="org2b76d4d"></a>
+<a id="orgc0cd1a8"></a>
 
 # About
 
 A device-agnostic command-line tool for generating mathematically balanced, pixel-perfect page templates for e-ink devices. Developed with the Supernote Manta, this tool supports millimeter or pixel specifications for human-readable, technically-precise, or true-scale template configurations.
 
 
-<a id="org6f234bd"></a>
+<a id="org69c405e"></a>
 
 # Why This Tool?
 
@@ -141,7 +150,7 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 </table>
 
 
-<a id="org4a3c0fd"></a>
+<a id="org7fc3e75"></a>
 
 # What this tool is NOT
 
@@ -152,10 +161,11 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   Monetized or Paywalled Tool
 
 
-<a id="org8af5fdd"></a>
+<a id="org2b5b705"></a>
 
 # Features
 
+-   **Interactive Wizard:** A guided, step-by-step terminal wizard to create complex templates without needing to memorize flags. Just run `eink-template-gen --wizard`.
 -   **Pixel-Perfect Alignment:** Automatically adjusts margins and spacing to eliminate blurry lines and aliasing artifacts.
 -   **Multiple Template Types:** Generate lined, dotgrid, grid, manuscript, french ruled, music staff, isometric, hexgrid, and hybrid pages.
 -   **Flexible Layouts:** Create single pages, uniform N x M grids, mixed-type grids, and complex, ratio-based layouts using JSON.
@@ -164,14 +174,31 @@ The image on the left (default) shows a grid being awkwardly cut off. The image 
 -   **Flexible Spacing:** Define layouts using millimeters (default), exact pixels, or by fitting an exact line count.
 
 
-<a id="org77d0ee2"></a>
+<a id="org597bf4d"></a>
 
 # Installation
 
     pip install eink-template-gen
 
 
-<a id="org0b2119c"></a>
+<a id="org147e5c4"></a>
+
+# Quick Start (Wizard)
+
+For the easiest experience, use the interactive wizard.
+
+1.  Install the tool (if you haven't already):
+    
+        pip install eink-template-gen
+
+2.  Run the wizard:
+    
+        eink-template-gen --wizard
+
+This will guide you step-by-step through selecting a device, template, and all the relevant options, then generate the file for you.
+
+
+<a id="org27a38ee"></a>
 
 # Full Documentation
 
@@ -191,7 +218,7 @@ For detailed guides, feature deep-dives, and advanced examples, please see the `
     -   [Technical Details (Algorithm, Palette)](docs/reference/technical-details.md)
 
 
-<a id="org53fb608"></a>
+<a id="org3c734ed"></a>
 
 # Supported Devices
 
@@ -203,7 +230,7 @@ Built-in device profiles:
 -   Supernote Nomad (7.8", 1404x1872, 300 DPI)
 
 
-<a id="org66ce3cf"></a>
+<a id="org217ca64"></a>
 
 # Configuration
 
@@ -215,12 +242,12 @@ Set a default device to avoid specifying `--device` every time:
 Configuration is stored locally in `config.json`.
 
 
-<a id="org066fe7c"></a>
+<a id="org539e9c8"></a>
 
 # Usage Examples
 
 
-<a id="org834e3b7"></a>
+<a id="org1db95cb"></a>
 
 ## Basic Templates
 
@@ -239,7 +266,7 @@ Configuration is stored locally in `config.json`.
 For more complex examples, including `multi`, `layout`, and `title` commands, see the [Advanced Usage Examples](docs/advanced-examples.md) documentation.
 
 
-<a id="orgcb2dc66"></a>
+<a id="org9f78a14"></a>
 
 # Output
 
@@ -256,7 +283,29 @@ Templates are saved to `out/<device_id>/` by default:
 Use `--output-dir` and `--filename` to customize output location.
 
 
-<a id="org57ba5e5"></a>
+<a id="org49c4688"></a>
+
+# AI-Assisted Development (ai-wizard-prompt.org)
+
+This project includes a file named `ai-wizard-prompt.org` (and `.md`). This file is **not** used by the Python code.
+
+It is a comprehensive "system prompt" or context file that defines the **entire** logic of the wizard as a persona for a Large Language Model (AI).
+
+****When to use it:****
+
+-   **Prototyping:** Quickly test new or complex feature combinations without writing Python code for the wizard.
+-   **Assistance:** If you are unsure of the flags, you can have an AI act as the complete wizard to guide you and generate the final command or JSON file.
+
+****How to use it:****
+
+1.  Open `ai-wizard-prompt.org` or `ai-wizard-prompt.md`.
+2.  Copy the **entire** contents of the file.
+3.  Paste the contents into a **new chat session** with a capable LLM (like Gemini, Claude, or ChatGPT).
+4.  On a new line after the pasted text, type: `Okay, you are the eink-template-gen Wizard. Start.`
+5.  The AI will then take on the persona of the wizard and begin asking you questions, one at a time, to build your template.
+
+
+<a id="org6f3df60"></a>
 
 # Contributing
 
@@ -267,14 +316,28 @@ Contributions are welcome! This project uses:
 -   Pure Python implementation (no external dependencies for noise/fractals)
 
 
-<a id="orgb76b0c4"></a>
+<a id="org26a70a4"></a>
+
+## Development Setup
+
+To set up a development environment:
+
+    # Clone the repo
+    git clone https://github.com/calebc42/eink-template-gen.git
+    cd eink-template-gen
+    
+    # Install in editable mode with dev/test dependencies
+    pip install -e .[dev,test]
+
+
+<a id="orge183f49"></a>
 
 # License
 
 This project is licensed under the **GNU General Public License v3.0**. See the `LICENSE` file for details.
 
 
-<a id="orgf3d23af"></a>
+<a id="org4a90d11"></a>
 
 # Credits
 

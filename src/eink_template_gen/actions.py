@@ -1,5 +1,6 @@
 import json
 import os
+import cairo
 from pathlib import Path
 
 from .config import get_default_device, get_default_margin, set_default_device, set_default_margin
@@ -885,6 +886,25 @@ def handle_single_template_generation(args):
         footer=args.footer,
         template_kwargs=template_kwargs,
     )
+
+    # Draw corner ornaments if specified
+    if hasattr(args, 'corner_style') and args.corner_style:
+        from .corners import draw_page_corners
+        ctx = cairo.Context(surface)
+
+        corner_kwargs = {
+            'grey': getattr(args, 'corner_grey', 0)
+        }
+
+        draw_page_corners(
+            ctx,
+            context['margins'],
+            context['width'],
+            context['height'],
+            args.corner_style,
+            getattr(args, 'corner_size', 20.0),
+            **corner_kwargs
+        )
 
     # 7. Save and Summarize
     _save_and_print_summary(surface, context, args)

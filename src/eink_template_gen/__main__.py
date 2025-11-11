@@ -98,6 +98,30 @@ def create_common_parser():
         f'Use "style" or "style(param=value,param=value)" format.',
     )
 
+    # --- Corner Ornaments ---
+    corner_group = parent_parser.add_argument_group("Corner Ornaments")
+    corner_group.add_argument(
+        "--corner-style",
+        type=str,
+        metavar="STYLE",
+        help=f'Corner ornament style. Available: bracket, circuit-corner, crosshair, '
+             f'geometric-frame, tech-marker, diagonal-stripes, corner-node, pixel-art',
+    )
+
+    corner_group.add_argument(
+        "--corner-size",
+        type=float,
+        default=20.0,
+        help="Size of corner ornaments in pixels (default: 20)",
+    )
+
+    corner_group.add_argument(
+        "--corner-grey",
+        type=int,
+        default=0,
+        help="Greyscale level for corners 0-15 (default: 0 = black)",
+    )
+
     # --- File Output Kwargs ---
     output_group = parent_parser.add_argument_group("File Output")
     output_group.add_argument("--output-dir", default="out", help="Output directory (default: out)")
@@ -284,15 +308,15 @@ def configure_util_parser(subparsers):
     info_parser.set_defaults(func=handle_show_spacing_info)
 
 
-def configure_title_parser(subparsers, common_parser):
+def configure_cover_parser(subparsers, common_parser):
     """
-    Configures the `title` command for generating title pages.
+    Configures the `cover` command for generating cover pages.
     """
-    title_parser = subparsers.add_parser(
-        "title",
+    cover_parser = subparsers.add_parser(
+        "cover",
         parents=[common_parser],
-        help="Generate a decorative title page pattern",
-        description="Generate a decorative title page pattern (e.g., Truchet tiles, fractals, noise patterns).",
+        help="Generate a decorative cover page pattern",
+        description="Generate a decorative cover page pattern (e.g., Truchet tiles, fractals, noise patterns).",
     )
     title_parser.set_defaults(func=handle_cover_generation)
 
@@ -300,12 +324,12 @@ def configure_title_parser(subparsers, common_parser):
         "--type",
         choices=list(COVER_REGISTRY.keys()),
         required=True,
-        dest="title",  # Explicitly set dest to 'title' to match original args
-        help="Title page pattern type",
+        dest="cover",  # Explicitly set dest to 'cover' to match original args
+        help="Cover page pattern type",
     )
 
     # --- Common Style Args ---
-    title_parser.add_argument(
+    cover_parser.add_argument(
         "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
 
@@ -852,7 +876,6 @@ def configure_template_parsers(subparsers, common_parser):
     spec_group.add_argument(
         "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
-
 
 def main():
     parser = argparse.ArgumentParser(

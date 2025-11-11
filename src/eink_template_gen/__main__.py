@@ -84,14 +84,18 @@ def create_common_parser():
     valid_sep_styles = [s for s in SEPARATOR_STYLES if s is not None]
     style_group.add_argument(
         "--header",
-        choices=valid_sep_styles,
-        help=f'Header separator style (options: {", ".join(valid_sep_styles)})',
+        type=str,
+        metavar="STYLE",
+        help=f'Header separator style. Available: {", ".join(valid_sep_styles)}. '
+        f'Use "style" or "style(param=value,param=value)" format.',
     )
 
     style_group.add_argument(
         "--footer",
-        choices=valid_sep_styles,
-        help=f'Footer separator style (options: {", ".join(valid_sep_styles)})',
+        type=str,
+        metavar="STYLE",
+        help=f'Footer separator style. Available: {", ".join(valid_sep_styles)}. '
+        f'Use "style" or "style(param=value,param=value)" format.',
     )
 
     # --- File Output Kwargs ---

@@ -1167,6 +1167,7 @@ def _draw_mountains(
         # 3. Stroke the path
         ctx.stroke()
 
+
 # TODO: Move this version to covers.py
 # def _draw_streamline(
 #     ctx,

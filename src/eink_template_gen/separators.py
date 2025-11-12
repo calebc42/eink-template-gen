@@ -9,13 +9,16 @@ This module uses a registry pattern for extensibility. To add a new style:
 """
 
 import inspect
-from math import pi, radians, sin
+from math import pi, radians, sin, cos
+import random
 from typing import Tuple
 
 import cairo
 
 from .devices import snap_to_eink_greyscale
 from .utils import PageMargins
+from .noise import fractal_noise_2d
+from .cover_drawing import draw_10_print_tiles
 
 # --- Internal Helper Functions for Each Style ---
 
@@ -225,6 +228,124 @@ def _draw_stitch(
         x += stitch_length + gap
 
 
+# def _draw_loops(
+#     ctx,
+#     x_start,
+#     x_end,
+#     y,
+#     line_width=1.5,
+#     num_lines=3,
+#     layer_gap=8.0,
+#     amplitude=3.0,      # Waviness of the straight segments
+#     wavelength=200.0,   # Length of the waves
+#     noise_amplitude=4.0,
+#     noise_scale=0.01,
+#     loop_probability=0.2, # Chance of a loop *per step*
+#     loop_size=15.0,     # Avg. size (height & width) of a loop
+#     seed=None
+# ):
+#     """
+#     Draw multiple "scribble" lines that meander and
+#     draw true, self-crossing loops.
+
+#     Args:
+#         y: The vertical center of the band.
+#         num_lines: Number of parallel scribble lines.
+#         layer_gap: The base vertical spacing between lines.
+#         amplitude/wavelength: Base sine wave for the path.
+#         noise_amplitude/scale: Noise "wobble" for the path.
+#         loop_probability: Chance (0.0-1.0) of a loop.
+#         loop_size: Average height and width of a loop.
+#         seed: Integer seed for reproducible patterns.
+#     """
+#     ctx.save()
+#     ctx.set_line_width(line_width)
+#     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+#     ctx.set_line_join(cairo.LINE_JOIN_ROUND)
+    
+#     # --- 1. Setup Seed ---
+#     if seed is not None:
+#         random.seed(seed)
+    
+#     # Create a unique seed for the noise function
+#     noise_seed = random.randint(0, 1000000) if seed is None else seed
+
+#     # --- 2. Calculate Layer Positions ---
+#     total_height = (num_lines - 1) * layer_gap
+#     y_start_band = y - total_height / 2.0
+    
+#     # --- 3. Draw Each Line ---
+#     for i in range(num_lines):
+#         y_base = y_start_band + (i * layer_gap)
+        
+#         # Use a different, deterministic seed for each line's path
+#         line_noise_seed = noise_seed + i
+        
+#         # --- 4. Get Y-pos Helper ---
+#         def get_y_pos(x):
+#             """Helper to calculate Y for any X using noise+sine"""
+#             noise_val = fractal_noise_2d(
+#                 x * noise_scale, y_base * noise_scale, octaves=2, seed=line_noise_seed
+#             )
+#             y_noise = noise_amplitude * (noise_val - 0.5) * 2.0
+            
+#             t_wave = (x - x_start) / wavelength
+#             y_sin = amplitude * sin(t_wave * 2 * pi)
+#             return y_base + y_sin + y_noise
+
+#         # --- 5. Build the Path ---
+#         x_current = x_start
+#         y_current = get_y_pos(x_current)
+#         ctx.move_to(x_current, y_current)
+        
+#         # We will advance in small steps to check for loops
+#         step_size = 10 # Check for a loop every 10 pixels
+        
+#         while x_current < x_end:
+            
+#             # 5a. Check if we should draw a loop *at this point*
+#             if random.random() < loop_probability:
+                
+#                 # Randomize loop properties
+#                 current_loop_h = random.uniform(loop_size * 0.8, loop_size * 1.2)
+#                 current_loop_w = random.uniform(loop_size * 0.8, loop_size * 1.2)
+                
+#                 # Randomly loop up or down
+#                 direction = 1 if random.random() < 0.5 else -1 
+
+#                 # --- This is the new, correct logic ---
+#                 # P0 is (x_current, y_current)
+                
+#                 # P1: Control point 1 (pulls back and up/down)
+#                 cp1_x = x_current - current_loop_w
+#                 cp1_y = y_current - (current_loop_h * direction)
+                
+#                 # P2: Control point 2 (pulls forward and up/down)
+#                 cp2_x = x_current + current_loop_w
+#                 cp2_y = y_current - (current_loop_h * direction)
+                
+#                 # P3: End point (back where we started)
+#                 # We use curve_to, which uses the *current point* as P0
+#                 ctx.curve_to(cp1_x, cp1_y, cp2_x, cp2_y, x_current, y_current)
+                
+#                 # We have now drawn a loop that starts and ends at
+#                 # (x_current, y_current). The path is still continuous.
+
+#             # 5b. Advance to the next step
+#             x_next = min(x_current + step_size, x_end)
+#             y_next = get_y_pos(x_next)
+            
+#             # Draw the wavy segment to the next point
+#             ctx.line_to(x_next, y_next)
+            
+#             x_current = x_next
+#             y_current = y_next
+        
+#         # Stroke the entire completed path for this line
+#         ctx.stroke()
+        
+#     ctx.restore()
+
 # --- Main Dispatcher Function ---
 
 
@@ -330,6 +451,30 @@ def draw_page_separators(
 
     return has_header, has_footer
 
+def _draw_10_print_sep(
+    ctx, x_start, x_end, y, line_height=10.0, line_width=1.0, seed=None
+):
+    """
+    Draw a 10-print separator by calling the 2D cover function
+    within a narrow horizontal band.
+    """
+    # Define the thin horizontal region for the separator
+    y_start = y - (line_height / 2)
+    y_end = y + (line_height / 2)
+
+    # Call the existing 2D tile function from cover_drawing
+    # We MUST set tile_size_px to line_height to ensure it draws
+    # exactly one row of tiles.
+    draw_10_print_tiles(
+        ctx,
+        x_start,
+        x_end,
+        y_start,
+        y_end,
+        tile_size_px=line_height,  # Force tile size to match height
+        line_width=line_width,
+        rotation_seed=seed,
+    )
 
 def _draw_circuit_trace(
     ctx,
@@ -788,6 +933,418 @@ def _draw_pcb_trace(
             ctx.arc(x, y, pad_size * 0.25, 0, 2 * pi)
             ctx.fill()
 
+def _draw_vine(
+    ctx,
+    x_start,
+    x_end,
+    y,
+    stem_thickness=2.5,  # <-- Renamed from line_width, new default
+    thickness_variation=1.5, # <-- NEW: How much to vary thickness
+    thickness_noise_scale=0.1, # <-- NEW: Frequency of thickness change
+    amplitude=8.0,
+    wavelength=60.0,
+    leaf_size=7.0,
+    leaf_frequency=1.0,
+    noise_amplitude=4.0,
+    noise_scale=0.05,
+    seed=None
+):
+    """
+    Draw a wavy stem with variable thickness and leaves, perturbed with noise.
+
+    Args:
+        stem_thickness: The *average* thickness of the stem.
+        thickness_variation: Max amount to add/subtract from thickness.
+        thickness_noise_scale: How "fast" the thickness changes.
+        (Other args same as before)
+    """
+    ctx.save()
+
+    # --- 1. Setup Seed ---
+    if seed is not None:
+        random.seed(seed)
+    # Create unique seeds for the noise functions
+    pos_noise_seed = random.randint(0, 1000000) if seed is None else seed
+    thick_noise_seed = random.randint(0, 1000001) if seed is None else seed + 1
+
+    # --- 2. Draw the stem (as a filled polygon) ---
+    top_path = []
+    bottom_path = []
+
+    num_steps = int(x_end - x_start)
+    for x_pix in range(int(x_start), int(x_end) + 1):
+        # 1. Base Sine Wave (Centerline)
+        t_wave = (x_pix - x_start) / wavelength
+        y_sin = amplitude * sin(t_wave * 2 * pi)
+        
+        # 2. Noise "wobble" (Centerline)
+        pos_noise_val = fractal_noise_2d(
+            x_pix * noise_scale, y * noise_scale, octaves=2, seed=pos_noise_seed
+        )
+        y_noise = noise_amplitude * (pos_noise_val - 0.5) * 2.0
+        
+        # 3. Combine for centerline
+        wave_y = y + y_sin + y_noise
+        
+        # 4. Calculate stem thickness
+        thick_noise_val = fractal_noise_2d(
+            x_pix * thickness_noise_scale, y * thickness_noise_scale, octaves=2, seed=thick_noise_seed
+        )
+        # Map noise [0, 1] -> [-1, 1] and apply variation
+        thickness_offset = (thick_noise_val - 0.5) * 2.0 * thickness_variation
+        
+        # Ensure half_width is at least a small positive number (e.g., 0.5)
+        current_half_width = max(0.5, (stem_thickness + thickness_offset) / 2.0)
+        
+        # 5. Store path points
+        top_path.append((x_pix, wave_y + current_half_width))
+        bottom_path.append((x_pix, wave_y - current_half_width))
+    
+    # 6. Draw the filled stem path
+    if top_path and bottom_path:
+        ctx.move_to(top_path[0][0], top_path[0][1])
+        for pt in top_path[1:]:
+            ctx.line_to(pt[0], pt[1])
+        for pt in reversed(bottom_path):
+            ctx.line_to(pt[0], pt[1])
+        ctx.close_path()
+        ctx.fill()
+
+    # --- 3. Draw the leaves ---
+    # (This section is updated to use the new position noise seed)
+    
+    # This line is no longer needed as leaves are *filled*
+    # ctx.set_line_width(line_width * 0.7) 
+
+    num_waves = (x_end - x_start) / wavelength
+    num_leaves_per_wave = 2.0 * leaf_frequency
+    if num_leaves_per_wave <= 0:
+        ctx.restore()
+        return
+
+    total_leaves = int(num_waves * num_leaves_per_wave)
+    if total_leaves < 1:
+        ctx.restore()
+        return
+
+    for i in range(total_leaves):
+        # Add random "jitter" to leaf placement
+        jitter = random.uniform(-0.1, 0.1) / total_leaves
+        t_leaf = (i / total_leaves) + jitter
+
+        x_leaf = x_start + (t_leaf * (x_end - x_start))
+
+        # Skip leaves too close to the edges
+        if x_leaf < x_start + leaf_size or x_leaf > x_end - leaf_size:
+            continue
+
+        # Recalculate stem's y-position at this exact x
+        t_wave_stem = (x_leaf - x_start) / wavelength
+        y_sin_stem = amplitude * sin(t_wave_stem * 2 * pi)
+        noise_val_stem = fractal_noise_2d(
+            x_leaf * noise_scale, y * noise_scale, octaves=2, seed=pos_noise_seed
+        )
+        y_noise_stem = noise_amplitude * (noise_val_stem - 0.5) * 2.0
+        y_stem = y + y_sin_stem + y_noise_stem
+
+        # Alternate side for each leaf
+        is_top_side = i % 2 == 0
+
+        ctx.save()
+        # Move origin to the leaf's attachment point
+        ctx.translate(x_leaf, y_stem)
+
+        # Randomize angle and size
+        current_leaf_size = random.uniform(leaf_size * 0.8, leaf_size * 1.2)
+        angle_deg = random.uniform(35, 60) * (-1 if is_top_side else 1)
+        
+        ctx.rotate(radians(angle_deg))
+
+        # Draw a simple leaf shape using Bezier curves
+        ctx.move_to(0, 0)
+        ctx.curve_to(
+            current_leaf_size * 0.5, -current_leaf_size * 0.4,  # Control point 1
+            current_leaf_size * 0.8, -current_leaf_size * 0.2,  # Control point 2
+            current_leaf_size, 0                                # Tip
+        )
+        ctx.curve_to(
+            current_leaf_size * 0.8, current_leaf_size * 0.2,   # Control point 2 (return)
+            current_leaf_size * 0.5, current_leaf_size * 0.4,   # Control point 1 (return)
+            0, 0                                # Back to start
+        )
+        ctx.fill()  # Fill the leaf
+
+        ctx.restore()
+    ctx.restore()
+
+
+def _draw_mountains(
+    ctx,
+    x_start,
+    x_end,
+    y,
+    line_width=1.5,
+    num_layers=3,       # Number of overlapping ranges
+    base_grey=0,        # Greyscale of the front layer (0-15)
+    grey_step=4,        # How much lighter each step back is (e.g., 0, 4, 8)
+    y_stagger=4.0,      # Vertical offset for each layer (pixels)
+    peak_height_min=5.0,
+    peak_height_max=15.0,
+    peak_spacing_min=20.0,
+    peak_spacing_max=40.0,
+    seed=None
+):
+    """
+    Draw a "vector icon" style mountain range with jagged peaks and
+    greyscale depth.
+
+    Args:
+        y: The baseline (valley floor) for the front-most range.
+        num_layers: Number of ranges to draw (1-5 is reasonable).
+        base_grey: Greyscale (0-15) for the front layer.
+        grey_step: Added greyscale for each layer back (e.g., 4).
+        y_stagger: How many pixels to shift each layer *up* (e.g., 4.0).
+        peak_height_*: Min/max height of peaks from their baseline.
+        peak_spacing_*: Min/max horizontal distance between peaks.
+        seed: Integer seed for reproducible patterns.
+    """
+    if seed is not None:
+        random.seed(seed)
+    
+    ctx.set_line_width(line_width)
+    ctx.set_line_join(cairo.LINE_JOIN_MITER) # For sharp peaks
+    ctx.set_line_cap(cairo.LINE_CAP_SQUARE)
+
+    # Loop from back to front (so front layers draw on top)
+    for i in range(num_layers - 1, -1, -1):
+        
+        # 1. Calculate layer properties
+        # Back layers (i=0) are lighter and higher up
+        current_grey = base_grey + (i * grey_step)
+        y_baseline = y - (i * y_stagger)
+        
+        # Snap grey value
+        grey_val = snap_to_eink_greyscale(current_grey)
+        ctx.set_source_rgb(grey_val, grey_val, grey_val)
+
+        # 2. Start drawing the path
+        x = x_start
+        ctx.move_to(x, y_baseline)
+        
+        is_peak = True # Start by drawing up to a peak
+        
+        while x < x_end:
+            if is_peak:
+                # Draw to a peak
+                peak_spacing = random.uniform(peak_spacing_min, peak_spacing_max)
+                peak_height = random.uniform(peak_height_min, peak_height_max)
+                
+                x = min(x + peak_spacing, x_end)
+                y_peak = y_baseline - peak_height
+                ctx.line_to(x, y_peak)
+                
+            else:
+                # Draw to a valley
+                valley_spacing = random.uniform(peak_spacing_min, peak_spacing_max)
+                # Valleys are not always at baseline
+                valley_dip = random.uniform(0, peak_height_min / 2) 
+
+                x = min(x + valley_spacing, x_end)
+                y_valley = y_baseline - valley_dip
+                ctx.line_to(x, y_valley)
+
+            is_peak = not is_peak
+        
+        # 3. Stroke the path
+        ctx.stroke()
+
+# def _draw_streamline(
+#     ctx,
+#     x_start,
+#     x_end,
+#     y,
+#     line_width=0.75,
+#     num_lines=75,      # Number of streamlines to draw
+#     y_band=20.0,       # How far above/below 'y' to start lines
+#     frequency=0.01,    # The "scale" of the flow field
+#     octaves=2,         # Detail of the flow field
+#     step_length=4.0,   # How long each line segment is
+#     max_steps=200,     # Max segments per line
+#     seed=None
+# ):
+#     """
+#     Draw a "flow field" or "streamline" separator.
+
+#     Args:
+#         y: The vertical center of the band
+#         num_lines: How many particles to trace
+#         y_band: Height of the band (pixels) to drop particles into
+#         frequency: Noise frequency for the vector field
+#         octaves: Noise detail
+#         step_length: Length of each step in the particle trace
+#         max_steps: Max steps before stopping a trace
+#         seed: Integer seed for reproducible patterns
+#     """
+#     ctx.set_line_width(line_width)
+    
+#     # Use a reproducible seed for the noise function
+#     if seed is not None:
+#         random.seed(seed)
+#     noise_seed = random.randint(0, 1000000) if seed is None else seed
+    
+#     total_width = x_end - x_start
+    
+#     for _ in range(num_lines):
+#         # 1. Pick a random starting point in the band
+#         px = random.uniform(x_start, x_end)
+#         py = y + random.uniform(-y_band / 2.0, y_band / 2.0)
+#         ctx.move_to(px, py)
+        
+#         # 2. Trace the particle
+#         for _ in range(max_steps):
+#             # Get noise value at current (x, y)
+#             noise_val = fractal_noise_2d(
+#                 px * frequency, py * frequency, octaves=octaves, seed=noise_seed
+#             )
+            
+#             # Map noise value [0, 1] to an angle [0, 2*PI]
+#             angle = noise_val * 2 * pi
+            
+#             # Calculate the next step
+#             dx = cos(angle) * step_length
+#             dy = sin(angle) * step_length
+            
+#             px += dx
+#             py += dy
+            
+#             # Stop if we go out of bounds
+#             if not (x_start <= px <= x_end) or not (y - y_band <= py <= y + y_band):
+#                 break
+                
+#             ctx.line_to(px, py)
+            
+#         ctx.stroke()
+
+def _draw_streamline(
+    ctx,
+    x_start,
+    x_end,
+    y,
+    line_width=1.0,     # (Not used for fill, but part of signature)
+    num_layers=3,       # Number of vertical layers
+    layer_gap=4.0,      # Vertical gap between layers
+    segment_length=60.0,  # AVG. Length of one "swoosh"
+    segment_height=3.0,   # AVG. Max thickness of one "swoosh"
+    segment_gap=15.0,   # AVG. Horizontal gap between "swooshes"
+    amplitude=5.0,      # How "wavy" the line of segments is
+    wavelength=150.0,   # The length of the underlying sine wave
+    noise_amplitude=2.0,  # <-- NEW: How much "wobble" to add
+    noise_scale=0.01,     # <-- NEW: How "fast" the wobble is
+    seed=None           # <-- NEW: For reproducible patterns
+):
+    """
+    Draw a separator made of repeating, tapered, solid "swoosh" segments,
+    perturbed with noise.
+
+    Args:
+        y: The vertical center of the band.
+        num_layers: Number of parallel rows of segments.
+        layer_gap: Vertical spacing between rows.
+        segment_length: *Average* horizontal length of a single segment.
+        segment_height: *Average* maximum thickness (width) of a segment.
+        segment_gap: *Average* horizontal gap between segments.
+        amplitude: The amplitude of the underlying sine wave.
+        wavelength: The wavelength of the underlying sine wave.
+        noise_amplitude: Amplitude of the random "wobble"
+        noise_scale: Frequency of the random "wobble"
+        seed: Integer seed for reproducible patterns.
+    """
+    if seed is not None:
+        random.seed(seed)
+    
+    # Create a unique seed for the noise function
+    noise_seed = random.randint(0, 1000000) if seed is None else seed
+    
+    # We are filling, not stroking
+    ctx.set_line_width(0) 
+
+    # Calculate the Y position for the top-most layer
+    total_height = (num_layers - 1) * layer_gap
+    y_start_band = y - total_height / 2.0
+    
+    total_width = x_end - x_start
+
+    # --- Draw each layer ---
+    for i in range(num_layers):
+        y_base = y_start_band + (i * layer_gap)
+        
+        # Add a random offset to this layer so they don't all
+        # start in the same place (looks more organic)
+        x_current = x_start - random.uniform(0, segment_length + segment_gap)
+        
+        # --- Draw repeating segments for this layer ---
+        while x_current < x_end:
+            
+            # --- 1. Randomize segment properties ---
+            current_seg_length = random.uniform(segment_length * 0.8, segment_length * 1.2)
+            current_seg_gap = random.uniform(segment_gap * 0.8, segment_gap * 1.2)
+            current_seg_height = random.uniform(segment_height * 0.8, segment_height * 1.2)
+
+            # 2. Define segment bounds
+            x_seg_start = x_current
+            x_seg_end = x_current + current_seg_length
+
+            # 3. Build the polygon path for the swoosh
+            top_path = []
+            bottom_path = []
+            
+            num_steps = max(10, int(current_seg_length / 4)) # Steps for smoothness
+
+            for step in range(num_steps + 1):
+                t = step / num_steps  # 0.0 to 1.0
+                x = x_seg_start + (t * current_seg_length)
+                
+                if x > x_end: break
+                if x < x_start: continue
+
+                # --- 4. Calculate Y position with Noise ---
+                # 4a. Base Sine Wave
+                t_wave = (x - x_start) / wavelength
+                y_sin = amplitude * sin(t_wave * 2 * pi)
+                
+                # 4b. Noise "wobble"
+                noise_val = fractal_noise_2d(
+                    x * noise_scale, y_base * noise_scale, octaves=2, seed=noise_seed
+                )
+                y_noise = noise_amplitude * (noise_val - 0.5) * 2.0
+                
+                # 4c. Combine
+                y_center = y_base + y_sin + y_noise
+                
+                # --- 5. Calculate Taper ---
+                # sin(t * pi) gives a 0 -> 1 -> 0 curve
+                width_factor = sin(t * pi) 
+                current_half_width = (current_seg_height / 2.0) * width_factor
+                
+                top_path.append((x, y_center + current_half_width))
+                bottom_path.append((x, y_center - current_half_width))
+            
+            # 6. Draw the polygon
+            if len(top_path) > 1 and len(bottom_path) > 1:
+                ctx.move_to(top_path[0][0], top_path[0][1])
+                # Draw top edge
+                for pt in top_path[1:]:
+                    ctx.line_to(pt[0], pt[1])
+                # Draw bottom edge (in reverse)
+                for pt in reversed(bottom_path):
+                    ctx.line_to(pt[0], pt[1])
+                
+                ctx.close_path()
+                ctx.fill()
+            
+            # 7. Move to next segment
+            x_current += current_seg_length + current_seg_gap
+
 
 def draw_separator(ctx, x, y_start, y_end, line_width=1.0, grey=5):
     """
@@ -816,8 +1373,8 @@ def draw_separator(ctx, x, y_start, y_end, line_width=1.0, grey=5):
 
 # --- Style Registry and Public List ---
 
-# Update STYLE_REGISTRY
 STYLE_REGISTRY = {
+    # Primitive styles
     "bold": _draw_bold,
     "double": _draw_double,
     "wavy": _draw_wavy,
@@ -830,7 +1387,9 @@ STYLE_REGISTRY = {
     "dash-dot": _draw_dash_dot,
     "barber-stripe": _draw_barber_stripe,
     "stitch": _draw_stitch,
-    # New technical/circuit styles
+    # "loops": _draw_loops,
+    "10-print": _draw_10_print_sep,
+    # Technical/circuit styles
     "circuit-trace": _draw_circuit_trace,
     "data-flow": _draw_data_flow,
     "technical": _draw_technical,
@@ -838,6 +1397,10 @@ STYLE_REGISTRY = {
     "connection-nodes": _draw_connection_nodes,
     "digital-signal": _draw_digital_signal,
     "pcb-trace": _draw_pcb_trace,
+    # Nature styles
+    "vine": _draw_vine,
+    "mountains": _draw_mountains,
+    "streamline": _draw_streamline,
 }
 
 # Available separator styles for reference

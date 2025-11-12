@@ -11,16 +11,13 @@ from .devices import snap_to_eink_greyscale
 from .lsystem import generate_lsystem_string
 from .noise import fractal_noise_2d, simple_noise_2d, turbulence_2d
 
-# In cover_drawing.py, update draw_truchet_tiles function:
-
-
 def draw_truchet_tiles(
     ctx,
     x_start,
     x_end,
     y_start,
     y_end,
-    tile_size_px,
+    spacing,
     line_width,
     rotation_seed=None,
     fill_grey=None,
@@ -35,7 +32,7 @@ def draw_truchet_tiles(
         x_end: Right boundary (pixels)
         y_start: Top boundary (pixels)
         y_end: Bottom boundary (pixels)
-        tile_size_px: Size of each tile (pixels)
+        spacing: Size of each tile (pixels)
         line_width: Width of arcs (pixels)
         rotation_seed: Integer seed for reproducible patterns (None = random)
         fill_grey: Greyscale 0-15 to fill tiles (None = outline)
@@ -53,42 +50,42 @@ def draw_truchet_tiles(
     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
 
     # Calculate number of tiles
-    num_cols = int((x_end - x_start) / tile_size_px)
-    num_rows = int((y_end - y_start) / tile_size_px)
+    num_cols = int((x_end - x_start) / spacing)
+    num_rows = int((y_end - y_start) / spacing)
 
     # Draw each tile
     for row in range(num_rows):
         for col in range(num_cols):
-            x = x_start + (col * tile_size_px)
-            y = y_start + (row * tile_size_px)
+            x = x_start + (col * spacing)
+            y = y_start + (row * spacing)
 
             # Randomly choose rotation (0, 90, 180, or 270 degrees)
             rotation = random.choice([0, 1, 2, 3])
 
             # Choose tile type based on variant
             if variant == "cross":
-                _draw_truchet_cross_tile(ctx, x, y, tile_size_px, rotation, fill_grey, line_width)
+                _draw_truchet_cross_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
             elif variant == "triangle":
                 _draw_truchet_triangle_tile(
-                    ctx, x, y, tile_size_px, rotation, fill_grey, line_width
+                    ctx, x, y, spacing, rotation, fill_grey, line_width
                 )
             elif variant == "wave":
-                _draw_truchet_wave_tile(ctx, x, y, tile_size_px, rotation, fill_grey, line_width)
+                _draw_truchet_wave_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
             elif variant == "mixed":
                 # Randomly choose between different styles
                 tile_type = random.choice(["classic", "cross", "triangle"])
                 if tile_type == "cross":
                     _draw_truchet_cross_tile(
-                        ctx, x, y, tile_size_px, rotation, fill_grey, line_width
+                        ctx, x, y, spacing, rotation, fill_grey, line_width
                     )
                 elif tile_type == "triangle":
                     _draw_truchet_triangle_tile(
-                        ctx, x, y, tile_size_px, rotation, fill_grey, line_width
+                        ctx, x, y, spacing, rotation, fill_grey, line_width
                     )
                 else:  # classic
-                    _draw_truchet_tile(ctx, x, y, tile_size_px, rotation, fill_grey, line_width)
+                    _draw_truchet_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
             else:  # 'classic'
-                _draw_truchet_tile(ctx, x, y, tile_size_px, rotation, fill_grey, line_width)
+                _draw_truchet_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
 
 
 def _draw_truchet_tile(ctx, x, y, size, rotation, fill_grey, line_width):
@@ -264,7 +261,7 @@ def draw_diagonal_truchet_tiles(
     x_end,
     y_start,
     y_end,
-    tile_size_px,
+    spacing,
     rotation_seed=None,
     fill_grey_1=0,
     fill_grey_2=15,
@@ -275,7 +272,7 @@ def draw_diagonal_truchet_tiles(
     Args:
         ctx: Cairo context
         x_start...y_end: Boundaries
-        tile_size_px: Size of each tile
+        spacing: Size of each tile
         rotation_seed: Integer seed for reproducible patterns
         fill_grey_1: Fill for the first triangle (0-15)
         fill_grey_2: Fill for the second triangle (0-15)
@@ -284,8 +281,8 @@ def draw_diagonal_truchet_tiles(
         random.seed(rotation_seed)
 
     # Calculate number of tiles
-    num_cols = int((x_end - x_start) / tile_size_px) + 1
-    num_rows = int((y_end - y_start) / tile_size_px) + 1
+    num_cols = int((x_end - x_start) / spacing) + 1
+    num_rows = int((y_end - y_start) / spacing) + 1
 
     # Snap colors
     color_1 = snap_to_eink_greyscale(fill_grey_1)
@@ -294,13 +291,13 @@ def draw_diagonal_truchet_tiles(
     # Draw each tile
     for row in range(num_rows):
         for col in range(num_cols):
-            x = x_start + (col * tile_size_px)
-            y = y_start + (row * tile_size_px)
+            x = x_start + (col * spacing)
+            y = y_start + (row * spacing)
 
             # Randomly choose rotation (0 or 90 degrees)
             rotation = random.choice([0, 1])
 
-            _draw_diagonal_tile(ctx, x, y, tile_size_px, rotation, color_1, color_2)
+            _draw_diagonal_tile(ctx, x, y, spacing, rotation, color_1, color_2)
 
 
 def _draw_diagonal_tile(ctx, x, y, size, rotation, color_1_val, color_2_val):
@@ -346,16 +343,16 @@ def _draw_diagonal_tile(ctx, x, y, size, rotation, color_1_val, color_2_val):
 
 
 def draw_hexagonal_truchet_tiles(
-    ctx, x_start, x_end, y_start, y_end, tile_size_px, line_width, rotation_seed=None
+    ctx, x_start, x_end, y_start, y_end, spacing, line_width, rotation_seed=None
 ):
     """
     Draw a Truchet pattern on a hexagonal grid.
-    'tile_size_px' is the side length 's' of the hexagon.
+    'spacing' is the side length 's' of the hexagon.
 
     Args:
         ctx: Cairo context
         x_start...y_end: Boundaries
-        tile_size_px: Side length 's' of the hexagon
+        spacing: Side length 's' of the hexagon
         line_width: Width of the connecting lines
         rotation_seed: Integer seed
     """
@@ -370,8 +367,8 @@ def draw_hexagonal_truchet_tiles(
     width = x_end - x_start
     height = y_end - y_start
 
-    # 'tile_size_px' is the side length (s)
-    s = tile_size_px
+    # 'spacing' is the side length (s)
+    s = spacing
 
     # Calculate horizontal and vertical distances between hex centers
     v_dist = sqrt(3) * s
@@ -459,7 +456,7 @@ def _draw_hexagonal_tile(ctx, x_c, y_c, s, rotation):
 
 
 def draw_10_print_tiles(
-    ctx, x_start, x_end, y_start, y_end, tile_size_px, line_width, rotation_seed=None
+    ctx, x_start, x_end, y_start, y_end, spacing, line_width, rotation_seed=None
 ):
     """
     Draw "10 PRINT" pattern (random forward/back slashes).
@@ -467,7 +464,7 @@ def draw_10_print_tiles(
     Args:
         ctx: Cairo context
         x_start...y_end: Boundaries
-        tile_size_px: Size of each tile
+        spacing: Size of each tile
         line_width: Width of the slashes
         rotation_seed: Integer seed for reproducible patterns
     """
@@ -479,19 +476,19 @@ def draw_10_print_tiles(
     ctx.set_line_width(line_width)
 
     # Calculate number of tiles
-    num_cols = int((x_end - x_start) / tile_size_px) + 1
-    num_rows = int((y_end - y_start) / tile_size_px) + 1
+    num_cols = int((x_end - x_start) / spacing) + 1
+    num_rows = int((y_end - y_start) / spacing) + 1
 
     # Draw each tile
     for row in range(num_rows):
         for col in range(num_cols):
-            x = x_start + (col * tile_size_px)
-            y = y_start + (row * tile_size_px)
+            x = x_start + (col * spacing)
+            y = y_start + (row * spacing)
 
             # Randomly choose slash direction (0 or 1)
             direction = random.choice([0, 1])
 
-            _draw_10_print_tile(ctx, x, y, tile_size_px, direction)
+            _draw_10_print_tile(ctx, x, y, spacing, direction)
 
     ctx.restore()
 

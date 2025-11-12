@@ -202,7 +202,7 @@ def create_cover_surface(
     draw_func = config["draw_func"]
 
     spacing.print_adjustment_message()  # Print if adjustment happened
-    spacing_px = spacing.pixels
+    spacing = spacing.pixels
 
     # 2. Setup Canvas (DRY)
     surface, ctx = create_canvas(page_width, page_height)
@@ -217,7 +217,7 @@ def create_cover_surface(
         "x_end": margins.content_x_start + margins.content_width,
         "y_start": margins.content_y_start,
         "y_end": margins.content_y_start + margins.content_height,
-        "spacing_px": spacing_px,
+        "spacing": spacing,
     }
 
     # Map CLI args to function's kwargs

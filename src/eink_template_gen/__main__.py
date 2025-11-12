@@ -122,6 +122,14 @@ def create_common_parser():
         help="Greyscale level for corners 0-15 (default: 0 = black)",
     )
 
+    corner_group.add_argument(
+        "--corner-inset",
+        type=float,
+        default=0.618,
+        metavar="RATIO",
+        help="Ratio of corner extending into content (0.0=all in margin, 1.0=all in content, default: 0.618)",
+    )
+
     # --- File Output Kwargs ---
     output_group = parent_parser.add_argument_group("File Output")
     output_group.add_argument("--output-dir", default="out", help="Output directory (default: out)")
@@ -273,7 +281,7 @@ def configure_util_parser(subparsers):
 
     # --- util list-templates ---
     list_tpl_parser = util_subparsers.add_parser(
-        "list-templates", help="List all available templates and title patterns and exit"
+        "list-templates", help="List all available templates and cover patterns and exit"
     )
     list_tpl_parser.set_defaults(func=handle_list_templates)
 
@@ -318,9 +326,9 @@ def configure_cover_parser(subparsers, common_parser):
         help="Generate a decorative cover page pattern",
         description="Generate a decorative cover page pattern (e.g., Truchet tiles, fractals, noise patterns).",
     )
-    title_parser.set_defaults(func=handle_cover_generation)
+    cover_parser.set_defaults(func=handle_cover_generation)
 
-    title_parser.add_argument(
+    cover_parser.add_argument(
         "--type",
         choices=list(COVER_REGISTRY.keys()),
         required=True,
@@ -333,8 +341,8 @@ def configure_cover_parser(subparsers, common_parser):
         "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
 
-    # --- Title Pattern Options ---
-    pattern_group = title_parser.add_argument_group("Title Pattern Options")
+    # --- Cover Pattern Options ---
+    pattern_group = cover_parser.add_argument_group("Cover Pattern Options")
     pattern_group.add_argument(
         "--truchet-seed",
         type=int,
@@ -412,11 +420,11 @@ def configure_cover_parser(subparsers, common_parser):
     )
 
     # --- Title Text & Frame Options ---
-    frame_group = title_parser.add_argument_group("Title Text & Frame Options")
+    frame_group = cover_parser.add_argument_group("Title Text & Frame Options")
     frame_group.add_argument(
         "--title-text",
         type=str,
-        help="Text to display on the title page (optional - leave blank to handwrite)",
+        help="Text to display on the cover page (optional - leave blank to handwrite)",
     )
     frame_group.add_argument(
         "--title-no-frame", action="store_true", help="Disable frame around title text"
@@ -899,9 +907,9 @@ Examples:
   eink-template-gen multi --rows 2 --columns 2 --type dotgrid --spacing 5
   eink-template-gen multi --rows 1 --columns 2 --cell-types lined,grid
 
-  # --- Title Pages ---
-  eink-template-gen title --type truchet --spacing 10 --truchet-seed 42
-  eink-template-gen title --type contour-lines --noise-scale 0.03 --title-text "My Notebook"
+  # --- Cover Pages ---
+  eink-template-gen cover --type truchet --spacing 10 --truchet-seed 42
+  eink-template-gen cover --type contour-lines --noise-scale 0.03 --title-text "My Notebook"
 
   # --- JSON Layouts ---
   eink-template-gen layout --file my_cornell_layout.json
@@ -922,7 +930,7 @@ Examples:
 
     # --- Register all the sub-parsers ---
     configure_util_parser(subparsers)
-    configure_title_parser(subparsers, common_parser)
+    configure_cover_parser(subparsers, common_parser)
     configure_layout_parser(subparsers, common_parser)
     configure_multi_parser(subparsers, common_parser)
     configure_template_parsers(subparsers, common_parser)  # For 'lined', 'grid', etc.

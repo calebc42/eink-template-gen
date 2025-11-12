@@ -543,9 +543,10 @@ def draw_corner_ornament(ctx, x, y, style="bracket", corner="top-left", size=20.
 
 
 def draw_page_corners(ctx, margins, page_width, page_height, 
-                      corner_style=None, corner_size=20.0, **kwargs) -> bool:
+                      corner_style=None, corner_size=20.0, 
+                      margin_inset_ratio=0.618, **kwargs) -> bool:
     """
-    Draw corner ornaments on all four corners
+    Draw corner ornaments positioned in the margins with slight overlap into content
     
     Args:
         ctx: Cairo context
@@ -554,6 +555,7 @@ def draw_page_corners(ctx, margins, page_width, page_height,
         page_height: Page height in pixels
         corner_style: Style name or dict mapping corner names to styles
         corner_size: Size of corner ornaments
+        margin_inset_ratio: Ratio of ornament that extends into content (default: 0.618 - golden ratio)
         **kwargs: Style parameters
     
     Returns:
@@ -577,12 +579,29 @@ def draw_page_corners(ctx, margins, page_width, page_height,
     else:
         return False
     
-    # Corner positions (at the margin boundaries)
+    # Calculate the offset based on golden ratio
+    # The ornament extends INTO the content by (corner_size * margin_inset_ratio)
+    # So we need to offset the "origin" point by that amount AWAY from content
+    inset_amount = corner_size * margin_inset_ratio
+    
+    # Corner positions (offset into the margins)
     corners = {
-        "top-left": (margins.left, margins.top),
-        "top-right": (page_width - margins.right, margins.top),
-        "bottom-left": (margins.left, page_height - margins.bottom),
-        "bottom-right": (page_width - margins.right, page_height - margins.bottom)
+        "top-left": (
+            margins.left - (corner_size - inset_amount),  # Move left into margin
+            margins.top - (corner_size - inset_amount)     # Move up into margin
+        ),
+        "top-right": (
+            page_width - margins.right + (corner_size - inset_amount),  # Move right into margin
+            margins.top - (corner_size - inset_amount)                   # Move up into margin
+        ),
+        "bottom-left": (
+            margins.left - (corner_size - inset_amount),          # Move left into margin
+            page_height - margins.bottom + (corner_size - inset_amount)  # Move down into margin
+        ),
+        "bottom-right": (
+            page_width - margins.right + (corner_size - inset_amount),   # Move right into margin
+            page_height - margins.bottom + (corner_size - inset_amount)  # Move down into margin
+        )
     }
     
     # Draw each corner

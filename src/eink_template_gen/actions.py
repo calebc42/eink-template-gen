@@ -4,6 +4,7 @@ import cairo
 from pathlib import Path
 
 from .config import get_default_device, get_default_margin, set_default_device, set_default_margin
+from .corners import draw_page_corners
 from .covers import COVER_REGISTRY, create_cover_surface
 from .devices import get_device, list_devices
 from .templates import (
@@ -260,9 +261,9 @@ def _build_preview_summary(context, args, template_kwargs=None):
     if args.command == "layout":
         lines.append("\n Template: JSON Layout")
         lines.append(f"    File: {args.layout}")
-    elif args.command == "title":
+    elif args.command == "cover":
         lines.append("\n Template: Title Page")
-        lines.append(f"    Pattern: {args.title}")
+        lines.append(f"    Pattern: {args.cover}")
     elif args.command == "multi":
         if args.template:
             lines.append("\n Template: Multi-Cell Grid (Uniform)")
@@ -333,7 +334,7 @@ def _build_preview_summary(context, args, template_kwargs=None):
         )
 
         if (
-            args.command not in ["layout", "multi", "title"]
+            args.command not in ["layout", "multi", "cover"]
             and not context["using_line_count_mode"]
         ):
             num_h_lines = int(margins.content_height / context["spacing_result"].pixels)
@@ -368,6 +369,14 @@ def _build_preview_summary(context, args, template_kwargs=None):
     if hasattr(args, "footer") and args.footer:
         features.append(f"Footer separator: {args.footer}")
 
+    # Corner Ornaments
+    if hasattr(args, 'corner_style') and args.corner_style:
+        lines.append("\n Corner Ornaments:")
+        lines.append(f"    Style: {args.corner_style}")
+        lines.append(f"    Size: {getattr(args, 'corner_size', 20.0)}px")
+        if getattr(args, 'corner_grey', 0) != 0:
+            lines.append(f"    Grey level: {args.corner_grey}")
+
     if features:
         for feature in features:
             lines.append(f"    • {feature}")
@@ -390,8 +399,8 @@ def _build_preview_summary(context, args, template_kwargs=None):
 
         if args.command == "layout":
             filename = Path(args.layout).stem + ".png"
-        elif args.command == "title":
-            filename = generate_filename("title", **filename_kwargs)
+        elif args.command == "cover":
+            filename = generate_filename("cover", **filename_kwargs)
         elif args.command == "multi":
             filename = generate_filename("multi", **filename_kwargs)
         else:
@@ -461,8 +470,8 @@ def _save_and_print_summary(surface, context, args):
             default_filename = Path(args.layout).stem + ".png"
             filename = cli_args.get("output_filename", default_filename)
             output_dir = device_dir
-        elif args.command == "title":
-            filename = generate_filename("title", **filename_kwargs)
+        elif args.command == "cover":
+            filename = generate_filename("cover", **filename_kwargs)
             output_dir = device_dir
         elif args.command == "multi":
             filename = generate_filename("multi", **filename_kwargs)
@@ -489,8 +498,8 @@ def _save_and_print_summary(surface, context, args):
         print(f"  - Margin: {context['margin_mm']}mm")
         return
 
-    if args.command == "title":
-        print(f"  - Pattern: {args.title}")
+    if args.command == "cover":
+        print(f"  - Pattern: {args.cover}")
     if args.command == "multi":
         if args.template:
             print(f"  - Template: {args.template} (Uniform)")
@@ -539,7 +548,7 @@ def _save_and_print_summary(surface, context, args):
             is_major_aligned = getattr(args, "force_major_alignment", False) and cli_args.get(
                 "major_every"
             )
-            if is_major_aligned and args.command not in ["layout", "multi", "title"]:
+            if is_major_aligned and args.command not in ["layout", "multi", "cover"]:
                 print(
                     f"  - Margin: {margin_mm}mm (adjusted for major alignment: "
                     f"T:{m_top/mm2px:.2f}, B:{m_bottom/mm2px:.2f}, L:{m_left/mm2px:.2f}, R:{m_right/mm2px:.2f}mm)"
@@ -586,10 +595,10 @@ def handle_list_templates(args=None):
     print("Available single templates:")
     for template_name in TEMPLATE_REGISTRY.keys():
         print(f"  {template_name}")
-    print("\nAvailable title patterns:")
-    for title_name in COVER_REGISTRY.keys():
-        if not title_name.startswith("_"):
-            print(f"  {title_name}")
+    print("\nAvailable cover patterns:")
+    for cover_name in COVER_REGISTRY.keys():
+        if not cover_name.startswith("_"):
+            print(f"  {cover_name}")
     print("\nComplex layout commands:")
     print("  multi")
     print("  layout")
@@ -612,7 +621,7 @@ def handle_show_spacing_info(args):
     print_spacing_info(spacing_str, device_config["dpi"], device_config["name"])
 
 
-# --- Action 2: JSON Layout Generation (REFACTORED) ---
+# --- Action 2: JSON Layout Generation ---
 
 
 def handle_json_generation(args):
@@ -709,22 +718,41 @@ def handle_json_generation(args):
         config, device_config, margin_mm, auto_adjust, force_major_alignment
     )
 
+    # 8.5. Draw corner ornaments if specified
+    if hasattr(args, 'corner_style') and args.corner_style:
+        ctx = cairo.Context(surface)
+        
+        corner_kwargs = {
+            'grey': getattr(args, 'corner_grey', 0)
+        }
+        
+        draw_page_corners(
+            ctx,
+            context['margins'],
+            context['width'],
+            context['height'],
+            args.corner_style,
+            getattr(args, 'corner_size', 20.0),
+            margin_inset_ratio=getattr(args, 'corner_inset', 0.618),
+            **corner_kwargs
+        )
+
     # 9. Save File and Print Summary
     print(f"  - Margin: {margin_source}")
     print(f"  - Master Spacing: {master_spacing_mm}mm")
     _save_and_print_summary(surface, context, args)
 
 
-# --- Action 3: Title Page Generation ---
+# --- Action 3: Cover Page Generation ---
 
 
 def handle_cover_generation(args):
     """
-    Handle generation of title page patterns
+    Handle generation of cover page patterns
     """
     # 1. Initial setup
     context = _setup_generation_context(args)
-    template_kwargs = _build_template_kwargs(args.title, args)
+    template_kwargs = _build_template_kwargs(args.cover, args)
 
     # 2. Calculate Spacing
     if not context["using_line_count_mode"]:
@@ -738,7 +766,7 @@ def handle_cover_generation(args):
 
     # 3. Calculate Margins
     alignment = AlignmentUnits.from_template_config(
-        args.title, spacing_px, context["dpi"], template_kwargs
+        args.cover, spacing_px, context["dpi"], template_kwargs
     )
 
     margins = calculate_page_margins(
@@ -804,9 +832,13 @@ def handle_cover_generation(args):
         all_kwargs["cover_config"]["title_frame_height"] = args.title_frame_height
 
     # 7. Generate Surface
-    print(f"Generating '{args.title}' title page for {context['device_config']['name']}...")
+    print(f"Generating '{args.cover}' cover page for {context['device_config']['name']}...")
+    all_kwargs.pop('spacing', None)
+    all_kwargs.pop('cover', None)
+    all_kwargs.pop('header', None)
+    all_kwargs.pop('footer', None)
     surface = create_cover_surface(
-        cover_type=args.title,
+        cover_type=args.cover,
         margins=margins,
         spacing=context["spacing_result"],
         page_width=context["width"],
@@ -815,6 +847,25 @@ def handle_cover_generation(args):
         footer=args.footer,
         **all_kwargs,  # Pass all other args as kwargs
     )
+
+    # 7.5. Draw corner ornaments if specified
+    if hasattr(args, 'corner_style') and args.corner_style:
+        ctx = cairo.Context(surface)
+        
+        corner_kwargs = {
+            'grey': getattr(args, 'corner_grey', 0)
+        }
+        
+        draw_page_corners(
+            ctx,
+            context['margins'],
+            context['width'],
+            context['height'],
+            args.corner_style,
+            getattr(args, 'corner_size', 20.0),
+            margin_inset_ratio=getattr(args, 'corner_inset', 0.618),
+            **corner_kwargs
+        )
 
     # 8. Save and Summarize
     _save_and_print_summary(surface, context, args)
@@ -887,15 +938,14 @@ def handle_single_template_generation(args):
         template_kwargs=template_kwargs,
     )
 
-    # Draw corner ornaments if specified
+    # 6.5. Draw corner ornaments if specified
     if hasattr(args, 'corner_style') and args.corner_style:
-        from .corners import draw_page_corners
         ctx = cairo.Context(surface)
-
+        
         corner_kwargs = {
             'grey': getattr(args, 'corner_grey', 0)
         }
-
+        
         draw_page_corners(
             ctx,
             context['margins'],
@@ -903,6 +953,7 @@ def handle_single_template_generation(args):
             context['height'],
             args.corner_style,
             getattr(args, 'corner_size', 20.0),
+            margin_inset_ratio=getattr(args, 'corner_inset', 0.618),
             **corner_kwargs
         )
 
@@ -1040,6 +1091,25 @@ def handle_multi_template_generation(args):
 
     # 8. Generate Surface
     surface = template_func(**base_kwargs)
+
+    # 8.5. Draw corner ornaments if specified
+    if hasattr(args, 'corner_style') and args.corner_style:
+        ctx = cairo.Context(surface)
+        
+        corner_kwargs = {
+            'grey': getattr(args, 'corner_grey', 0)
+        }
+        
+        draw_page_corners(
+            ctx,
+            context['margins'],
+            context['width'],
+            context['height'],
+            args.corner_style,
+            getattr(args, 'corner_size', 20.0),
+            margin_inset_ratio=getattr(args, 'corner_inset', 0.618),
+            **corner_kwargs
+        )
 
     # 9. Save and Summarize
     _save_and_print_summary(surface, context, args)

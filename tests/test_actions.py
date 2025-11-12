@@ -47,7 +47,7 @@ def test_handle_list_templates():
 
         assert "Available single templates:" in output
         assert "  lined" in output
-        assert "Available title patterns:" in output
+        assert "Available cover patterns:" in output
         assert "  truchet" in output
         assert "Complex layout commands:" in output
         assert "  multi" in output

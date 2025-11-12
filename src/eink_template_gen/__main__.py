@@ -15,6 +15,7 @@ from eink_template_gen.actions import (
     handle_set_default_margin,
     handle_show_spacing_info,
     handle_single_template_generation,
+    handle_show_glyphs
 )
 from eink_template_gen.config import get_default_margin
 from eink_template_gen.covers import COVER_REGISTRY
@@ -130,6 +131,40 @@ def create_common_parser():
         help="Ratio of corner extending into content (0.0=all in margin, 1.0=all in content, default: 0.618)",
     )
 
+    # --- Margin Ornaments ---
+    margin_group = parent_parser.add_argument_group("Margin Ornaments")
+    margin_group.add_argument(
+        "--margin-ornaments",
+        type=str,
+        metavar="STYLE",
+        help='Margin ornament style and configuration. Examples: '
+             '"scattered", "scattered(density=0.5)", "grid(spacing=50)", '
+             '"clustered(num_clusters=3)", "edge-aligned(spacing=80)"',
+    )
+
+    margin_group.add_argument(
+        "--margin-glyphs",
+        type=str,
+        default="technical",
+        help="Glyphs to use: category name (technical, circuit, arrows), "
+             "collection name (geometric, minimal), or comma-separated list. "
+             "Default: technical",
+    )
+
+    margin_group.add_argument(
+        "--margin-glyph-grey",
+        type=int,
+        default=10,
+        help="Greyscale level for margin glyphs 0-15 (default: 10 = light grey)",
+    )
+
+    margin_group.add_argument(
+        "--margin-glyph-line-width",
+        type=float,
+        default=1.0,
+        help="Line width for margin glyphs (default: 1.0)",
+    )
+    
     # --- File Output Kwargs ---
     output_group = parent_parser.add_argument_group("File Output")
     output_group.add_argument("--output-dir", default="out", help="Output directory (default: out)")
@@ -315,6 +350,32 @@ def configure_util_parser(subparsers):
     )
     info_parser.set_defaults(func=handle_show_spacing_info)
 
+    # --- util show-glyphs ---
+    show_glyphs_parser = util_subparsers.add_parser(
+        "show-glyphs", help="Preview all available glyphs"
+    )
+    show_glyphs_parser.add_argument(
+        "--category",
+        type=str,
+        help="Filter by category (basic_shapes, arrows, nodes, technical, circuit, decorative)",
+    )
+    show_glyphs_parser.add_argument(
+        "--collection",
+        type=str,
+        help="Show glyphs from a specific collection",
+    )
+    show_glyphs_parser.add_argument(
+        "--output",
+        type=str,
+        default="glyph_preview.png",
+        help="Output filename (default: glyph_preview.png)",
+    )
+    show_glyphs_parser.add_argument(
+        "--device",
+        choices=list_devices(),
+        help="Target device (optional, uses default if not set)",
+    )
+    show_glyphs_parser.set_defaults(func=handle_show_glyphs)
 
 def configure_cover_parser(subparsers, common_parser):
     """

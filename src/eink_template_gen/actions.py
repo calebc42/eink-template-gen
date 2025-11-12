@@ -4,7 +4,9 @@ import cairo
 from pathlib import Path
 
 from .config import get_default_device, get_default_margin, set_default_device, set_default_margin
+from .glyphs import get_all_categories, list_collections
 from .corners import draw_page_corners
+from .margin_ornaments import apply_margin_ornaments
 from .covers import COVER_REGISTRY, create_cover_surface
 from .devices import get_device, list_devices
 from .templates import (
@@ -29,7 +31,6 @@ from .utils import (
 )
 
 # --- Generation Helper: 1. Setup ---
-
 
 def _setup_generation_context(args):
     """
@@ -147,6 +148,62 @@ def _setup_generation_context(args):
 
     return context
 
+def _parse_margin_ornament_config(config_str):
+    """
+    Parse margin ornament configuration string
+    
+    Args:
+        config_str: String like "scattered" or "scattered(density=0.5,seed=42)"
+    
+    Returns:
+        Tuple of (style_name, kwargs_dict)
+    """
+    if not config_str:
+        return None, {}
+    
+    config_str = config_str.strip()
+    
+    # Check if it has parameters: "style(param=value,param=value)"
+    if "(" in config_str and config_str.endswith(")"):
+        # Split on first '('
+        style, params_str = config_str.split("(", 1)
+        style = style.strip()
+        
+        # Remove trailing ')'
+        params_str = params_str.rstrip(")")
+        
+        # Parse parameters
+        kwargs = {}
+        if params_str:
+            for param in params_str.split(","):
+                param = param.strip()
+                if "=" not in param:
+                    print(f"Warning: Invalid parameter format '{param}'. Skipping.")
+                    continue
+                
+                key, value = param.split("=", 1)
+                key = key.strip()
+                value = value.strip()
+                
+                # Try to convert to appropriate type
+                try:
+                    # Try boolean
+                    if value.lower() in ["true", "false"]:
+                        kwargs[key] = value.lower() == "true"
+                    # Try integer
+                    elif "." not in value:
+                        kwargs[key] = int(value)
+                    # Try float
+                    else:
+                        kwargs[key] = float(value)
+                except ValueError:
+                    # Keep as string
+                    kwargs[key] = value
+        
+        return style, kwargs
+    else:
+        # Plain style name
+        return config_str, {}
 
 # --- Generation Helper: 2. Build Kwargs ---
 
@@ -231,6 +288,115 @@ def _build_template_kwargs(template_type, args):
 
     return kwargs
 
+def handle_show_glyphs(args):
+    """
+    Generate a preview image showing all available glyphs
+    """
+    from .glyphs import (
+        AVAILABLE_GLYPHS,
+        draw_glyph,
+        get_glyph_by_category,
+        get_collection,
+        get_glyph_info,
+    )
+    
+    # Determine which glyphs to show
+    if args.category:
+        glyph_list = get_glyph_by_category(args.category)
+        title = f"Glyphs - Category: {args.category}"
+    elif args.collection:
+        glyph_list = get_collection(args.collection)
+        title = f"Glyphs - Collection: {args.collection}"
+    else:
+        glyph_list = AVAILABLE_GLYPHS
+        title = "All Available Glyphs"
+    
+    if not glyph_list:
+        print(f"No glyphs found for category/collection: {args.category or args.collection}")
+        return
+    
+    # Get device for DPI
+    device_id = args.device if hasattr(args, 'device') and args.device else None
+    if not device_id:
+        device_id = get_default_device()
+        if not device_id:
+            device_id = "manta"  # Fallback
+    
+    device_config = get_device(device_id)
+    dpi = device_config["dpi"]
+    
+    # Calculate layout
+    glyphs_per_row = 8
+    num_glyphs = len(glyph_list)
+    num_rows = (num_glyphs + glyphs_per_row - 1) // glyphs_per_row
+    
+    cell_size = 80  # pixels per cell
+    margin = 40
+    label_height = 30
+    title_height = 50
+    
+    width = (glyphs_per_row * cell_size) + (2 * margin)
+    height = (num_rows * (cell_size + label_height)) + (2 * margin) + title_height
+    
+    # Create surface
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    ctx = cairo.Context(surface)
+    
+    # White background
+    ctx.set_source_rgb(1, 1, 1)
+    ctx.paint()
+    
+    # Draw title
+    ctx.set_source_rgb(0, 0, 0)
+    ctx.select_font_face("Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+    ctx.set_font_size(24)
+    extents = ctx.text_extents(title)
+    ctx.move_to((width - extents.width) / 2, margin + 30)
+    ctx.show_text(title)
+    
+    # Draw glyphs
+    ctx.select_font_face("Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+    ctx.set_font_size(12)
+    
+    for i, glyph_name in enumerate(glyph_list):
+        row = i // glyphs_per_row
+        col = i % glyphs_per_row
+        
+        cell_x = margin + (col * cell_size) + cell_size / 2
+        cell_y = margin + title_height + (row * (cell_size + label_height)) + cell_size / 2
+        
+        # Draw glyph (large size for visibility)
+        draw_glyph(ctx, cell_x, cell_y, glyph_name, size=30, line_width=1.5)
+        
+        # Draw label
+        label = glyph_name
+        extents = ctx.text_extents(label)
+        label_x = cell_x - extents.width / 2
+        label_y = cell_y + cell_size / 2 + 20
+        
+        ctx.set_source_rgb(0, 0, 0)
+        ctx.move_to(label_x, label_y)
+        ctx.show_text(label)
+        
+        # Draw info (size, weight)
+        info = get_glyph_info(glyph_name)
+        info_text = f"{info['default_size']}px • {info['visual_weight']}"
+        extents = ctx.text_extents(info_text)
+        info_x = cell_x - extents.width / 2
+        info_y = label_y + 15
+        
+        ctx.set_source_rgb(0.5, 0.5, 0.5)
+        ctx.move_to(info_x, info_y)
+        ctx.show_text(info_text)
+    
+    # Save
+    output_path = args.output
+    surface.write_to_png(output_path)
+    
+    print(f"\nGlyph preview generated: {output_path}")
+    print(f"  Showing {len(glyph_list)} glyphs")
+    print(f"  Categories: {', '.join(get_all_categories())}")
+    print(f"  Collections: {', '.join(list_collections())}")
 
 # --- Generation Helper: 3. Preview Summary ---
 
@@ -377,6 +543,16 @@ def _build_preview_summary(context, args, template_kwargs=None):
         if getattr(args, 'corner_grey', 0) != 0:
             lines.append(f"    Grey level: {args.corner_grey}")
 
+    # Margin Ornaments
+    if hasattr(args, 'margin_ornaments') and args.margin_ornaments:
+        lines.append("\n Margin Ornaments:")
+        style, style_kwargs = _parse_margin_ornament_config(args.margin_ornaments)
+        lines.append(f"    Style: {style}")
+        lines.append(f"    Glyphs: {getattr(args, 'margin_glyphs', 'technical')}")
+        if style_kwargs:
+            lines.append(f"    Parameters: {', '.join(f'{k}={v}' for k, v in style_kwargs.items())}")
+        lines.append(f"    Grey level: {getattr(args, 'margin_glyph_grey', 10)}")
+
     if features:
         for feature in features:
             lines.append(f"    • {feature}")
@@ -430,6 +606,7 @@ def _build_preview_summary(context, args, template_kwargs=None):
 
     lines.append("\n" + "=" * 70)
     return "\n".join(lines)
+
 
 
 # --- Generation Helper: 4. Save & Summarize ---
@@ -737,6 +914,26 @@ def handle_json_generation(args):
             **corner_kwargs
         )
 
+    # 8.6. Draw margin ornaments if specified
+    if hasattr(args, 'margin_ornaments') and args.margin_ornaments:
+        ctx = cairo.Context(surface)
+        
+        style, style_kwargs = _parse_margin_ornament_config(args.margin_ornaments)
+        
+        if style:
+            style_kwargs['line_width'] = getattr(args, 'margin_glyph_line_width', 1.0)
+            style_kwargs['grey'] = getattr(args, 'margin_glyph_grey', 10)
+            
+            apply_margin_ornaments(
+                ctx,
+                context['margins'],
+                context['width'],
+                context['height'],
+                style=style,
+                glyph_spec=getattr(args, 'margin_glyphs', 'technical'),
+                **style_kwargs
+            )
+
     # 9. Save File and Print Summary
     print(f"  - Margin: {margin_source}")
     print(f"  - Master Spacing: {master_spacing_mm}mm")
@@ -957,6 +1154,27 @@ def handle_single_template_generation(args):
             **corner_kwargs
         )
 
+    # 6.6. Draw margin ornaments if specified
+    if hasattr(args, 'margin_ornaments') and args.margin_ornaments:
+        ctx = cairo.Context(surface)
+        
+        style, style_kwargs = _parse_margin_ornament_config(args.margin_ornaments)
+        
+        if style:
+            # Add global margin ornament settings
+            style_kwargs['line_width'] = getattr(args, 'margin_glyph_line_width', 1.0)
+            style_kwargs['grey'] = getattr(args, 'margin_glyph_grey', 10)
+            
+            apply_margin_ornaments(
+                ctx,
+                context['margins'],
+                context['width'],
+                context['height'],
+                style=style,
+                glyph_spec=getattr(args, 'margin_glyphs', 'technical'),
+                **style_kwargs
+            )
+
     # 7. Save and Summarize
     _save_and_print_summary(surface, context, args)
 
@@ -1110,6 +1328,26 @@ def handle_multi_template_generation(args):
             margin_inset_ratio=getattr(args, 'corner_inset', 0.618),
             **corner_kwargs
         )
+
+    # 8.6. Draw margin ornaments if specified
+    if hasattr(args, 'margin_ornaments') and args.margin_ornaments:
+        ctx = cairo.Context(surface)
+        
+        style, style_kwargs = _parse_margin_ornament_config(args.margin_ornaments)
+        
+        if style:
+            style_kwargs['line_width'] = getattr(args, 'margin_glyph_line_width', 1.0)
+            style_kwargs['grey'] = getattr(args, 'margin_glyph_grey', 10)
+            
+            apply_margin_ornaments(
+                ctx,
+                context['margins'],
+                context['width'],
+                context['height'],
+                style=style,
+                glyph_spec=getattr(args, 'margin_glyphs', 'technical'),
+                **style_kwargs
+            )
 
     # 9. Save and Summarize
     _save_and_print_summary(surface, context, args)

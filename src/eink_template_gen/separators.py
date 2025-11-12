@@ -972,7 +972,6 @@ def _draw_vine(
     top_path = []
     bottom_path = []
 
-    num_steps = int(x_end - x_start)
     for x_pix in range(int(x_start), int(x_end) + 1):
         # 1. Base Sine Wave (Centerline)
         t_wave = (x_pix - x_start) / wavelength
@@ -1168,7 +1167,7 @@ def _draw_mountains(
         # 3. Stroke the path
         ctx.stroke()
 
-
+# TODO: Move this version to covers.py
 # def _draw_streamline(
 #     ctx,
 #     x_start,
@@ -1242,17 +1241,17 @@ def _draw_streamline(
     x_start,
     x_end,
     y,
-    line_width=1.0,  # (Not used for fill, but part of signature)
-    num_layers=3,  # Number of vertical layers
-    layer_gap=4.0,  # Vertical gap between layers
-    segment_length=60.0,  # AVG. Length of one "swoosh"
-    segment_height=3.0,  # AVG. Max thickness of one "swoosh"
-    segment_gap=15.0,  # AVG. Horizontal gap between "swooshes"
-    amplitude=5.0,  # How "wavy" the line of segments is
-    wavelength=150.0,  # The length of the underlying sine wave
-    noise_amplitude=2.0,  # <-- NEW: How much "wobble" to add
-    noise_scale=0.01,  # <-- NEW: How "fast" the wobble is
-    seed=None,  # <-- NEW: For reproducible patterns
+    line_width=1.0,
+    num_layers=3,
+    layer_gap=4.0,
+    segment_length=60.0,
+    segment_height=3.0,
+    segment_gap=15.0,
+    amplitude=5.0,
+    wavelength=150.0,
+    noise_amplitude=2.0,
+    noise_scale=0.01,
+    seed=None,
 ):
     """
     Draw a separator made of repeating, tapered, solid "swoosh" segments,
@@ -1284,8 +1283,6 @@ def _draw_streamline(
     total_height = (num_layers - 1) * layer_gap
     y_start_band = y - total_height / 2.0
 
-    total_width = x_end - x_start
-
     # --- Draw each layer ---
     for i in range(num_layers):
         y_base = y_start_band + (i * layer_gap)
@@ -1304,7 +1301,6 @@ def _draw_streamline(
 
             # 2. Define segment bounds
             x_seg_start = x_current
-            x_seg_end = x_current + current_seg_length
 
             # 3. Build the polygon path for the swoosh
             top_path = []

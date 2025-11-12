@@ -19,6 +19,7 @@ from .devices import snap_to_eink_greyscale
 from .utils import PageMargins
 from .noise import fractal_noise_2d
 from .cover_drawing import draw_10_print_tiles
+from .glyphs import draw_glyph
 
 # --- Internal Helper Functions for Each Style ---
 
@@ -65,6 +66,7 @@ def _draw_dashed(ctx, x_start, x_end, y, line_width=4.0, dash_pattern=[5, 3]):
     ctx.move_to(x_start, y + 0.5)
     ctx.line_to(x_end, y + 0.5)
     ctx.stroke()
+    ctx.set_dash([])
 
 
 def _draw_thick_thin(ctx, x_start, x_end, y, thick_width=4.0, thin_width=0.5, gap=4.0):
@@ -155,6 +157,8 @@ def _draw_dotted(ctx, x_start, x_end, y, line_width=4.0, dot_size=None, gap=None
     ctx.move_to(x_start, y + 0.5)
     ctx.line_to(x_end, y + 0.5)
     ctx.stroke()
+    ctx.set_dash([])
+    ctx.set_line_cap(cairo.LINE_CAP_BUTT)
 
 
 def _draw_dash_dot(ctx, x_start, x_end, y, line_width=4.0, dash_dot_pattern=[10, 3, 2, 3]):
@@ -1345,6 +1349,96 @@ def _draw_streamline(
             # 7. Move to next segment
             x_current += current_seg_length + current_seg_gap
 
+def _draw_composite_separator(ctx, x_start, x_end, y, **kwargs):
+    """
+    Draws a complex, parametric separator by assembling components.
+    
+    This function acts as an assembler, drawing flanks, a centerpiece,
+    and end caps based on parameters passed in kwargs.
+    
+    Example usage:
+        --header "composite(center_glyph=star,center_size=15,flank_style=dashed)"
+        --header "composite(left_cap=arrow-right,right_cap=arrow-left,center_glyph=gear)"
+        --footer "composite(flank_style=wavy,center_glyph=crosshair,center_size=20)"
+    """
+    
+    # --- 1. Get Parameters ---
+    line_width = kwargs.get("line_width", 1.5)
+    flank_style = kwargs.get("flank_style", "bold")
+    center_glyph = kwargs.get("center_glyph", None)
+    center_size = kwargs.get("center_size", 12.0)
+    left_cap = kwargs.get("left_cap", None)
+    left_cap_size = kwargs.get("left_cap_size", 10.0)
+    right_cap = kwargs.get("right_cap", None)
+    right_cap_size = kwargs.get("right_cap_size", 10.0)
+    padding = kwargs.get("padding", 8.0)  # Space between elements
+    
+    ctx.save()
+    
+    # --- 2. Calculate positions and draw glyphs ---
+    center_x = (x_start + x_end) / 2
+    
+    # Calculate glyph half-widths based on their *size*, not drawn width.
+    # This is more predictable for coordinate math.
+    center_half_width = center_size / 2 if center_glyph else 0
+    left_cap_half_width = left_cap_size / 2 if left_cap else 0
+    right_cap_half_width = right_cap_size / 2 if right_cap else 0
+
+    # Draw center glyph
+    if center_glyph:
+        draw_glyph(ctx, center_x, y, center_glyph, center_size, line_width=line_width, **kwargs)
+    
+    # Draw left cap
+    if left_cap:
+        # Center the glyph at the very start of the line
+        left_cap_x = x_start + left_cap_half_width
+        draw_glyph(ctx, left_cap_x, y, left_cap, left_cap_size, line_width=line_width, **kwargs)
+    
+    # Draw right cap
+    if right_cap:
+        # Center the glyph at the very end of the line
+        right_cap_x = x_end - right_cap_half_width
+        draw_glyph(ctx, right_cap_x, y, right_cap, right_cap_size, line_width=line_width, **kwargs)
+    
+    # --- 3. Draw Flanks (the lines) ---
+    
+    # Find the flank drawing function
+    flank_func = STYLE_REGISTRY.get(flank_style, _draw_bold)
+    
+    # Get only the parameters that the flank function accepts
+    import inspect
+    flank_sig = inspect.signature(flank_func)
+    flank_params = flank_sig.parameters.keys()
+    
+    flank_kwargs = {k: v for k, v in kwargs.items() if k in flank_params}
+    # Ensure line_width is passed, using the default if not specified in kwargs
+    flank_kwargs.setdefault('line_width', line_width)
+    
+    # --- CORRECTED LOGIC ---
+    
+    # Define the absolute start and end points for the flanks
+    flank_area_start = x_start + (left_cap_half_width * 2) + padding
+    flank_area_end = x_end - (right_cap_half_width * 2) - padding
+    
+    if center_glyph:
+        # Draw TWO flanks, one on each side of the center glyph
+        flank_left_end = center_x - center_half_width - padding
+        flank_right_start = center_x + center_half_width + padding
+        
+        # Draw left flank
+        if flank_left_end - flank_area_start > 2:  # Minimum length
+            flank_func(ctx, flank_area_start, flank_left_end, y, **flank_kwargs)
+        
+        # Draw right flank
+        if flank_area_end - flank_right_start > 2: # Minimum length
+            flank_func(ctx, flank_right_start, flank_area_end, y, **flank_kwargs)
+            
+    else:
+        # Draw ONE continuous flank
+        if flank_area_end - flank_area_start > 2: # Minimum length
+            flank_func(ctx, flank_area_start, flank_area_end, y, **flank_kwargs)
+    
+    ctx.restore()
 
 def draw_separator(ctx, x, y_start, y_end, line_width=1.0, grey=5):
     """
@@ -1374,6 +1468,7 @@ def draw_separator(ctx, x, y_start, y_end, line_width=1.0, grey=5):
 # --- Style Registry and Public List ---
 
 STYLE_REGISTRY = {
+    "composite": _draw_composite_separator,
     # Primitive styles
     "bold": _draw_bold,
     "double": _draw_double,

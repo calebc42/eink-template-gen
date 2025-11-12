@@ -557,14 +557,13 @@ def create_template_surface(
     )
 
     # Draw corner ornaments if specified
-    corner_style = template_kwargs.get('corner_style')
+    corner_style = template_kwargs.get("corner_style")
     if corner_style:
         from .corners import draw_page_corners
+
         ctx_corners = cairo.Context(surface)
 
-        corner_kwargs = {
-            'grey': template_kwargs.get('corner_grey', 0)
-        }
+        corner_kwargs = {"grey": template_kwargs.get("corner_grey", 0)}
 
         draw_page_corners(
             ctx_corners,
@@ -572,8 +571,8 @@ def create_template_surface(
             width,
             height,
             corner_style,
-            template_kwargs.get('corner_size', 20.0),
-            **corner_kwargs
+            template_kwargs.get("corner_size", 20.0),
+            **corner_kwargs,
         )
 
     return surface

@@ -11,6 +11,7 @@ from .devices import snap_to_eink_greyscale
 from .lsystem import generate_lsystem_string
 from .noise import fractal_noise_2d, simple_noise_2d, turbulence_2d
 
+
 def draw_truchet_tiles(
     ctx,
     x_start,
@@ -66,22 +67,16 @@ def draw_truchet_tiles(
             if variant == "cross":
                 _draw_truchet_cross_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
             elif variant == "triangle":
-                _draw_truchet_triangle_tile(
-                    ctx, x, y, spacing, rotation, fill_grey, line_width
-                )
+                _draw_truchet_triangle_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
             elif variant == "wave":
                 _draw_truchet_wave_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
             elif variant == "mixed":
                 # Randomly choose between different styles
                 tile_type = random.choice(["classic", "cross", "triangle"])
                 if tile_type == "cross":
-                    _draw_truchet_cross_tile(
-                        ctx, x, y, spacing, rotation, fill_grey, line_width
-                    )
+                    _draw_truchet_cross_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
                 elif tile_type == "triangle":
-                    _draw_truchet_triangle_tile(
-                        ctx, x, y, spacing, rotation, fill_grey, line_width
-                    )
+                    _draw_truchet_triangle_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
                 else:  # classic
                     _draw_truchet_tile(ctx, x, y, spacing, rotation, fill_grey, line_width)
             else:  # 'classic'

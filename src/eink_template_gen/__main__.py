@@ -104,8 +104,8 @@ def create_common_parser():
         "--corner-style",
         type=str,
         metavar="STYLE",
-        help=f'Corner ornament style. Available: bracket, circuit-corner, crosshair, '
-             f'geometric-frame, tech-marker, diagonal-stripes, corner-node, pixel-art',
+        help="Corner ornament style. Available: bracket, circuit-corner, crosshair, "
+        "geometric-frame, tech-marker, diagonal-stripes, corner-node, pixel-art",
     )
 
     corner_group.add_argument(
@@ -884,6 +884,7 @@ def configure_template_parsers(subparsers, common_parser):
     spec_group.add_argument(
         "--line-width-px", type=float, default=0.5, help="Line width in pixels (default: 0.5)"
     )
+
 
 def main():
     parser = argparse.ArgumentParser(

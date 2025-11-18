@@ -834,7 +834,7 @@ def draw_cell_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
         x_axis_side = config.get("x_axis_side", "bottom")  # Default to bottom
 
         # --- 3. Draw X-Axis Labels (A, B, C...) ---
-        for i, x_pos in enumerate(range(x_start, x_end, spacing_px)):
+        for i, x_pos in enumerate(range(int(x_start), int(x_end), int(spacing_px))):
             # Convert index to alphabet (A, B, ... Z, AA, AB, ...)
             label_str = ""
             n = i
@@ -858,7 +858,7 @@ def draw_cell_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
             ctx.show_text(label_str)
 
         # --- 4. Draw Y-Axis Labels (1, 2, 3...) ---
-        for i, y_pos in enumerate(range(y_start, y_end, spacing_px)):
+        for i, y_pos in enumerate(range(int(y_start), int(y_end), int(spacing_px))):
             label_str = str(i + 1)  # 1-based index
 
             extents = ctx.text_extents(label_str)
@@ -930,7 +930,7 @@ def draw_axis_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
         num_y_lines = int((y_end - y_start) // spacing_px) + 1
 
         # --- 4. Draw X-Axis Labels (Top/Bottom Margin) ---
-        for i, x_pos in enumerate(range(x_start, x_end, spacing_px)):
+        for i, x_pos in enumerate(range(int(x_start), int(x_end), int(spacing_px))):
             label = i  # X label is 'i' for both topLeft and bottomLeft
 
             if label % interval == 0:
@@ -948,7 +948,7 @@ def draw_axis_labeling(ctx, x_start, x_end, y_start, y_end, spacing_px, config):
                 ctx.show_text(label_str)
 
         # --- 5. Draw Y-Axis Labels (Left/Right Margin) ---
-        for i, y_pos in enumerate(range(y_start, y_end, spacing_px)):
+        for i, y_pos in enumerate(range(int(y_start), int(y_end), int(spacing_px))):
             # Determine the label based on origin
             if origin == "bottomLeft":
                 label = (num_y_lines - 1) - i

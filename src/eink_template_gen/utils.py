@@ -64,7 +64,9 @@ def calculate_spacing(spacing_mm: float, dpi: int, auto_adjust: bool = True) -> 
         )
     else:
         spacing_px = spacing_mm * mm2px
-        return SpacingResult(pixels=spacing_px, mm=spacing_mm, was_adjusted=False, original_mm=spacing_mm)
+        return SpacingResult(
+            pixels=spacing_px, mm=spacing_mm, was_adjusted=False, original_mm=spacing_mm
+        )
 
 
 def snap_spacing_to_clean_pixels(spacing_mm, dpi, tolerance_mm=0.5):
@@ -393,7 +395,9 @@ def calculate_spacing_from_line_count(content_dimension, num_lines, enforce_exac
     return spacing_px, is_fractional
 
 
-def calculate_spacing_from_line_count_with_margins(page_dimension, num_lines, margin_px, enforce_exact=True):
+def calculate_spacing_from_line_count_with_margins(
+    page_dimension, num_lines, margin_px, enforce_exact=True
+):
     """
     Calculate spacing needed to fit exactly N lines with specified margins
     """
@@ -404,7 +408,9 @@ def calculate_spacing_from_line_count_with_margins(page_dimension, num_lines, ma
             f"Margins ({margin_px}px each) are too large for page dimension ({page_dimension}px)"
         )
 
-    spacing_px, is_fractional = calculate_spacing_from_line_count(content_dimension, num_lines, enforce_exact)
+    spacing_px, is_fractional = calculate_spacing_from_line_count(
+        content_dimension, num_lines, enforce_exact
+    )
 
     return spacing_px, is_fractional, content_dimension
 
@@ -418,13 +424,17 @@ def parse_line_count_spec(spec_str):
     if "x" in spec_str:
         parts = spec_str.split("x")
         if len(parts) != 2:
-            raise ValueError(f"Invalid grid line count format: '{spec_str}'. Use 'HxV' (e.g., '40x30')")
+            raise ValueError(
+                f"Invalid grid line count format: '{spec_str}'. Use 'HxV' (e.g., '40x30')"
+            )
         try:
             h_lines = int(parts[0].strip())
             v_lines = int(parts[1].strip())
             return h_lines, v_lines
         except ValueError:
-            raise ValueError(f"Invalid grid line count format: '{spec_str}'. Both H and V must be integers.")
+            raise ValueError(
+                f"Invalid grid line count format: '{spec_str}'. Both H and V must be integers."
+            )
     else:
         try:
             lines = int(spec_str)
@@ -435,7 +445,9 @@ def parse_line_count_spec(spec_str):
             )
 
 
-def format_line_count_summary(h_lines, v_lines, h_spacing_px, v_spacing_px=None, is_fractional=False):
+def format_line_count_summary(
+    h_lines, v_lines, h_spacing_px, v_spacing_px=None, is_fractional=False
+):
     """
     Format line count information for CLI summary display
     """
@@ -451,7 +463,9 @@ def format_line_count_summary(h_lines, v_lines, h_spacing_px, v_spacing_px=None,
         if h_frac or v_frac:
             return f"{h_lines}×{v_lines} grid at {h_spacing_px:.3f}px × {v_spacing_px:.3f}px spacing (fractional)"
         else:
-            return f"{h_lines}×{v_lines} grid at {int(h_spacing_px)}px × {int(v_spacing_px)}px spacing"
+            return (
+                f"{h_lines}×{v_lines} grid at {int(h_spacing_px)}px × {int(v_spacing_px)}px spacing"
+            )
 
 
 def generate_filename(template_type, **kwargs):

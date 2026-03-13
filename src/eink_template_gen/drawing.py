@@ -177,7 +177,9 @@ def draw_grid(
         ctx.set_line_width(line_width + major_width_add_px)
 
         # Find major line indices
-        major_row_indices = [i for i in range(first_row_idx, last_row_idx + 1) if i % major_every == 0]
+        major_row_indices = [
+            i for i in range(first_row_idx, last_row_idx + 1) if i % major_every == 0
+        ]
         major_col_indices = [i for i in range(num_vertical_lines) if i % major_every == 0]
 
         # Draw cross-hairs at each major intersection
@@ -491,7 +493,9 @@ def draw_columns(
     return columns
 
 
-def draw_music_staff(ctx, x_start, x_end, y_start, y_end, staff_spacing_mm, dpi, line_width, staff_gap_mm=10):
+def draw_music_staff(
+    ctx, x_start, x_end, y_start, y_end, staff_spacing_mm, dpi, line_width, staff_gap_mm=10
+):
     """
     Draw music staff lines (5-line staves for musical notation)
     """

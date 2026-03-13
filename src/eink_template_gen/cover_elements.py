@@ -353,7 +353,9 @@ def _draw_ornate_border(ctx, x, y, width, height, shape, border_width, corner_ra
         _draw_corner_flourish(ctx, x, y, flourish_size, border_width, "top-left")
         _draw_corner_flourish(ctx, x + width, y, flourish_size, border_width, "top-right")
         _draw_corner_flourish(ctx, x, y + height, flourish_size, border_width, "bottom-left")
-        _draw_corner_flourish(ctx, x + width, y + height, flourish_size, border_width, "bottom-right")
+        _draw_corner_flourish(
+            ctx, x + width, y + height, flourish_size, border_width, "bottom-right"
+        )
 
 
 def _draw_corner_flourish(ctx, x, y, size, line_width, position):

@@ -178,7 +178,9 @@ def _draw_barber_stripe(
     angle_rad = radians(angle)
     pat_size = stripe_width + gap_width
 
-    pattern_surface = ctx.get_target().create_similar(cairo.CONTENT_COLOR_ALPHA, int(pat_size), int(pat_size))
+    pattern_surface = ctx.get_target().create_similar(
+        cairo.CONTENT_COLOR_ALPHA, int(pat_size), int(pat_size)
+    )
     pat_ctx = cairo.Context(pattern_surface)
 
     # Fill pattern with transparent background (the "gap")
@@ -210,7 +212,9 @@ def _draw_barber_stripe(
     ctx.fill()
 
 
-def _draw_stitch(ctx, x_start, x_end, y, line_width=2.0, stitch_length=8.0, stitch_height=4.0, gap=5.0):
+def _draw_stitch(
+    ctx, x_start, x_end, y, line_width=2.0, stitch_length=8.0, stitch_height=4.0, gap=5.0
+):
     ctx.set_line_width(line_width)
     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
 
@@ -977,7 +981,9 @@ def _draw_digital_signal(
     ctx.stroke()
 
 
-def _draw_pcb_trace(ctx, x_start, x_end, y, line_width=4.0, pad_spacing=100.0, pad_size=6.0, via_holes=True):
+def _draw_pcb_trace(
+    ctx, x_start, x_end, y, line_width=4.0, pad_spacing=100.0, pad_size=6.0, via_holes=True
+):
     """
     Draw PCB trace with solder pads
 
@@ -1057,7 +1063,9 @@ def _draw_vine(
         y_sin = amplitude * sin(t_wave * 2 * pi)
 
         # 2. Noise "wobble" (Centerline)
-        pos_noise_val = fractal_noise_2d(x_pix * noise_scale, y * noise_scale, octaves=2, seed=pos_noise_seed)
+        pos_noise_val = fractal_noise_2d(
+            x_pix * noise_scale, y * noise_scale, octaves=2, seed=pos_noise_seed
+        )
         y_noise = noise_amplitude * (pos_noise_val - 0.5) * 2.0
 
         # 3. Combine for centerline

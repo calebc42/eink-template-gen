@@ -182,7 +182,9 @@ class TestPixelPerfection:
             adjusted_mm, spacing_px, was_adjusted = snap_spacing_to_clean_pixels(spacing_mm, dpi)
 
             # Spacing should be an integer
-            assert spacing_px == round(spacing_px), f"Spacing {spacing_mm}mm -> {spacing_px}px is not integer"
+            assert spacing_px == round(
+                spacing_px
+            ), f"Spacing {spacing_mm}mm -> {spacing_px}px is not integer"
 
     def test_margin_adjustment_eliminates_gaps(self):
         """Test that margin adjustment eliminates leftover space"""

@@ -290,7 +290,9 @@ class TemplateRenderer:
             raise
 
         # Draw decorations (line numbers, labels, etc.)
-        self._render_decorations(template_type, x_start, x_end, y_start, y_end, spacing_px, template_kwargs)
+        self._render_decorations(
+            template_type, x_start, x_end, y_start, y_end, spacing_px, template_kwargs
+        )
 
     def _build_draw_kwargs(
         self,
@@ -341,7 +343,9 @@ class TemplateRenderer:
 
         return kwargs
 
-    def _render_decorations(self, template_type, x_start, x_end, y_start, y_end, spacing_px, template_kwargs):
+    def _render_decorations(
+        self, template_type, x_start, x_end, y_start, y_end, spacing_px, template_kwargs
+    ):
         """Render line numbers, labels, etc."""
         config = TEMPLATE_REGISTRY.get(template_type, {})
         decorations = config.get("decorations", [])
@@ -607,7 +611,9 @@ def create_hybrid_template(
 
     # 3. Alignment & Margins (Hybrid uses "default" for both sides)
     alignment = AlignmentUnits(vertical=spacing_px, horizontal=spacing_px)
-    margins = calculate_page_margins(width, height, dpi, margin_mm, alignment.vertical, alignment.horizontal)
+    margins = calculate_page_margins(
+        width, height, dpi, margin_mm, alignment.vertical, alignment.horizontal
+    )
 
     # 4. Separators
     has_header, has_footer = draw_page_separators(ctx, margins, width, height, header, footer)
@@ -769,7 +775,9 @@ def create_cell_grid_template(
     # 3. Alignment & Margins (Based on top-left cell)
     master_template_type = cell_definitions[0][0]["type"]
     master_kwargs = cell_definitions[0][0]["kwargs"]
-    alignment = AlignmentUnits.from_template_config(master_template_type, spacing_px, dpi, master_kwargs)
+    alignment = AlignmentUnits.from_template_config(
+        master_template_type, spacing_px, dpi, master_kwargs
+    )
     margins = calculate_page_margins(
         width,
         height,
@@ -795,7 +803,9 @@ def create_cell_grid_template(
         template_kwargs = cell_def["kwargs"]
 
         # Calculate internal alignment for this specific cell
-        cell_alignment = AlignmentUnits.from_template_config(template_type, spacing_px, dpi, template_kwargs)
+        cell_alignment = AlignmentUnits.from_template_config(
+            template_type, spacing_px, dpi, template_kwargs
+        )
         internal_margins = calculate_page_margins(
             cell.width, cell.height, dpi, 0, cell_alignment.vertical, cell_alignment.horizontal
         )
@@ -845,7 +855,9 @@ def create_json_layout_template(
     page_margins = calculate_page_margins(
         width, height, dpi, margin_mm, page_alignment.vertical, page_alignment.horizontal
     )
-    print(f"Note: Page content area is {page_margins.content_width}px × {page_margins.content_height}px")
+    print(
+        f"Note: Page content area is {page_margins.content_width}px × {page_margins.content_height}px"
+    )
 
     # 4. Page Separators
     has_header, has_footer = draw_page_separators(
@@ -920,7 +932,9 @@ def create_json_layout_template(
                 "line_number_config",
                 {"side": "left", "interval": 5, "margin_px": 40, "font_size": 18, "grey": 8},
             )
-            drawing.draw_line_numbering(ctx, cell_bounds[2], cell_bounds[3], region_spacing.pixels, cfg)
+            drawing.draw_line_numbering(
+                ctx, cell_bounds[2], cell_bounds[3], region_spacing.pixels, cfg
+            )
         if region.get("cell_label_config"):
             drawing.draw_cell_labeling(
                 ctx,

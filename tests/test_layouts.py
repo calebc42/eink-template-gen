@@ -156,7 +156,11 @@ class TestJSONLayouts:
 
         # Should still work if device_config is provided
         surface = create_json_layout_template(
-            config, standard_device, margin_mm=10, auto_adjust=True, force_major_alignment=False
+            config,
+            standard_device,
+            margin_mm=10,
+            auto_adjust=True,
+            force_major_alignment=False
         )
         assert isinstance(surface, cairo.ImageSurface)
 
@@ -167,7 +171,11 @@ class TestJSONLayouts:
 
         with pytest.raises(ValueError, match="missing 'region_rect'"):
             create_json_layout_template(
-                config, standard_device, margin_mm=10, auto_adjust=True, force_major_alignment=False
+                config,
+                standard_device,
+                margin_mm=10,
+                auto_adjust=True,
+                force_major_alignment=False
             )
 
 

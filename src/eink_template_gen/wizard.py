@@ -1,6 +1,6 @@
 import argparse
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from .actions import (
     _build_preview_summary,
@@ -15,7 +15,6 @@ from .utils import (
     SpacingResult,
     calculate_page_margins,
     calculate_spacing_from_line_count,
-    calculate_spacing_from_line_count_with_margins,
     get_clean_spacing_options,
     parse_line_count_spec,
     parse_spacing,
@@ -439,8 +438,8 @@ class TemplateWizard:
         self.config["spacing"] = spacing_str
 
         choice = self._prompt(
-            "  1. Yes (Uniform grid)\n  2. No (Mixed grid)\n\nAre all cells the same type?", 
-            default="1"
+            "  1. Yes (Uniform grid)\n  2. No (Mixed grid)\n\nAre all cells the same type?",
+            default="1",
         )
 
         if choice == "2":
@@ -452,7 +451,15 @@ class TemplateWizard:
                     self.config["cell_types"] = types_str
                     break
         else:
-            valid_types = ["lined", "dotgrid", "grid", "manuscript", "hexgrid", "isometric", "blank"]
+            valid_types = [
+                "lined",
+                "dotgrid",
+                "grid",
+                "manuscript",
+                "hexgrid",
+                "isometric",
+                "blank",
+            ]
             for i, t in enumerate(valid_types, 1):
                 print(f"  {i}. {t}")
             type_choice = self._prompt("Select cell type [1-7]", default="1")
@@ -494,7 +501,7 @@ class TemplateWizard:
         print("\n" + "=" * 70)
         print("STEP 7: Review & Confirm")
         print("=" * 70)
-        
+
         for k, v in self.config.items():
             print(f"  {k}: {v}")
 
@@ -554,27 +561,27 @@ class TemplateWizard:
                     context["height"] - (2 * margin_px), h_lines, enforce_exact=False
                 )
                 context["spacing_result"] = SpacingResult(
-                    pixels=h_spacing_px, 
-                    mm=h_spacing_px / mm2px, 
-                    was_adjusted=False, 
-                    original_mm=h_spacing_px / mm2px
+                    pixels=h_spacing_px,
+                    mm=h_spacing_px / mm2px,
+                    was_adjusted=False,
+                    original_mm=h_spacing_px / mm2px,
                 )
                 context["is_fractional"] = h_is_fractional
             else:
                 res = parse_spacing(args.spacing, context["dpi"], not args.true_scale)
                 context["spacing_result"] = SpacingResult(
-                    pixels=res[0],
-                    original_mm=res[1],
-                    mm=res[2],
-                    was_adjusted=res[3]
+                    pixels=res[0], original_mm=res[1], mm=res[2], was_adjusted=res[3]
                 )
 
             template_kwargs = self._build_template_kwargs_from_config()
-            
+
             # Use master template for preview alignment
             master_type = self.config["template"]
             if master_type == "multi":
-                master_type = self.config.get("uniform_template") or (self.config.get("cell_types") or "blank").split(",")[0].strip()
+                master_type = (
+                    self.config.get("uniform_template")
+                    or (self.config.get("cell_types") or "blank").split(",")[0].strip()
+                )
 
             alignment = AlignmentUnits.from_template_config(
                 master_type,
@@ -583,9 +590,14 @@ class TemplateWizard:
                 template_kwargs,
             )
             context["margins"] = calculate_page_margins(
-                context["width"], context["height"], context["dpi"],
-                context["margin_mm"], alignment.vertical, alignment.horizontal,
-                template_kwargs.get("major_every"), False,
+                context["width"],
+                context["height"],
+                context["dpi"],
+                context["margin_mm"],
+                alignment.vertical,
+                alignment.horizontal,
+                template_kwargs.get("major_every"),
+                False,
             )
 
             summary = _build_preview_summary(context, args, template_kwargs)
@@ -594,6 +606,7 @@ class TemplateWizard:
         except Exception as e:
             print(f"Error building preview: {e}")
             import traceback
+
             traceback.print_exc()
 
         input("\nPress Enter to continue...")
@@ -625,7 +638,7 @@ class TemplateWizard:
         kwargs = {}
         # RESTORE: Default line width for correct preview/drawing
         kwargs["line_width_px"] = self.config.get("line_width_px", 0.5)
-        
+
         if self.config.get("major_every"):
             kwargs["major_every"] = self.config["major_every"]
         if self.config.get("line_numbers"):
@@ -659,25 +672,27 @@ class TemplateWizard:
             "no_crosshairs": False,
             "major_width_add_px": 1.5,
         }
-        
+
         # Populate template-specific configuration
-        args_dict.update({
-            "major_every": self.config.get("major_every"),
-            "line_numbers_interval": self.config.get("line_numbers_interval"),
-            "line_numbers_side": self.config.get("line_numbers_side", "left"),
-            # Numbers margin/font defaults
-            "line_numbers_margin_px": 40,
-            "line_numbers_font_size": 18,
-            "line_numbers_grey": 8,
-            "dot_radius_px": self.config.get("dot_radius_px", 1.5),
-            "midline_style": self.config.get("midline_style", "dashed"),
-            "staff_gap_mm": self.config.get("staff_gap_mm", 10),
-            "split_ratio": self.config.get("split_ratio", 0.6),
-            "rows": self.config.get("rows"),
-            "columns": self.config.get("columns"),
-            "template": self.config.get("uniform_template"),
-            "cell_types": self.config.get("cell_types"),
-        })
+        args_dict.update(
+            {
+                "major_every": self.config.get("major_every"),
+                "line_numbers_interval": self.config.get("line_numbers_interval"),
+                "line_numbers_side": self.config.get("line_numbers_side", "left"),
+                # Numbers margin/font defaults
+                "line_numbers_margin_px": 40,
+                "line_numbers_font_size": 18,
+                "line_numbers_grey": 8,
+                "dot_radius_px": self.config.get("dot_radius_px", 1.5),
+                "midline_style": self.config.get("midline_style", "dashed"),
+                "staff_gap_mm": self.config.get("staff_gap_mm", 10),
+                "split_ratio": self.config.get("split_ratio", 0.6),
+                "rows": self.config.get("rows"),
+                "columns": self.config.get("columns"),
+                "template": self.config.get("uniform_template"),
+                "cell_types": self.config.get("cell_types"),
+            }
+        )
         return argparse.Namespace(**args_dict)
 
 
@@ -706,4 +721,5 @@ def run_wizard_and_generate():
     except Exception as e:
         print(f"\n Error generating template: {e}")
         import traceback
+
         traceback.print_exc()

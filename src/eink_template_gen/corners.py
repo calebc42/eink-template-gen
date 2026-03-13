@@ -84,9 +84,7 @@ def _draw_circuit_corner(ctx, x, y, size=20.0, line_width=1.5, corner="top-left"
         ctx.fill()
 
 
-def _draw_bracket(
-    ctx, x, y, size=20.0, line_width=2.0, corner="top-left", notch=True, double=False
-):
+def _draw_bracket(ctx, x, y, size=20.0, line_width=2.0, corner="top-left", notch=True, double=False):
     """
     Draw simple bracket corner marker
 
@@ -227,9 +225,7 @@ def _draw_geometric_frame(ctx, x, y, size=20.0, line_width=1.5, corner="top-left
         ctx.stroke()
 
 
-def _draw_tech_marker(
-    ctx, x, y, size=18.0, line_width=1.5, corner="top-left", marker_style="arrows"
-):
+def _draw_tech_marker(ctx, x, y, size=18.0, line_width=1.5, corner="top-left", marker_style="arrows"):
     """
     Draw technical marker with directional indicators
 
@@ -362,9 +358,7 @@ def _draw_diagonal_stripes(
                 ctx.stroke()
 
 
-def _draw_corner_node(
-    ctx, x, y, size=12.0, line_width=1.5, corner="top-left", node_style="circuit"
-):
+def _draw_corner_node(ctx, x, y, size=12.0, line_width=1.5, corner="top-left", node_style="circuit"):
     """
     Draw a connection node style corner marker
 
@@ -424,9 +418,7 @@ def _draw_corner_node(
         ctx.stroke()
 
 
-def _draw_pixel_art_corner(
-    ctx, x, y, size=16.0, line_width=1.0, corner="top-left", pattern="blocks"
-):
+def _draw_pixel_art_corner(ctx, x, y, size=16.0, line_width=1.0, corner="top-left", pattern="blocks"):
     """
     Draw pixelated/blocky corner ornament
 

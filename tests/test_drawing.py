@@ -93,9 +93,7 @@ class TestDrawingFunctions:
 
     def test_draw_dot_grid_with_crosshairs(self, surface, context):
         """Test draw_dot_grid_with_crosshairs"""
-        draw_dot_grid_with_crosshairs(
-            context, 0, 400, 0, 400, 20, 2, major_every=5, crosshair_size=4
-        )
+        draw_dot_grid_with_crosshairs(context, 0, 400, 0, 400, 20, 2, major_every=5, crosshair_size=4)
 
         # Check the output
         buf = surface.get_data()

@@ -260,9 +260,7 @@ def create_cover_surface(
             x_start = margins.content_x_start + (margins.content_width / 2)
             y_start = margins.content_y_start + (margins.content_height / 2)
 
-        print(
-            f"Generating L-System with {lsystem_iterations} iterations and {step_length_px:.2f}px step..."
-        )
+        print(f"Generating L-System with {lsystem_iterations} iterations and {step_length_px:.2f}px step...")
 
         # Override draw_kwargs for L-System
         draw_kwargs["lsystem_config"] = lsystem_config

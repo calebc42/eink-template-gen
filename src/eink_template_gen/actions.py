@@ -97,9 +97,7 @@ def _setup_generation_context(args):
             margin_px = 0
             print(f"LINE COUNT MODE: Fitting {args.lines} lines with 0mm margin (default).")
         else:
-            print(
-                f"LINE COUNT MODE: Fitting {args.lines} lines with specified {margin_mm}mm margin."
-            )
+            print(f"LINE COUNT MODE: Fitting {args.lines} lines with specified {margin_mm}mm margin.")
 
         enforce_exact = getattr(args, "enforce_margins", False)
         v_spacing_px = None
@@ -330,14 +328,9 @@ def _build_preview_summary(context, args, template_kwargs=None):
     lines.append("\n Content Area:")
     if margins:
         lines.append(f"    {margins.content_width}×{margins.content_height}px")
-        lines.append(
-            f"    ({margins.content_width/mm2px:.1f}×{margins.content_height/mm2px:.1f}mm)"
-        )
+        lines.append(f"    ({margins.content_width/mm2px:.1f}×{margins.content_height/mm2px:.1f}mm)")
 
-        if (
-            args.command not in ["layout", "multi", "cover"]
-            and not context["using_line_count_mode"]
-        ):
+        if args.command not in ["layout", "multi", "cover"] and not context["using_line_count_mode"]:
             num_h_lines = int(margins.content_height / context["spacing_result"].pixels)
             lines.append(f"    Fits ~{num_h_lines} horizontal lines")
             if args.command in ["grid", "dotgrid"]:
@@ -546,9 +539,7 @@ def _save_and_print_summary(surface, context, args):
 
         if abs(m_top - base_margin_px) > 0.5 or abs(m_left - base_margin_px) > 0.5:
             # Check *why* it adjusted
-            is_major_aligned = getattr(args, "force_major_alignment", False) and cli_args.get(
-                "major_every"
-            )
+            is_major_aligned = getattr(args, "force_major_alignment", False) and cli_args.get("major_every")
             if is_major_aligned and args.command not in ["layout", "multi", "cover"]:
                 print(
                     f"  - Margin: {margin_mm}mm (adjusted for major alignment: "
@@ -764,9 +755,7 @@ def handle_cover_generation(args):
     spacing_px = context["spacing_result"].pixels
 
     # 3. Calculate Margins
-    alignment = AlignmentUnits.from_template_config(
-        args.cover, spacing_px, context["dpi"], template_kwargs
-    )
+    alignment = AlignmentUnits.from_template_config(args.cover, spacing_px, context["dpi"], template_kwargs)
 
     margins = calculate_page_margins(
         context["width"],
@@ -1002,8 +991,7 @@ def handle_multi_template_generation(args):
         alignment.vertical,
         alignment.horizontal,
         preview_template_kwargs.get("major_every"),
-        getattr(args, "force_major_alignment", False)
-        and preview_template_kwargs.get("major_every"),
+        getattr(args, "force_major_alignment", False) and preview_template_kwargs.get("major_every"),
     )
 
     # 5. Enrich context for preview/summary

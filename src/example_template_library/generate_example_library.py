@@ -18,9 +18,7 @@ MAIN_SCRIPT = "src/eink_template_gen/__main__.py"  # Path to main script
 class ExampleGenerator:
     """Manages generation of example templates"""
 
-    def __init__(
-        self, output_dir: str = OUTPUT_DIR, device: str = DEVICE, main_script: str = MAIN_SCRIPT
-    ):
+    def __init__(self, output_dir: str = OUTPUT_DIR, device: str = DEVICE, main_script: str = MAIN_SCRIPT):
         self.output_dir = Path(output_dir)
         self.device = device
         self.main_script = main_script
@@ -175,9 +173,7 @@ class ExampleGenerator:
 
         # Grid with cell labels
         self.run_command(
-            self.build_cmd(
-                ["grid", "--spacing", "10mm", "--cell-labels", "--filename", "grid_cell_labels"]
-            ),
+            self.build_cmd(["grid", "--spacing", "10mm", "--cell-labels", "--filename", "grid_cell_labels"]),
             category,
             "Grid with A,B,C / 1,2,3 cell labels",
         )
@@ -643,9 +639,7 @@ class ExampleGenerator:
 
         # Generate from Cornell layout
         self.run_command(
-            self.build_cmd(
-                ["layout", "--file", str(cornell_path), "--filename", "layout_cornell_notes"]
-            ),
+            self.build_cmd(["layout", "--file", str(cornell_path), "--filename", "layout_cornell_notes"]),
             category,
             "Cornell notes layout from JSON",
         )
@@ -673,9 +667,7 @@ class ExampleGenerator:
 
         # Generate from dashboard layout
         self.run_command(
-            self.build_cmd(
-                ["layout", "--file", str(dashboard_path), "--filename", "layout_dashboard"]
-            ),
+            self.build_cmd(["layout", "--file", str(dashboard_path), "--filename", "layout_dashboard"]),
             category,
             "Dashboard layout from JSON",
         )
@@ -716,9 +708,7 @@ class ExampleGenerator:
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Generate a comprehensive library of example templates"
-    )
+    parser = argparse.ArgumentParser(description="Generate a comprehensive library of example templates")
     parser.add_argument(
         "--output-dir",
         default=OUTPUT_DIR,

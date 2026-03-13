@@ -450,9 +450,7 @@ def _draw_hexagonal_tile(ctx, x_c, y_c, s, rotation):
     ctx.restore()
 
 
-def draw_10_print_tiles(
-    ctx, x_start, x_end, y_start, y_end, spacing, line_width, rotation_seed=None
-):
+def draw_10_print_tiles(ctx, x_start, x_end, y_start, y_end, spacing, line_width, rotation_seed=None):
     """
     Draw "10 PRINT" pattern (random forward/back slashes).
 

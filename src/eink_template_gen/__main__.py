@@ -202,9 +202,7 @@ def _add_cell_label_args(parser_group):
         default=10,
         help="Padding from top/bottom grid edge (default: 10)",
     )
-    parser_group.add_argument(
-        "--cell-labels-font-size", type=int, default=16, help="Font size (default: 16)"
-    )
+    parser_group.add_argument("--cell-labels-font-size", type=int, default=16, help="Font size (default: 16)")
     parser_group.add_argument(
         "--cell-labels-grey",
         type=int,
@@ -253,9 +251,7 @@ def _add_axis_label_args(parser_group):
         default=10,
         help="Padding from top/bottom grid edge (default: 10)",
     )
-    parser_group.add_argument(
-        "--axis-labels-font-size", type=int, default=16, help="Font size (default: 16)"
-    )
+    parser_group.add_argument("--axis-labels-font-size", type=int, default=16, help="Font size (default: 16)")
     parser_group.add_argument(
         "--axis-labels-grey",
         type=int,
@@ -269,14 +265,10 @@ def configure_util_parser(subparsers):
     Configures the `util` command and its own sub-commands.
     """
     util_parser = subparsers.add_parser("util", help="Utility commands for managing the tool")
-    util_subparsers = util_parser.add_subparsers(
-        title="Utility Commands", dest="util_command", required=True
-    )
+    util_subparsers = util_parser.add_subparsers(title="Utility Commands", dest="util_command", required=True)
 
     # --- util list-devices ---
-    list_dev_parser = util_subparsers.add_parser(
-        "list-devices", help="List all available devices and exit"
-    )
+    list_dev_parser = util_subparsers.add_parser("list-devices", help="List all available devices and exit")
     list_dev_parser.set_defaults(func=handle_list_devices)
 
     # --- util list-templates ---
@@ -289,9 +281,7 @@ def configure_util_parser(subparsers):
     set_dev_parser = util_subparsers.add_parser(
         "set-default-device", help="Set the default device for future runs"
     )
-    set_dev_parser.add_argument(
-        "device", choices=list_devices(), help="Device ID to set as default"
-    )
+    set_dev_parser.add_argument("device", choices=list_devices(), help="Device ID to set as default")
     set_dev_parser.set_defaults(func=handle_set_default_device)
 
     # --- util set-default-margin ---
@@ -304,9 +294,7 @@ def configure_util_parser(subparsers):
     set_margin_parser.set_defaults(func=handle_set_default_margin)
 
     # --- util info ---
-    info_parser = util_subparsers.add_parser(
-        "info", help="Show detailed spacing analysis for a device"
-    )
+    info_parser = util_subparsers.add_parser("info", help="Show detailed spacing analysis for a device")
     info_parser.add_argument(
         "spacing", type=str, metavar="SPACING", help='Spacing to analyze (e..g., "6mm" or "71px")'
     )
@@ -426,9 +414,7 @@ def configure_cover_parser(subparsers, common_parser):
         type=str,
         help="Text to display on the cover page (optional - leave blank to handwrite)",
     )
-    frame_group.add_argument(
-        "--title-no-frame", action="store_true", help="Disable frame around title text"
-    )
+    frame_group.add_argument("--title-no-frame", action="store_true", help="Disable frame around title text")
     frame_group.add_argument(
         "--title-frame-shape",
         choices=["rectangle", "rounded-rectangle", "ellipse", "circle"],
@@ -613,18 +599,12 @@ def configure_multi_parser(subparsers, common_parser):
     style_group.add_argument(
         "--line-width-px", type=float, default=0.5, help="Line width (for lined, grid, etc.)"
     )
-    style_group.add_argument(
-        "--dot-radius-px", type=float, default=1.5, help="Dot radius (for dotgrid)"
-    )
-    style_group.add_argument(
-        "--major-every", type=int, help="Make every Nth line thicker (for grid, lined)"
-    )
+    style_group.add_argument("--dot-radius-px", type=float, default=1.5, help="Dot radius (for dotgrid)")
+    style_group.add_argument("--major-every", type=int, help="Make every Nth line thicker (for grid, lined)")
     style_group.add_argument(
         "--major-width-add-px", type=float, default=1.5, help="Added width for major lines"
     )
-    style_group.add_argument(
-        "--crosshair-size", type=int, default=4, help="Size of cross-hairs (for grid)"
-    )
+    style_group.add_argument("--crosshair-size", type=int, default=4, help="Size of cross-hairs (for grid)")
     style_group.add_argument("--no-crosshairs", action="store_true", help="Disable cross-hairs")
     style_group.add_argument(
         "--midline-style",
@@ -635,9 +615,7 @@ def configure_multi_parser(subparsers, common_parser):
     style_group.add_argument(
         "--ascender-opacity", type=float, default=0.3, help="Opacity for manuscript ascender line"
     )
-    style_group.add_argument(
-        "--staff-gap-mm", type=float, default=10, help="Gap between music staves"
-    )
+    style_group.add_argument("--staff-gap-mm", type=float, default=10, help="Gap between music staves")
     style_group.add_argument(
         "--split-ratio",
         type=float,
@@ -749,9 +727,7 @@ def configure_template_parsers(subparsers, common_parser):
     )
 
     label_group = grid_parser.add_mutually_exclusive_group()
-    label_group.add_argument(
-        "--cell-labels", action="store_true", help="Enable 'A, B, C...' style labeling"
-    )
+    label_group.add_argument("--cell-labels", action="store_true", help="Enable 'A, B, C...' style labeling")
     label_group.add_argument(
         "--axis-labels", action="store_true", help="Enable '0, 5, 10...' style axis numbering"
     )
@@ -769,9 +745,7 @@ def configure_template_parsers(subparsers, common_parser):
         help="Generate a manuscript (4-line) handwriting template",
         description="Generate a full-page manuscript (4-line) handwriting template.",
     )
-    manuscript_parser.set_defaults(
-        func=handle_single_template_generation, template_type="manuscript"
-    )
+    manuscript_parser.set_defaults(func=handle_single_template_generation, template_type="manuscript")
 
     spec_group = manuscript_parser.add_argument_group("Manuscript Template Options")
     spec_group.add_argument(
@@ -831,9 +805,7 @@ def configure_template_parsers(subparsers, common_parser):
         help="Generate a hybrid Lined/Dotgrid template",
         description="Generate a full-page hybrid template with lined on one side and dotgrid on the other.",
     )
-    hybrid_parser.set_defaults(
-        func=handle_single_template_generation, template_type="hybrid-lined-dotgrid"
-    )
+    hybrid_parser.set_defaults(func=handle_single_template_generation, template_type="hybrid-lined-dotgrid")
 
     spec_group = hybrid_parser.add_argument_group("Hybrid Template Options")
     spec_group.add_argument(
@@ -848,9 +820,7 @@ def configure_template_parsers(subparsers, common_parser):
         default=1.5,
         help="Dot radius for dotgrid section (default: 1.5)",
     )
-    spec_group.add_argument(
-        "--split-ratio", type=float, default=0.6, help="Split ratio (default: 0.6)"
-    )
+    spec_group.add_argument("--split-ratio", type=float, default=0.6, help="Split ratio (default: 0.6)")
     spec_group.add_argument(
         "--section-gap-mm",
         type=float,
@@ -925,9 +895,7 @@ Examples:
     common_parser = create_common_parser()
 
     # --- Create main sub-parser ---
-    subparsers = parser.add_subparsers(
-        title="Commands", dest="command", required=True, metavar="<command>"
-    )
+    subparsers = parser.add_subparsers(title="Commands", dest="command", required=True, metavar="<command>")
 
     # --- Register all the sub-parsers ---
     configure_util_parser(subparsers)

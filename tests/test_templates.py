@@ -96,9 +96,7 @@ class TestTemplateGeneration:
                 template_kwargs=kwargs,
             )
 
-            assert isinstance(
-                surface, cairo.ImageSurface
-            ), f"Failed to generate {template_type} template"
+            assert isinstance(surface, cairo.ImageSurface), f"Failed to generate {template_type} template"
 
     def test_template_with_separators(self, standard_device):
         """Test template with header/footer separators"""

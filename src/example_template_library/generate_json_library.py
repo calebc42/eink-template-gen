@@ -1390,9 +1390,7 @@ class JSONExampleLibrary:
 
         with open(readme_path, "w") as f:
             f.write("# JSON Layout Examples Library\n\n")
-            f.write(
-                "This library contains practical JSON layout templates for various use cases.\n\n"
-            )
+            f.write("This library contains practical JSON layout templates for various use cases.\n\n")
             f.write("## Usage\n\n")
             f.write("Generate any template using:\n")
             f.write("```bash\n")
@@ -1462,9 +1460,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate a library of JSON layout examples")
-    parser.add_argument(
-        "--output-dir", default=OUTPUT_DIR, help=f"Output directory (default: {OUTPUT_DIR})"
-    )
+    parser.add_argument("--output-dir", default=OUTPUT_DIR, help=f"Output directory (default: {OUTPUT_DIR})")
     parser.add_argument(
         "--categories",
         nargs="+",

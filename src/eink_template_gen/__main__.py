@@ -2,6 +2,7 @@
 """
 Supernote Template Generator - CLI Entry Point
 """
+
 import argparse
 import sys
 

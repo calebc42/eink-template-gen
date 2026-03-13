@@ -240,7 +240,7 @@ def _draw_stitch(
 #     wavelength=200.0,   # Length of the waves
 #     noise_amplitude=4.0,
 #     noise_scale=0.01,
-#     loop_probability=0.2, # Chance of a loop *per step*
+#     loop_probability=0.15, # Chance of a loop *per step*
 #     loop_size=15.0,     # Avg. size (height & width) of a loop
 #     seed=None
 # ):
@@ -307,35 +307,120 @@ def _draw_stitch(
 #             if random.random() < loop_probability:
 
 #                 # Randomize loop properties
-#                 current_loop_h = random.uniform(loop_size * 0.8, loop_size * 1.2)
-#                 current_loop_w = random.uniform(loop_size * 0.8, loop_size * 1.2)
+#                 current_loop_h = random.uniform(loop_size * 0.7, loop_size * 1.3)
+#                 current_loop_w = random.uniform(loop_size * 0.7, loop_size * 1.3)
 
 #                 # Randomly loop up or down
 #                 direction = 1 if random.random() < 0.5 else -1
 
-#                 # --- This is the new, correct logic ---
-#                 # P0 is (x_current, y_current)
+#                 # Start of loop
+#                 loop_start_x = x_current
+#                 loop_start_y = y_current
 
-#                 # P1: Control point 1 (pulls back and up/down)
-#                 cp1_x = x_current - current_loop_w
-#                 cp1_y = y_current - (current_loop_h * direction)
+#                 # Create a loop by drawing a tilted ellipse using parametric equations
+#                 # The loop needs to actually circle back on itself
 
-#                 # P2: Control point 2 (pulls forward and up/down)
-#                 cp2_x = x_current + current_loop_w
-#                 cp2_y = y_current - (current_loop_h * direction)
+#                 # Center of the loop circle - offset up/down and to the right
+#                 center_x = loop_start_x + current_loop_w * 0.5
+#                 center_y = loop_start_y - current_loop_h * 0.4 * direction
 
-#                 # P3: End point (back where we started)
-#                 # We use curve_to, which uses the *current point* as P0
-#                 ctx.curve_to(cp1_x, cp1_y, cp2_x, cp2_y, x_current, y_current)
+#                 # Radii for the ellipse
+#                 radius_x = current_loop_w * 0.6
+#                 radius_y = current_loop_h * 0.8
 
-#                 # We have now drawn a loop that starts and ends at
-#                 # (x_current, y_current). The path is still continuous.
+#                 # Use 4 bezier curves to create a complete ellipse
+#                 # Magic number for circular bezier curves
+#                 kappa = 0.5522847498
 
-#             # 5b. Advance to the next step
+#                 # We start from the bottom (or top if direction is negative)
+#                 # and go clockwise (or counter-clockwise)
+
+#                 # Calculate 4 points around the ellipse
+#                 # Starting point (bottom of loop for direction=1, top for direction=-1)
+#                 p0_x = center_x
+#                 p0_y = center_y + radius_y * direction
+
+#                 # Right point
+#                 p1_x = center_x + radius_x
+#                 p1_y = center_y
+
+#                 # Top point (or bottom if direction=-1)
+#                 p2_x = center_x
+#                 p2_y = center_y - radius_y * direction
+
+#                 # Left point
+#                 p3_x = center_x - radius_x
+#                 p3_y = center_y
+
+#                 # Draw first curve: start → right
+#                 # We're currently at (loop_start_x, loop_start_y), need to get to p0 first
+#                 # then draw the ellipse
+
+#                 # Small connecting curve to get to the ellipse start point
+#                 ctx.curve_to(
+#                     loop_start_x + (p0_x - loop_start_x) * 0.3,
+#                     loop_start_y,
+#                     p0_x - radius_x * kappa * 0.5,
+#                     p0_y,
+#                     p0_x,
+#                     p0_y
+#                 )
+
+#                 # Now draw the ellipse in 4 parts
+#                 # Part 1: bottom → right (or top → right if inverted)
+#                 ctx.curve_to(
+#                     p0_x + radius_x * kappa,
+#                     p0_y,
+#                     p1_x,
+#                     p1_y + radius_y * kappa * direction,
+#                     p1_x,
+#                     p1_y
+#                 )
+
+#                 # Part 2: right → top (or right → bottom if inverted)
+#                 ctx.curve_to(
+#                     p1_x,
+#                     p1_y - radius_y * kappa * direction,
+#                     p2_x + radius_x * kappa,
+#                     p2_y,
+#                     p2_x,
+#                     p2_y
+#                 )
+
+#                 # Part 3: top → left (or bottom → left if inverted)
+#                 ctx.curve_to(
+#                     p2_x - radius_x * kappa,
+#                     p2_y,
+#                     p3_x,
+#                     p3_y - radius_y * kappa * direction,
+#                     p3_x,
+#                     p3_y
+#                 )
+
+#                 # Part 4: left → back to starting area (this creates the cross)
+#                 # But we want to exit forward, not return to exact start
+#                 loop_end_x = loop_start_x + current_loop_w * 1.2
+#                 loop_end_y = get_y_pos(loop_end_x)
+
+#                 ctx.curve_to(
+#                     p3_x,
+#                     p3_y + radius_y * kappa * direction,
+#                     loop_end_x - current_loop_w * 0.2,
+#                     loop_end_y,
+#                     loop_end_x,
+#                     loop_end_y
+#                 )
+
+#                 # Update position past the loop
+#                 x_current = loop_end_x
+#                 y_current = loop_end_y
+
+#                 # Skip normal advancement
+#                 continue
+
+#             # 5b. Normal advancement (only if we didn't draw a loop)
 #             x_next = min(x_current + step_size, x_end)
 #             y_next = get_y_pos(x_next)
-
-#             # Draw the wavy segment to the next point
 #             ctx.line_to(x_next, y_next)
 
 #             x_current = x_next

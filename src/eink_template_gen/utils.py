@@ -517,8 +517,8 @@ def generate_filename(template_type, **kwargs):
         parts.append(f"sgap{sg_str}mm")
 
     # --- 3. Grid/Multi Layout ---
-    columns = kwargs.get("columns", 1)
-    rows = kwargs.get("rows", 1)
+    columns = kwargs.get("columns") or 1
+    rows = kwargs.get("rows") or 1
 
     if rows > 1 or columns > 1:
         parts.append(f"{rows}r_by_{columns}c")
